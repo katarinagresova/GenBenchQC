@@ -181,3 +181,39 @@ def plot_lenght_comparison(pos_df, neg_df, title='', x_label='', ax=None, stats=
     ax.set_xlabel(x_label)
 
     return ax
+
+def plot_lenght_comparison_boxplot(pos_df, neg_df, title='', x_label='', ax=None, stats=None, p_value_thresh=0.01):
+
+    if ax is None:
+        fig, ax = plt.subplots(1, ncols=1, figsize=(10, 2))
+
+    new_pos_df = pos_df.assign(label='positive')
+    new_neg_df = neg_df.assign(label='negative')
+
+    combined_df = pd.concat([new_pos_df, new_neg_df])
+    combined_df = combined_df[['sum', 'label']]
+    del new_pos_df, new_neg_df
+
+    sns.boxplot(data=combined_df, x='label', y='sum', ax=ax)
+
+    if stats:
+        p_value = stats
+        if p_value < p_value_thresh:
+
+            ax.text(0.5, 0.1, f"p-value: {p_value:.2e}", ha='center', transform=ax.transAxes)
+            
+            # set frame to gray and width to 2
+            ax.spines['bottom'].set_color('salmon')
+            ax.spines['top'].set_color('salmon')
+            ax.spines['right'].set_color('salmon')
+            ax.spines['left'].set_color('salmon')
+            ax.spines['bottom'].set_linewidth(2)
+            ax.spines['top'].set_linewidth(2)
+            ax.spines['right'].set_linewidth(2)
+            ax.spines['left'].set_linewidth(2)
+
+    ax.set_ylabel('Length')
+
+    ax.set_xlabel(x_label)
+
+    return ax

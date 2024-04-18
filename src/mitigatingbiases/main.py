@@ -1,5 +1,5 @@
 from counting import do_counting
-from plotting.plotting import plot_per_base_sequence_comparison, plot_composition_comparison, plot_composition_comparison_boxplot, plot_lenght_comparison
+from plotting.plotting import plot_per_base_sequence_comparison, plot_composition_comparison, plot_composition_comparison_boxplot, plot_lenght_comparison, plot_lenght_comparison_boxplot
 from stats.stats import stats_composition_comparison, stats_per_base_sequence_comparison, stats_lenght_comparison
 
 import matplotlib.pyplot as plt
@@ -135,6 +135,107 @@ def get_plots(
 
     return plots
 
+def get_box_plots(
+    pos_nucleotides_df,
+    neg_nucleotides_df,
+    pos_dinucleotides_df,
+    neg_dinucleotides_df,
+    pos_nucleotides_per_position_df,
+    neg_nucleotides_per_position_df,
+    pos_nucleotides_per_position_reversed_df,
+    neg_nucleotides_per_position_reversed_df,
+    p_value_thresh=0.01,
+    stats=None
+):
+    plots = []
+    
+    # get bcolumns names
+    bases = pos_nucleotides_df.columns.values
+    # remove sum from bases (it doesn't have to be the last value)
+    bases = bases[bases != 'sum']
+
+    # Plot nucleotides
+    fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(2*len(bases), 6))
+    plot_composition_comparison_boxplot(
+        pos_nucleotides_df,
+        neg_nucleotides_df,
+        x_label='Nucleotides',
+        ax=ax,
+        stats=stats['Nucleotide composition'],
+        p_value_thresh=p_value_thresh
+    )
+    fig.suptitle('Nucleotide composition')
+    plots.append(fig)
+
+    # get bcolumns names
+    bases = pos_dinucleotides_df.columns.values
+    # remove sum from bases (it doesn't have to be the last value)
+    bases = bases[bases != 'sum']
+
+    # Plot dinucleotides
+    fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(2*len(bases), 6))
+    plot_composition_comparison_boxplot(
+        pos_dinucleotides_df,
+        neg_dinucleotides_df,
+        x_label='Dinucleotides',
+        ax=ax,
+        stats=stats['Dinucleotide composition'],
+        p_value_thresh=p_value_thresh
+    )
+    fig.suptitle('Dinucleotide composition')
+    plots.append(fig)
+
+    # get columns names
+    bases = pos_nucleotides_per_position_df.columns.values
+    # remove sum from bases (it doesn't have to be the last value)
+    bases = bases[bases != 'sum']
+
+    # Plot nucleotides per position
+    fig, ax = plt.subplots(nrows=len(bases), ncols=1, figsize=(10, 2*len(bases)))
+    plot_per_base_sequence_comparison(
+        pos_nucleotides_per_position_df, 
+        neg_nucleotides_per_position_df, 
+        end_position=100,  
+        x_label='Position in read (bp)',
+        ax=ax,
+        stats=stats['Nucleotide per position'],
+        p_value_thresh=p_value_thresh)
+    fig.suptitle('Nucleotide per position')
+    plots.append(fig)
+
+    # get columns names
+    bases = pos_nucleotides_per_position_reversed_df.columns.values
+    # remove sum from bases (it doesn't have to be the last value)
+    bases = bases[bases != 'sum']
+
+    # Plot nucleotides per position reversed
+    fig, ax = plt.subplots(nrows=len(bases), ncols=1, figsize=(10, 2 * len(bases)))
+    plot_per_base_sequence_comparison(
+        pos_nucleotides_per_position_reversed_df, 
+        neg_nucleotides_per_position_reversed_df, 
+        end_position=100, 
+        x_label='Position in read (bp)',
+        ax=ax,
+        stats=stats['Nucleotide per position reversed'],
+        p_value_thresh=p_value_thresh)
+    fig.suptitle('Nucleotide per position reversed')
+    plots.append(fig)
+
+    # Plot length distribution
+    fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(8, 8))
+    plot_lenght_comparison_boxplot(
+        pos_nucleotides_df, 
+        neg_nucleotides_df, 
+        x_label='Dataset', 
+        ax=ax,
+        stats=stats['Length distribution'],
+        p_value_thresh=p_value_thresh)
+    fig.suptitle('Length distribution')
+    plots.append(fig)
+
+    return plots
+
+
 def get_stats(
     pos_nucleotides_df,
     neg_nucleotides_df,
@@ -203,7 +304,7 @@ def main():
         p_value_thresh=args.p_value_thresh
     )
 
-    plots = get_plots(
+    plots = get_box_plots(
         pos_nucleotides_df,
         neg_nucleotides_df,
         pos_dinucleotides_df,
