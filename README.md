@@ -1,4 +1,4 @@
-# Mitigating Biases
+# Detecting and Mitigating Biases in Genomic Data
 
 ## Installation
 
@@ -14,10 +14,10 @@ Switch to the directory
 cd MitigatingBiases
 ```
 
-Switch to `dev` branch
+Switch to `refactor` branch
 
 ```bash
-git checkout dev
+git checkout refactor
 ```
 
 Prepare conda environment
@@ -35,18 +35,8 @@ Prepare sample data
 python sample_data/generate_fasta.py
 ```
 
-Run QC tool on sample data
+Run QC tool on positive data
 
 ```bash
-python src/mitigatingbiases/main.py --pos sample_data/pos.fasta --neg sample_data/neg.fasta --output out.pdf
-```
-
-Sample data are randomly generated from the same distribution, they should pass all test:
-
-```bash
-Nucleotide composition: PASSED
-Dinucleotide composition: PASSED
-Nucleotide per position: PASSED
-Nucleotides per position reversed: PASSED
-Length distribution: PASSED
+python src/genData/sequence_evaluator sample_data/pos.fasta --txt_report_path sample_data/pos_report.txt --simple_report_path sample_data/pos_simple_report.txt
 ```

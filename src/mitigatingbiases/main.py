@@ -33,7 +33,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Mitigating biases')
     parser.add_argument('--pos', type=str, required=True, help='Path to positive sequences')
     parser.add_argument('--neg', type=str, required=True, help='Path to negative sequences')
-    parser.add_argument('--output', type=str, required=True, help='Path to output file')
+    parser.add_argument('--output', type=str, required=True, help='Path to output PDF report file')
     parser.add_argument('--p_value_thresh', type=float, default=0.01, help='P-value threshold')
     return parser.parse_args()
 
