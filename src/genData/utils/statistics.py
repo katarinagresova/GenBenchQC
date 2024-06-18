@@ -4,7 +4,7 @@ from scipy.stats import fisher_exact, ranksums
 from statsmodels.stats.multitest import fdrcorrection
 from collections import Counter
 
-from utils.fasta_utils import read_fasta
+from genData.utils.fasta_utils import read_fasta
 
 def compute_sequence_statistics(fasta_file):
     """
@@ -85,11 +85,16 @@ def compute_per_sequence_dinucleotide_content(sequences):
     Compute the dinucleotide content for each sequence in the given list of sequences.
     @return: A dictionary containing the dinucleotide content for each sequence.
                 Keys: sequence ID
-                Values: dictionary {dinucleotide: frequency probability (count / len(sequence))}
+                Values: dictionary {dinucleotide: frequency probability (count / num_dinucleotides)}
     """
     dinucleotides_per_sequence = {}
     for id, sequence in enumerate(sequences):
-        dinucleotides_per_sequence[id] = {sequence[i:i+2]: sequence.count(sequence[i:i+2]) / len(sequence) for i in range(len(sequence) - 1)}
+        dinucleotides_per_sequence[id] = {}
+        for i in range(len(sequence) - 1):
+            dinucleotide = sequence[i:i + 2]
+            dinucleotides_per_sequence[id][dinucleotide] = dinucleotides_per_sequence[id].get(dinucleotide, 0) + 1
+        total = sum(dinucleotides_per_sequence[id].values())
+        dinucleotides_per_sequence[id] = {dinucleotide: count / total for dinucleotide, count in dinucleotides_per_sequence[id].items()}
     return dinucleotides_per_sequence
 
 
