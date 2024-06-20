@@ -59,7 +59,7 @@ def evaluate_stats(stats, threshold=0.01):
         'Per position nucleotide content': evaluate_per_position_nucleotide_content(stats['Per position nucleotide content'], threshold),
         'Per position reversed nucleotide content': evaluate_per_position_nucleotide_content(stats['Per position reversed nucleotide content'], threshold),
         'Per sequence GC content': evaluate_per_sequence_gc_content(stats['Per sequence GC content'], threshold),
-        'Sequence lenghts': evaluate_sequence_lengths(stats['Sequence lenghts']),
+        'Sequence lenghts': evaluate_sequence_lengths(stats['Sequence lenghts'], threshold),
         'Sequence duplication levels': evaluate_sequence_duplication_levels(stats['Sequence duplication levels'])
     }
     return results
@@ -138,6 +138,11 @@ def compute_sequence_duplication_levels(sequences):
     return dict(sequence_counts)
 
 def evaluate_number_of_sequences(num_sequences):
+    """
+    Evaluate the number of sequences.
+    @param num_sequences: The number of sequences.
+    @return: 'passed', 'warning', or 'failed'
+    """
     if num_sequences < 100:
         return 'failed'
     elif num_sequences < 1000:
@@ -146,19 +151,60 @@ def evaluate_number_of_sequences(num_sequences):
         return 'passed'
     
 def evaluate_per_sequence_nucleotide_content(nucleotide_content, threshold):
+    """
+    Evaluate the per sequence nucleotide content.
+    We are expecting a uniform distribution of nucleotides.
+    @param nucleotide_content: A dictionary containing the nucleotide content for each sequence.
+    @param threshold: The p-value threshold for flagging significant differences.
+    @return: 'passed', 'warning', or 'failed'
+    """
     return 'No implemented yet'
 
 def evaluate_per_sequence_dinucleotide_content(dinucleotide_content, threshold):
+    """
+    Evaluate the per sequence dinucleotide content.
+    We are expecting a uniform distribution of dinucleotides.
+    @param dinucleotide_content: A dictionary containing the dinucleotide content for each sequence.
+    @param threshold: The p-value threshold for flagging significant differences.
+    @return: 'passed', 'warning', or 'failed'
+    """
     return 'No implemented yet'
 
 def evaluate_per_position_nucleotide_content(nucleotide_content, threshold):
+    """
+    Evaluate the per position nucleotide content.
+    We are expecting a uniform distribution of nucleotides.
+    @param nucleotide_content: A dictionary containing the nucleotide content for each position.
+    @param threshold: The p-value threshold for flagging significant differences.
+    @return: 'passed', 'warning', or 'failed'
+    """
     return 'No implemented yet'
 
 def evaluate_per_sequence_gc_content(gc_content, threshold):
+    """
+    Evaluate the per sequence GC content.
+    We are expecting a normal distribution of GC content.
+    @param gc_content: A dictionary containing the GC content for each sequence.
+    @param threshold: The p-value threshold for flagging significant differences.
+    @return: 'passed', 'warning', or 'failed'
+    """
     return 'No implemented yet'
 
-def evaluate_sequence_lengths(sequence_lengths):
+def evaluate_sequence_lengths(sequence_lengths, threshold):
+    """
+    Evaluate the sequence lengths.
+    We are expecting a normal distribution of sequence lengths.
+    @param sequence_lengths: A dictionary containing the lengths of each sequence.
+    @param threshold: The p-value threshold for flagging significant differences.
+    @return: 'passed', 'warning', or 'failed'
+    """
     return 'No implemented yet'
 
 def evaluate_sequence_duplication_levels(sequence_duplication_levels):
+    """
+    Evaluate the sequence duplication levels.
+    We are not expecting any duplicated sequences.
+    @param sequence_duplication_levels: A dictionary containing the duplication levels of each sequence.
+    @return: 'passed', 'warning', or 'failed'
+    """
     return 'No implemented yet'
