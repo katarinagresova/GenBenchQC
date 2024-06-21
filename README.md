@@ -38,5 +38,5 @@ python sample_data/generate_fasta.py
 Run QC tool on positive data
 
 ```bash
-python src/genData/sequence_evaluator sample_data/pos.fasta --txt_report_path sample_data/pos_report.txt --simple_report_path sample_data/pos_simple_report.txt
+python src/genData/sequence_evaluator.py sample_data/pos.fasta --txt_report_path sample_data/pos_report.txt --simple_report_path sample_data/pos_simple_report.txt
 ```
