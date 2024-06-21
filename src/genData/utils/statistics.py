@@ -1,7 +1,5 @@
 import numpy as np
 import pandas as pd
-from scipy.stats import fisher_exact, ranksums
-from statsmodels.stats.multitest import fdrcorrection
 from collections import Counter
 
 from genData.utils.fasta_utils import read_fasta
@@ -14,6 +12,7 @@ def compute_sequence_statistics(fasta_file):
         - Filename: str
         - Number of sequences: int
         - Number of bases: int
+        - Unique bases: list of str
         - %GC content: float
         - Per sequence nucleotide content: dict {sequence_id: dict {nucleotide: count}}
         - Per sequence dinucleotide content: dict {sequence_id: dict {dinucleotide: count}}
@@ -29,6 +28,7 @@ def compute_sequence_statistics(fasta_file):
         'Filename': fasta_file,
         'Number of sequences': len(sequences),
         'Number of bases': sum(len(sequence) for sequence in sequences),
+        'Unique bases': list(set(''.join(sequences))),
         '%GC content': sum(sequence.count('G') + sequence.count('C') for sequence in sequences) / sum(len(sequence) for sequence in sequences),
         'Per sequence nucleotide content': compute_per_sequence_nucleotide_content(sequences),
         'Per sequence dinucleotide content': compute_per_sequence_dinucleotide_content(sequences),
@@ -40,33 +40,6 @@ def compute_sequence_statistics(fasta_file):
     }
     return stats
 
-def evaluate_stats(stats, threshold=0.01):
-    """
-    Evaluate the given statistics and flag significant differences.
-    @param stats: A dictionary containing sequence statistics.
-    @param threshold: The p-value threshold for flagging significant differences.
-    @return: A dictionary containing evaluated statistics.
-                Keys: the same as the input dictionary
-                Values: 'passed', 'warning', or 'failed'
-    """
-    results = {
-        'Filename': '',
-        'Number of sequences': evaluate_number_of_sequences(stats['Number of sequences']),
-        'Number of bases': 'No implemented yet',
-        'Per sequence nucleotide content': evaluate_per_sequence_nucleotide_content(stats['Per sequence nucleotide content'], threshold),
-        '%GC content': 'No implemented yet',
-        'Per sequence dinucleotide content': evaluate_per_sequence_dinucleotide_content(stats['Per sequence dinucleotide content'], threshold),
-        'Per position nucleotide content': evaluate_per_position_nucleotide_content(stats['Per position nucleotide content'], threshold),
-        'Per position reversed nucleotide content': evaluate_per_position_nucleotide_content(stats['Per position reversed nucleotide content'], threshold),
-        'Per sequence GC content': evaluate_per_sequence_gc_content(stats['Per sequence GC content'], threshold),
-        'Sequence lenghts': evaluate_sequence_lengths(stats['Sequence lenghts'], threshold),
-        'Sequence duplication levels': evaluate_sequence_duplication_levels(stats['Sequence duplication levels'])
-    }
-    return results
-
-def flag_significant_differences(pos_stats, neg_stats, threshold=0.01):
-    raise NotImplementedError
-
 def compute_per_sequence_nucleotide_content(sequences):
     """
     Compute the nucleotide content for each sequence in the given list of sequences.
@@ -74,9 +47,14 @@ def compute_per_sequence_nucleotide_content(sequences):
                 Keys: sequence ID
                 Values: dictionary {nucleotide: frequency probability (count / len(sequence))}
     """
+    nucleotides = list(set(''.join(sequences)))
     nucleotides_per_sequence = {}
     for id, sequence in enumerate(sequences):
         nucleotides_per_sequence[id] = {nucleotide: sequence.count(nucleotide) / len(sequence) for nucleotide in set(sequence)}
+        # add zeros for missing nucleotides
+        for nucleotide in nucleotides:
+            if nucleotide not in nucleotides_per_sequence[id]:
+                nucleotides_per_sequence[id][nucleotide] = 0
     return nucleotides_per_sequence
 
 
@@ -131,80 +109,13 @@ def compute_sequence_lengths(sequences):
     return {id: len(sequence) for id, sequence in enumerate(sequences)}
 
 def compute_sequence_duplication_levels(sequences):
+    """
+    Compute the duplication levels for each sequence in the given list of sequences.
+    @param sequences: A list of sequences.
+    @return: A dictionary containing the duplication levels for duplicated sequences. Unique sequences are not included.
+    """
     # TODO: possibly extend to compute the percentage of sequences remaining if deduplicated
-    # TODO: from this we can produce a list of overrepresented sequences, plas plot sequence duplication levels vs % total sequences
+    # TODO: from this we can produce a list of overrepresented sequences, plus plot sequence duplication levels vs % total sequences
 
     sequence_counts = Counter(sequences)
-    return dict(sequence_counts)
-
-def evaluate_number_of_sequences(num_sequences):
-    """
-    Evaluate the number of sequences.
-    @param num_sequences: The number of sequences.
-    @return: 'passed', 'warning', or 'failed'
-    """
-    if num_sequences < 100:
-        return 'failed'
-    elif num_sequences < 1000:
-        return 'warning'
-    else:
-        return 'passed'
-    
-def evaluate_per_sequence_nucleotide_content(nucleotide_content, threshold):
-    """
-    Evaluate the per sequence nucleotide content.
-    We are expecting a uniform distribution of nucleotides.
-    @param nucleotide_content: A dictionary containing the nucleotide content for each sequence.
-    @param threshold: The p-value threshold for flagging significant differences.
-    @return: 'passed', 'warning', or 'failed'
-    """
-    return 'No implemented yet'
-
-def evaluate_per_sequence_dinucleotide_content(dinucleotide_content, threshold):
-    """
-    Evaluate the per sequence dinucleotide content.
-    We are expecting a uniform distribution of dinucleotides.
-    @param dinucleotide_content: A dictionary containing the dinucleotide content for each sequence.
-    @param threshold: The p-value threshold for flagging significant differences.
-    @return: 'passed', 'warning', or 'failed'
-    """
-    return 'No implemented yet'
-
-def evaluate_per_position_nucleotide_content(nucleotide_content, threshold):
-    """
-    Evaluate the per position nucleotide content.
-    We are expecting a uniform distribution of nucleotides.
-    @param nucleotide_content: A dictionary containing the nucleotide content for each position.
-    @param threshold: The p-value threshold for flagging significant differences.
-    @return: 'passed', 'warning', or 'failed'
-    """
-    return 'No implemented yet'
-
-def evaluate_per_sequence_gc_content(gc_content, threshold):
-    """
-    Evaluate the per sequence GC content.
-    We are expecting a normal distribution of GC content.
-    @param gc_content: A dictionary containing the GC content for each sequence.
-    @param threshold: The p-value threshold for flagging significant differences.
-    @return: 'passed', 'warning', or 'failed'
-    """
-    return 'No implemented yet'
-
-def evaluate_sequence_lengths(sequence_lengths, threshold):
-    """
-    Evaluate the sequence lengths.
-    We are expecting a normal distribution of sequence lengths.
-    @param sequence_lengths: A dictionary containing the lengths of each sequence.
-    @param threshold: The p-value threshold for flagging significant differences.
-    @return: 'passed', 'warning', or 'failed'
-    """
-    return 'No implemented yet'
-
-def evaluate_sequence_duplication_levels(sequence_duplication_levels):
-    """
-    Evaluate the sequence duplication levels.
-    We are not expecting any duplicated sequences.
-    @param sequence_duplication_levels: A dictionary containing the duplication levels of each sequence.
-    @return: 'passed', 'warning', or 'failed'
-    """
-    return 'No implemented yet'
+    return {sequence: count for sequence, count in sequence_counts.items() if count > 1}

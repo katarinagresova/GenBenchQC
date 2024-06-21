@@ -2,41 +2,32 @@
 
 ## Installation
 
+```bash
+pip install git+https://github.com/katarinagresova/MitigatingBiases.git@refactor
+```
+
 Clone this repository
 
 ```bash
 git clone https://github.com/katarinagresova/MitigatingBiases.git
 ```
 
-Switch to the directory
+## Running as command line tools
+
+### Sequence evaluator
 
 ```bash
-cd MitigatingBiases
+evaluate_sequences INPUT_FASTA_PATH [--out_folder OUT_FOLDER]
 ```
 
-Switch to `refactor` branch
+### Dataset evaluator
 
 ```bash
-git checkout refactor
+evaluate_dataset POSITIVE_FASTA_PATH NEGATIVE_FASTA_PATH [--out_folder OUT_FOLDER]
 ```
 
-Prepare conda environment
+### Negative dataset generator
 
 ```bash
-. prepare_conda.sh
-```
-
-
-## Example
-
-Prepare sample data
-
-```bash
-python sample_data/generate_fasta.py
-```
-
-Run QC tool on positive data
-
-```bash
-python src/genData/sequence_evaluator.py sample_data/pos.fasta --txt_report_path sample_data/pos_report.txt --simple_report_path sample_data/pos_simple_report.txt
+generate_negatives POSITIVE_FASTA_PATH NEGATIVE_FASTA_PATH
 ```

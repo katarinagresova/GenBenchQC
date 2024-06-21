@@ -1,7 +1,3 @@
-import os
-import json
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 
 
 def generate_html_report(stats_dict, results, output_path):
@@ -9,14 +5,23 @@ def generate_html_report(stats_dict, results, output_path):
     Generate an HTML report from the given statistics dictionary.
     Plots are generated using the Plotly library.
     """
-    pass
+    with open(output_path, 'w') as file:
+        file.write("Not implemented yet")
+
+def generate_dataset_html_report(positive_stats, negative_stats, results, output_path):
+    """
+    Generate an HTML report comparing the statistics of two datasets.
+    Plots are generated using the Plotly library.
+    """
+    with open(output_path, 'w') as file:
+        file.write("Not implemented yet")
 
 
-def generate_text_report(stats_dict, results, output_path):
+def generate_text_report(stats_dict, output_path):
     with open(output_path, 'w') as file:
         file.write('Sequence Statistics Report\n')
         for key, value in stats_dict.items():
-            file.write(f'\n{key}: {results[key]}\n')
+            file.write(f'\n{key}:\n')
             if isinstance(value, dict):
                 for sub_key, sub_value in value.items():
                     file.write(f'  {sub_key}: {sub_value}\n')
