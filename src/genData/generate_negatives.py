@@ -1,4 +1,8 @@
 import argparse
+from pathlib import Path
+
+def run(pos_fasta, neg_fasta):
+    print("Not implemented yet")
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Generate negative sequences.')
@@ -7,8 +11,8 @@ def parse_args():
     return parser.parse_args()
 
 def main():
-    parse_args()
-    print("Not implemented yet")
+    args = parse_args()
+    run(Path(args.positive_fasta), Path(args.negative_fasta))
 
 if __name__ == '__main__':
     main()

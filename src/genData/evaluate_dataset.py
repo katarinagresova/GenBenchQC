@@ -3,9 +3,9 @@ from pathlib import Path
 
 from genData.utils.statistics import compute_sequence_statistics
 from genData.utils.testing import flag_significant_differences
-from genData.utils.report_generator import generate_text_report, generate_html_report, generate_simple_report
+from genData.utils.report_generator import generate_text_report, generate_html_report, generate_simple_report, generate_dataset_html_report
 
-def evaluate_datasets(positive_fasta, negative_fasta, out_folder):
+def run(positive_fasta, negative_fasta, out_folder):
     
     positive_stats = compute_sequence_statistics(positive_fasta)
     negative_stats = compute_sequence_statistics(negative_fasta)
@@ -35,7 +35,7 @@ def parse_args():
 
 def main():
     args = parse_args()
-    evaluate_datasets(
+    run(
         Path(args.positive_fasta), 
         Path(args.negative_fasta), 
         Path(args.out_folder)

@@ -4,7 +4,7 @@ from pathlib import Path
 from genData.utils.statistics import compute_sequence_statistics
 from genData.utils.report_generator import generate_text_report, generate_html_report
 
-def evaluate_sequences(fasta_file, out_folder):
+def run(fasta_file, out_folder):
     
     stats = compute_sequence_statistics(fasta_file)
     
@@ -22,7 +22,7 @@ def parse_args():
 
 def main():
     args = parse_args()
-    evaluate_sequences(
+    run(
         Path(args.input), 
         Path(args.out_folder), 
     )
