@@ -6,12 +6,6 @@
 pip install git+https://github.com/katarinagresova/MitigatingBiases.git@refactor
 ```
 
-Clone this repository
-
-```bash
-git clone https://github.com/katarinagresova/MitigatingBiases.git
-```
-
 ## Running as command line tools
 
 ### Sequence evaluator
