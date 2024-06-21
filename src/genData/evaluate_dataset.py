@@ -10,12 +10,12 @@ def run(positive_fasta, negative_fasta, out_folder):
     positive_stats = compute_sequence_statistics(positive_fasta)
     negative_stats = compute_sequence_statistics(negative_fasta)
     
-    results = flag_significant_differences(positive_stats, negative_stats)
+    results = flag_significant_differences(positive_fasta, positive_stats, negative_fasta, negative_stats)
 
-    txt_report_positive_path = out_folder / positive_fasta.stem + '_report.txt'
-    txt_report_negative_path = out_folder / negative_fasta.stem + '_report.txt'
-    html_report_positive_path = out_folder / positive_fasta.stem + '_report.html'
-    html_report_negative_path = out_folder / negative_fasta.stem + '_report.html'
+    txt_report_positive_path = out_folder / Path(positive_fasta.stem + '_report.txt')
+    txt_report_negative_path = out_folder / Path(negative_fasta.stem + '_report.txt')
+    html_report_positive_path = out_folder / Path(positive_fasta.stem + '_report.html')
+    html_report_negative_path = out_folder / Path(negative_fasta.stem + '_report.html')
     simple_report_path = out_folder / 'dataset_report_simple.txt'
     html_report_path = out_folder / 'dataset_report.html'
     
