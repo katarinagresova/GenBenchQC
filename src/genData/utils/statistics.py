@@ -14,6 +14,7 @@ def compute_sequence_statistics(fasta_file):
         - Number of bases: int
         - Unique bases: list of str
         - %GC content: float
+        - number of sequences left after deduplication: int
         - Per sequence nucleotide content: dict {sequence_id: dict {nucleotide: count}}
         - Per sequence dinucleotide content: dict {sequence_id: dict {dinucleotide: count}}
         - Per position nucleotide content: dict {position: dict {nucleotide: count}}
@@ -30,6 +31,7 @@ def compute_sequence_statistics(fasta_file):
         'Number of bases': sum(len(sequence) for sequence in sequences),
         'Unique bases': list(set(''.join(sequences))),
         '%GC content': sum(sequence.count('G') + sequence.count('C') for sequence in sequences) / sum(len(sequence) for sequence in sequences),
+        'Number of sequences left after deduplication': len(set(sequences)),
         'Per sequence nucleotide content': compute_per_sequence_nucleotide_content(sequences),
         'Per sequence dinucleotide content': compute_per_sequence_dinucleotide_content(sequences),
         'Per position nucleotide content': compute_per_position_nucleotide_content(sequences),
@@ -73,6 +75,8 @@ def compute_per_sequence_dinucleotide_content(sequences):
             dinucleotides_per_sequence[id][dinucleotide] = dinucleotides_per_sequence[id].get(dinucleotide, 0) + 1
         total = sum(dinucleotides_per_sequence[id].values())
         dinucleotides_per_sequence[id] = {dinucleotide: count / total for dinucleotide, count in dinucleotides_per_sequence[id].items()}
+        # add zeros for missing dinucleotides
+
     return dinucleotides_per_sequence
 
 
