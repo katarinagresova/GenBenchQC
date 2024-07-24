@@ -1,52 +1,53 @@
-# Mitigating Biases
+# Detecting and Mitigating Biases in Genomic Data
 
 ## Installation
 
-Clone this repository
-
 ```bash
-git clone https://github.com/katarinagresova/MitigatingBiases.git
+pip install git+https://github.com/katarinagresova/MitigatingBiases.git@refactor
 ```
 
-Switch to the directory
+## Running as command line tools
+
+### Sequence evaluator
 
 ```bash
-cd MitigatingBiases
+evaluate_sequences INPUT_FASTA_PATH [--out_folder OUT_FOLDER]
 ```
 
-Switch to `dev` branch
+### Dataset evaluator
 
 ```bash
-git checkout dev
+evaluate_dataset POSITIVE_FASTA_PATH NEGATIVE_FASTA_PATH [--out_folder OUT_FOLDER]
 ```
 
-Prepare conda environment
+### Negative dataset generator
 
 ```bash
-. prepare_conda.sh
+generate_negatives POSITIVE_FASTA_PATH NEGATIVE_FASTA_PATH
 ```
 
+## Running from Python
 
-## Example
+### Sequence evaluator
 
-Prepare sample data
+```python
+from genData import evaluate_sequences
 
-```bash
-python sample_data/generate_fasta.py
+evaluate_sequences.run(INPUT_FASTA_PATH, OUT_FOLDER)
 ```
 
-Run QC tool on sample data
+### Dataset evaluator
 
-```bash
-python src/mitigatingbiases/main.py --pos sample_data/pos.fasta --neg sample_data/neg.fasta --output out.pdf
+```python
+from genData import evaluate_dataset
+
+evaluate_dataset.run(POSITIVE_FASTA_PATH, NEGATIVE_FASTA_PATH, OUT_FOLDER)
 ```
 
-Sample data are randomly generated from the same distribution, they should pass all test:
+### Negative dataset generator
 
-```bash
-Nucleotide composition: PASSED
-Dinucleotide composition: PASSED
-Nucleotide per position: PASSED
-Nucleotides per position reversed: PASSED
-Length distribution: PASSED
+```python
+from genData import generate_negatives
+
+generate_negatives.run(POSITIVE_FASTA_PATH, NEGATIVE_FASTA_PATH)
 ```
