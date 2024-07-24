@@ -46,15 +46,15 @@ def flag_per_sequence_content(pos_stats, neg_stats, column, threshold, end_posit
     return (p_values, passed)
 
 def flag_per_position_nucleotide_content(pos_stats, neg_stats, threshold, reversed=False, end_position=None):
-    pos_df = pd.DataFrame(pos_stats['Per position nucleotide content'])
-    neg_df = pd.DataFrame(neg_stats['Per position nucleotide content'])
+    pos_df = pd.DataFrame(pos_stats['Per position nucleotide content']).T
+    neg_df = pd.DataFrame(neg_stats['Per position nucleotide content']).T
 
     if end_position is None:
         end_position = min(len(pos_df), len(neg_df))
 
     if reversed:
-        pos_df = pd.DataFrame(pos_stats['Per position reversed nucleotide content'])
-        neg_df = pd.DataFrame(neg_stats['Per position reversed nucleotide content'])
+        pos_df = pd.DataFrame(pos_stats['Per position reversed nucleotide content']).T
+        neg_df = pd.DataFrame(neg_stats['Per position reversed nucleotide content']).T
 
     # get columns names
     bases = pos_df.columns.values
