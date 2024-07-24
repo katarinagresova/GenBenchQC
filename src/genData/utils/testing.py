@@ -38,13 +38,12 @@ def flag_per_sequence_content(pos_stats, neg_stats, column, threshold, end_posit
 
     # Correcting for FDR
     _, new_p_values = fdrcorrection(list(p_values.values()))
+    p_values = dict(zip(p_values.keys(), new_p_values))
 
-    if np.all(np.array(new_p_values) > threshold):
-        return 'Passed'
-    elif np.all(np.array(new_p_values) > threshold * 10):
-        return "Warning"
-    else:
-        return 'Failed'
+    # If there is no significant p-value, this test passed
+    passed = np.all(np.array(new_p_values) > threshold)
+    
+    return (p_values, passed)
 
 def flag_per_position_nucleotide_content(pos_stats, neg_stats, threshold, reversed=False, end_position=None):
     pos_df = pd.DataFrame(pos_stats['Per position nucleotide content'])
@@ -61,6 +60,7 @@ def flag_per_position_nucleotide_content(pos_stats, neg_stats, threshold, revers
     bases = pos_df.columns.values
 
     p_values = {}
+    passed = True
     for base in bases:
 
         p_values[base] = []
@@ -73,44 +73,30 @@ def flag_per_position_nucleotide_content(pos_stats, neg_stats, threshold, revers
 
         # Correcting for FDR per base
         _, p_values[base] = fdrcorrection(p_values[base])
-        
+
+        passed = passed and np.all(np.array(p_values[base]) > threshold)
  
-    if np.all(np.array(list(p_values.values())) > threshold):
-        return 'Passed'
-    elif np.all(np.array(list(p_values.values())) > threshold * 10):
-        return "Warning"
-    else:
-        return 'Failed'
+    return (p_values, passed)
 
     
 def flag_per_sequence_gc_content(pos_stats, neg_stats, threshold):
 
     _, p_value = ranksums(list(pos_stats['Per sequence GC content'].values()), list(neg_stats['Per sequence GC content'].values()))
+    passed = p_value > threshold
 
-    if p_value > threshold:
-        return 'Passed'
-    elif p_value > threshold * 10:
-        return "Warning"
-    else:
-        return 'Failed'
+    return (p_value, passed)
     
 def flag_sequence_lengths(pos_stats, neg_stats, threshold):
 
     _, p_value = ranksums(list(pos_stats['Sequence lenghts'].values()), list(neg_stats['Sequence lenghts'].values()))
+    passed = p_value > threshold
 
-    if p_value > threshold:
-        return 'Passed'
-    elif p_value > threshold * 10:
-        return "Warning"
-    else:
-        return 'Failed'
+    return (p_value, passed)
     
 def flag_duplication_between_datasets(pos_fasta, neg_fasta):
     pos_sequences = read_fasta(pos_fasta)
     neg_sequences = read_fasta(neg_fasta)
 
-    # if there are duplicate sequences between the two datasets, flag as failed
-    if len(set(pos_sequences).intersection(neg_sequences)) > 0:
-        return 'Failed'
-    else:
-        return 'Passed'
+    passed = len(set(pos_sequences).intersection(neg_sequences)) == 0
+
+    return (None, passed)
