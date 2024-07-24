@@ -67,6 +67,8 @@ def compute_per_sequence_dinucleotide_content(sequences):
                 Keys: sequence ID
                 Values: dictionary {dinucleotide: frequency probability (count / num_dinucleotides)}
     """
+    nucleotides = list(set(''.join(sequences)))
+    dinucleotides = [n1 + n2 for n1 in nucleotides for n2 in nucleotides]
     dinucleotides_per_sequence = {}
     for id, sequence in enumerate(sequences):
         dinucleotides_per_sequence[id] = {}
@@ -76,6 +78,9 @@ def compute_per_sequence_dinucleotide_content(sequences):
         total = sum(dinucleotides_per_sequence[id].values())
         dinucleotides_per_sequence[id] = {dinucleotide: count / total for dinucleotide, count in dinucleotides_per_sequence[id].items()}
         # add zeros for missing dinucleotides
+        for dinucleotide in dinucleotides:
+            if dinucleotide not in dinucleotides_per_sequence[id]:
+                dinucleotides_per_sequence[id][dinucleotide] = 0
 
     return dinucleotides_per_sequence
 
@@ -88,6 +93,7 @@ def compute_per_position_nucleotide_content(sequences, reverse=False):
                 Keys: position
                 Values: dictionary {nucleotide: frequency probability (count / len(sequences))}
     """
+    nucleotides = list(set(''.join(sequences)))
     nucleotides_per_position = {}
     for sequence in sequences:
         if reverse:
@@ -100,6 +106,10 @@ def compute_per_position_nucleotide_content(sequences, reverse=False):
     for position in nucleotides_per_position:
         total = sum(nucleotides_per_position[position].values())
         nucleotides_per_position[position] = {nucleotide: count / total for nucleotide, count in nucleotides_per_position[position].items()}
+        # add zeros for missing nucleotides
+        for nucleotide in nucleotides:
+            if nucleotide not in nucleotides_per_position[position]:
+                nucleotides_per_position[position][nucleotide] = 0
     return nucleotides_per_position
 
 
