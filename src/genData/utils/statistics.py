@@ -23,6 +23,7 @@ def compute_sequence_statistics(fasta_file):
     """
 
     sequences = read_fasta(fasta_file)
+
     stats = {
         'Filename': fasta_file,
         'Number of sequences': len(sequences),
@@ -38,6 +39,9 @@ def compute_sequence_statistics(fasta_file):
         'Sequence lenghts': compute_sequence_lengths(sequences),
         'Sequence duplication levels': compute_sequence_duplication_levels(sequences)
     }
+    stats['Nucleotide content summary'] = get_nucleotide_content_summary(stats['Per sequence nucleotide content'], stats['Unique bases'])
+    stats['Dinucleotide content summary'] = get_dinucleotide_content_summary(stats['Per sequence dinucleotide content'], stats['Unique bases'])
+    
     return stats
 
 def compute_per_sequence_nucleotide_content(sequences):
@@ -56,6 +60,40 @@ def compute_per_sequence_nucleotide_content(sequences):
             if nucleotide not in nucleotides_per_sequence[id]:
                 nucleotides_per_sequence[id][nucleotide] = 0
     return nucleotides_per_sequence
+
+def get_nucleotide_content_summary(content_dict, unique_bases):
+    """Helper function to compute summary statistics for nucleotide content"""
+    summary = {}
+    for nucleotide in unique_bases:
+        values = [seq_dict.get(nucleotide, 0) for seq_dict in content_dict.values()]
+        values.sort()
+        n = len(values)
+        summary[nucleotide] = {
+            'min': min(values),
+            'q1': values[n//4],
+            'median': values[n//2],
+            'q3': values[n*3//4],
+            'max': max(values)
+        }
+    return summary
+
+def get_dinucleotide_content_summary(content_dict, unique_bases):
+    """Helper function to compute summary statistics for dinucleotide content"""
+    summary = {}
+    dinucleotides = [n1 + n2 for n1 in unique_bases for n2 in unique_bases]
+    for dinucleotide in dinucleotides:
+        values = [seq_dict.get(dinucleotide, 0) for seq_dict in content_dict.values()]
+        values.sort()
+        n = len(values)
+        summary[dinucleotide] = {
+            'min': min(values),
+            'q1': values[n//4],
+            'median': values[n//2],
+            'q3': values[n*3//4],
+            'max': max(values)
+        }
+    return summary
+
 
 
 def compute_per_sequence_dinucleotide_content(sequences):
@@ -130,4 +168,9 @@ def compute_sequence_duplication_levels(sequences):
     # TODO: from this we can produce a list of overrepresented sequences, plus plot sequence duplication levels vs % total sequences
 
     sequence_counts = Counter(sequences)
-    return {sequence: count for sequence, count in sequence_counts.items() if count > 1}
+    # remove sequences that are not duplicated
+    sequence_counts = {sequence: count for sequence, count in sequence_counts.items() if count > 1}
+    # sort the sequences by their counts
+    sequence_counts = dict(sorted(sequence_counts.items(), key=lambda item: item[1], reverse=True))
+    
+    return sequence_counts
