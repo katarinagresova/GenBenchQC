@@ -4,13 +4,18 @@ from matplotlib.backends.backend_pdf import PdfPages
 
 import pandas as pd
 
+from genData.report.sequence_html_report import get_html_template
+
 def generate_html_report(stats_dict, results, output_path):
     """
     Generate an HTML report from the given statistics dictionary.
     Plots are generated using the Plotly library.
     """
+    # Load the HTML template
+    template = get_html_template(stats_dict)
+
     with open(output_path, 'w') as file:
-        file.write("Not implemented yet")
+        file.write(template)
 
 def generate_dataset_html_report(positive_stats, negative_stats, results, output_path):
     """
