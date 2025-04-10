@@ -10,6 +10,5 @@ setup(
       [console_scripts]
       evaluate_sequences=genData.evaluate_sequences:main
       evaluate_dataset=genData.evaluate_dataset:main
-      generate_negatives=genData.generate_negatives:main
       ''',
 )
