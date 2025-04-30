@@ -64,7 +64,7 @@ def flag_per_position_nucleotide_content(pos_stats, neg_stats, threshold, revers
     for base in bases:
 
         p_values[base] = []
-        for i in range(len(pos_df[base])):
+        for i in range(end_position):
             table=[[pos_df[base][i] * 100, (1 - pos_df[base][i]) * 100],
                 [neg_df[base][i] * 100, (1 - neg_df[base][i]) * 100]]
 
