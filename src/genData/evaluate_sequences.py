@@ -13,7 +13,7 @@ def run(fasta_file, out_folder):
     html_report_path = Path(out_folder, str(fasta_file.stem) + '_report.html')
 
     generate_text_report(stats, txt_report_path)
-    generate_html_report(stats, stats, html_report_path)
+    generate_html_report(stats, html_report_path)
 
 def parse_args():
     parser = argparse.ArgumentParser(description='A tools for evaluating sequence data.')
