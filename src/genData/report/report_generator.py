@@ -6,7 +6,7 @@ import pandas as pd
 
 from genData.report.sequence_html_report import get_html_template
 
-def generate_html_report(stats_dict, results, output_path):
+def generate_html_report(stats_dict, output_path):
     """
     Generate an HTML report from the given statistics dictionary.
     Plots are generated using the Plotly library.
