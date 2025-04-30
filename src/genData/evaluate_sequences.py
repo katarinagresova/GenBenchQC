@@ -1,12 +1,13 @@
 import argparse
 from pathlib import Path
 
-from genData.utils.statistics import compute_sequence_statistics
+from genData.utils.statistics import SequenceStatistics
 from genData.report.report_generator import generate_text_report, generate_html_report
 
 def run(fasta_file, out_folder):
     
-    stats = compute_sequence_statistics(fasta_file)
+    seqStats = SequenceStatistics(fasta_file)
+    stats = seqStats.compute()
     
     txt_report_path = Path(out_folder, str(fasta_file.stem) + '_report.txt')
     html_report_path = Path(out_folder, str(fasta_file.stem) + '_report.html')

@@ -411,7 +411,7 @@ def get_html_template(stats):
     html_template = put_data(html_template, "{{unique_bases}}", '[' + ', '.join(escape_str(x) for x in stats['Unique bases']) + ']')
     html_template = put_data(html_template, "{{gc_content}}", f"{(stats['%GC content']*100):.2f}")
     html_template = put_data(html_template, "{{dedup_sequences}}", str(stats['Number of sequences left after deduplication']))
-    html_template = put_data(html_template, "{{sequence_lengths}}", '[' + ', '.join(map(str, stats['Sequence lenghts'].values())) + ']')
+    html_template = put_data(html_template, "{{sequence_lengths}}", '[' + ', '.join(map(str, stats['Sequence lengths'].values())) + ']')
     html_template = put_data(html_template, "{{sequence_duplication_levels}}", str(stats['Sequence duplication levels']).replace("'", '"').replace(", ", ",\n"))
     html_template = put_data(html_template, "{{per_sequence_nucleotide_content_summary}}", str(stats['Nucleotide content summary']).replace("'", '"').replace(", ", ",\n"))
     html_template = put_data(html_template, "{{per_sequence_dinucleotide_content_summary}}", str(stats['Dinucleotide content summary']).replace("'", '"').replace(", ", ",\n"))

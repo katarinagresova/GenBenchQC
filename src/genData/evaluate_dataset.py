@@ -1,14 +1,16 @@
 import argparse
 from pathlib import Path
 
-from genData.utils.statistics import compute_sequence_statistics
+from genData.utils.statistics import SequenceStatistics
 from genData.utils.testing import flag_significant_differences
 from genData.report.report_generator import generate_text_report, generate_html_report, generate_simple_report, generate_dataset_html_report
 
 def run(positive_fasta, negative_fasta, out_folder):
     
-    positive_stats = compute_sequence_statistics(positive_fasta)
-    negative_stats = compute_sequence_statistics(negative_fasta)
+    seqStats = SequenceStatistics(positive_fasta)
+    positive_stats = seqStats.compute()
+    seqStats = SequenceStatistics(negative_fasta)
+    negative_stats = seqStats.compute()
     
     results = flag_significant_differences(positive_fasta, positive_stats, negative_fasta, negative_stats)
 
