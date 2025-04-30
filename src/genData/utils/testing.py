@@ -13,7 +13,7 @@ def flag_significant_differences(pos_fasta, pos_stats, neg_fasta, neg_stats, thr
         'Per position nucleotide content': flag_per_position_nucleotide_content(pos_stats, neg_stats, threshold),
         'Per position reversed nucleotide content': flag_per_position_nucleotide_content(pos_stats, neg_stats, threshold, reversed = True),
         'Per sequence GC content': flag_per_sequence_gc_content(pos_stats, neg_stats, threshold),
-        'Sequence lenghts': flag_sequence_lengths(pos_stats, neg_stats, threshold),
+        'Sequence lengths': flag_sequence_lengths(pos_stats, neg_stats, threshold),
         'Duplication between positives and negatives': flag_duplication_between_datasets(pos_fasta, neg_fasta)
     }
 
@@ -28,7 +28,7 @@ def flag_per_sequence_content(pos_stats, neg_stats, column, threshold, end_posit
         end_position = min(len(pos_df), len(neg_df))
     
     # get columns names
-    bases = pos_df.columns.values
+    bases = list(set(list(pos_df.columns.values) + list(neg_df.columns.values)))
 
     p_values = {}
     for base in bases:
@@ -57,7 +57,7 @@ def flag_per_position_nucleotide_content(pos_stats, neg_stats, threshold, revers
         neg_df = pd.DataFrame(neg_stats['Per position reversed nucleotide content']).T
 
     # get columns names
-    bases = pos_df.columns.values
+    bases = list(set(list(pos_df.columns.values) + list(neg_df.columns.values)))
 
     p_values = {}
     passed = True
@@ -88,7 +88,7 @@ def flag_per_sequence_gc_content(pos_stats, neg_stats, threshold):
     
 def flag_sequence_lengths(pos_stats, neg_stats, threshold):
 
-    _, p_value = ranksums(list(pos_stats['Sequence lenghts'].values()), list(neg_stats['Sequence lenghts'].values()))
+    _, p_value = ranksums(list(pos_stats['Sequence lengths'].values()), list(neg_stats['Sequence lengths'].values()))
     passed = p_value > threshold
 
     return (p_value, passed)

@@ -118,11 +118,11 @@ def generate_pdf_report(pos_stats, neg_stats, results, output_path, threshold=0.
     # Plot length distribution
     fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(10, 2))
     plot_lenght_comparison(
-        pos_stats['Sequence lenghts'],
-        neg_stats['Sequence lenghts'],
+        pos_stats['Sequence lengths'],
+        neg_stats['Sequence lengths'],
         x_label='Length',
         ax=ax,
-        stats=results['Sequence lenghts'][0],
+        stats=results['Sequence lengths'][0],
         p_value_thresh=threshold
     )
     fig.suptitle('Sequence length distribution')
