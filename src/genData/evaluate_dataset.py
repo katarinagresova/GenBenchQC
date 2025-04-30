@@ -23,8 +23,8 @@ def run(positive_fasta, negative_fasta, out_folder):
     
     generate_text_report(positive_stats, txt_report_positive_path)
     generate_text_report(negative_stats, txt_report_negative_path)
-    generate_html_report(positive_stats, results, html_report_positive_path)
-    generate_html_report(negative_stats, results, html_report_negative_path)
+    generate_html_report(positive_stats, html_report_positive_path)
+    generate_html_report(negative_stats, html_report_negative_path)
     generate_simple_report(results, simple_report_path)
     generate_dataset_html_report(positive_stats, negative_stats, results, html_report_path)
 
