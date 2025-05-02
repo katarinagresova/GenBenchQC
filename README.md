@@ -3,7 +3,7 @@
 ## Installation
 
 ```bash
-pip install git+https://github.com/katarinagresova/MitigatingBiases.git
+pip install git+https://github.com/katarinagresova/GenBenchQC.git
 ```
 
 ## Running as command line tools
