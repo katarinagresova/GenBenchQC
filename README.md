@@ -1,4 +1,4 @@
-# Detecting and Mitigating Biases in Genomic Data
+# Genomic Benchmarks QC
 
 ## Installation
 
