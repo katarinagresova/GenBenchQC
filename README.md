@@ -3,7 +3,7 @@
 ## Installation
 
 ```bash
-pip install git+https://github.com/katarinagresova/MitigatingBiases.git@dev
+pip install git+https://github.com/katarinagresova/MitigatingBiases.git
 ```
 
 ## Running as command line tools
