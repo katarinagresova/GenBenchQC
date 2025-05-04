@@ -8,7 +8,7 @@ HTML_TEMPLATE = """
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HTML Report Output</title>
     <!-- Plotly.js -->
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-3.0.1.min.js" charset="utf-8"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -290,9 +290,18 @@ HTML_TEMPLATE = """
         };
         var data = [trace, trace2];
         var layout = {
-            xaxis: { title: 'Sequence Length' },
-            yaxis: { title: 'Frequency' },
+            xaxis: { 
+                title: {
+                    text: 'Sequence Length' 
+                }
+            },
+            yaxis: { 
+                title: {
+                    text: 'Counts' 
+                }
+            },
             showlegend: false,
+            autosize: true,
         };
 
         Plotly.newPlot('sequence-lengths', data, layout);
@@ -346,9 +355,18 @@ HTML_TEMPLATE = """
 
         // Layout for the plot
         var layoutNuc = {
-            xaxis: { title: 'Nucleotide' },
-            yaxis: { title: 'Counts' },
-            showlegend: false
+            xaxis: { 
+                title: {
+                    text: 'Nucleotide' 
+                }
+            },
+            yaxis: { 
+                title: {
+                    text: 'Frequency' 
+                }
+            },
+            showlegend: false,
+            autosize: true,
         };
 
         // Render the plot
@@ -378,9 +396,18 @@ HTML_TEMPLATE = """
 
         // Layout for the plot
         var layoutNuc = {
-            xaxis: { title: 'Dinucleotide' },
-            yaxis: { title: 'Frequency' },
-            showlegend: false
+            xaxis: { 
+                title: {
+                    text: 'Dinucleotide' 
+                }
+            },
+            yaxis: { 
+                title: {
+                    text: 'Frequency' 
+                }
+            },
+            showlegend: false,
+            autosize: true,
         };
 
         // Render the plot
@@ -399,9 +426,18 @@ HTML_TEMPLATE = """
             };
         });
         var scatterLayout = {
-            xaxis: { title: 'Position' },
-            yaxis: { title: 'Frequency' },
+            xaxis: { 
+                title: {
+                    text: 'Position from start' 
+                }
+            },
+            yaxis: { 
+                title: {
+                    text: 'Frequency' 
+                }
+            },
             showlegend: true,
+            autosize: true,
         };
         Plotly.newPlot('per-position-nucleotide-content', scatterData, scatterLayout);
 
@@ -418,9 +454,18 @@ HTML_TEMPLATE = """
             };
         });
         var scatterLayout = {
-            xaxis: { title: 'Position' },
-            yaxis: { title: 'Frequency' },
+            xaxis: { 
+                title: {
+                    text: 'Position from end' 
+                }
+            },
+            yaxis: { 
+                title: {
+                    text: 'Frequency'
+                }
+            },
             showlegend: true,
+            autosize: true,
         };
         Plotly.newPlot('per-position-reversed-nucleotide-content', scatterData, scatterLayout);
 
@@ -431,8 +476,18 @@ HTML_TEMPLATE = """
             name: 'GC Content'
         };
         var gcContentLayout = {
-            xaxis: { title: 'GC Content (%)' },
-            yaxis: { title: 'Counts' },
+            xaxis: { 
+                title: {
+                    text: 'GC Content (%)' 
+                }
+            },
+            yaxis: { 
+                title: {
+                    text: 'Count of Sequences' 
+                }
+            },
+            showlegend: false,
+            autosize: true,
         };
         Plotly.newPlot('sequence-gc-content-chart', [gcContentData], gcContentLayout);
 
