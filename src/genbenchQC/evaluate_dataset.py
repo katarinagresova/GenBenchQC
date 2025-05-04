@@ -14,6 +14,10 @@ def run(positive_fasta, negative_fasta, out_folder):
     
     results = flag_significant_differences(positive_fasta, positive_stats, negative_fasta, negative_stats)
 
+    out_folder = Path(out_folder)
+    if not out_folder.exists():
+        out_folder.mkdir(parents=True, exist_ok=True)
+
     txt_report_positive_path = out_folder / Path(positive_fasta.stem + '_report.txt')
     txt_report_negative_path = out_folder / Path(negative_fasta.stem + '_report.txt')
     html_report_positive_path = out_folder / Path(positive_fasta.stem + '_report.html')

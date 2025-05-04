@@ -9,6 +9,10 @@ def run(fasta_file, out_folder):
     seqStats = SequenceStatistics(fasta_file)
     stats = seqStats.compute()
     
+    out_folder = Path(out_folder)
+    if not out_folder.exists():
+        out_folder.mkdir(parents=True, exist_ok=True)
+
     txt_report_path = Path(out_folder, str(fasta_file.stem) + '_report.txt')
     html_report_path = Path(out_folder, str(fasta_file.stem) + '_report.html')
 
