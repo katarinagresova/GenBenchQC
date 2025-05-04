@@ -1,8 +1,8 @@
 import argparse
 from pathlib import Path
 
-from genData.utils.statistics import SequenceStatistics
-from genData.report.report_generator import generate_text_report, generate_html_report
+from genbenchQC.utils.statistics import SequenceStatistics
+from genbenchQC.report.report_generator import generate_text_report, generate_html_report
 
 def run(fasta_file, out_folder):
     

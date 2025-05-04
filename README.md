@@ -1,4 +1,4 @@
-# Genomic Benchmarks QC
+# Genomic Benchmarks QC: Automated Quality Control for Genomic Machine Learning Datasets
 
 ## Installation
 
@@ -25,7 +25,7 @@ evaluate_dataset POSITIVE_FASTA_PATH NEGATIVE_FASTA_PATH [--out_folder OUT_FOLDE
 ### Sequence evaluator
 
 ```python
-from genData import evaluate_sequences
+from genbenchQC import evaluate_sequences
 
 evaluate_sequences.run(INPUT_FASTA_PATH, OUT_FOLDER)
 ```
@@ -33,7 +33,7 @@ evaluate_sequences.run(INPUT_FASTA_PATH, OUT_FOLDER)
 ### Dataset evaluator
 
 ```python
-from genData import evaluate_dataset
+from genbenchQC import evaluate_dataset
 
 evaluate_dataset.run(POSITIVE_FASTA_PATH, NEGATIVE_FASTA_PATH, OUT_FOLDER)
 ```

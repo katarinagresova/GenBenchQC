@@ -1,7 +1,7 @@
 from collections import Counter
 import numpy as np
 
-from genData.utils.fasta_utils import read_fasta
+from genbenchQC.utils.fasta_utils import read_fasta
 
 class SequenceStatistics:
     def __init__(self, filename):

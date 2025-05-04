@@ -1,9 +1,9 @@
 import argparse
 from pathlib import Path
 
-from genData.utils.statistics import SequenceStatistics
-from genData.utils.testing import flag_significant_differences
-from genData.report.report_generator import generate_text_report, generate_html_report, generate_simple_report, generate_dataset_html_report
+from genbenchQC.utils.statistics import SequenceStatistics
+from genbenchQC.utils.testing import flag_significant_differences
+from genbenchQC.report.report_generator import generate_text_report, generate_html_report, generate_simple_report, generate_dataset_html_report
 
 def run(positive_fasta, negative_fasta, out_folder):
     

@@ -4,7 +4,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 
 import pandas as pd
 
-from genData.report.sequence_html_report import get_html_template
+from genbenchQC.report.sequence_html_report import get_html_template
 
 def generate_html_report(stats_dict, output_path):
     """
