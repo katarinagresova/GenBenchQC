@@ -232,15 +232,67 @@ HTML_TEMPLATE = """
 
         var lengths = {{sequence_lengths}};
 
-        // Building the Frequency Histogram
+        // plot the sequence length distribution as a line plot
+        // compute x and y values for the line plot
+        // create a frequency map for the lengths
+        var lengthsDict = {};
+        for (var i = 0; i < lengths.length; i++) {
+            var length = lengths[i];
+            if (lengthsDict[length]) {
+                lengthsDict[length]++;
+            } else {
+                lengthsDict[length] = 1;
+            }
+        }
+        // add zero count for the length below the minimum length
+        var minLength = Math.min.apply(null, lengths);
+        lengthsDict[minLength - 1] = 0;
+        // add zero count for the length above the maximum length
+        var maxLength = Math.max.apply(null, lengths);
+        lengthsDict[maxLength + 1] = 0;
+        // convert the keys of the lengths object to an array
+        var uniqueLengths = Object.keys(lengthsDict);
+        // sort the array of unique lengths
+        uniqueLengths.sort(function(a, b) {
+            return a - b;
+        });
+        // create x and y values for the line plot
+        // x values are the unique lengths
+        var xValues = uniqueLengths.map(Number);
+        // y values are the frequencies of the lengths
+        var yValues = uniqueLengths.map(function(length) {
+            return lengthsDict[length];
+        });
+        // create the line plot
         var trace = {
+            x: xValues,
+            y: yValues,
+            mode: 'lines+markers',
+            type: 'scatter',
+            // do not write trace name on hover, just show the value
+            hoverinfo: 'x+y',
+        };
+
+        var trace2 = {
             x: lengths,
             type: 'histogram',
+            // make the histogram bars transparent
+            opacity: 0.2,
+            marker: {
+                color: 'blue',
+                line: {
+                    color: 'black',
+                    width: 1
+                }
+            },
+            // do not show values on hover
+            hoverinfo: 'x+y',
         };
-        var data = [trace];
+        var data = [trace, trace2];
         var layout = {
             xaxis: { title: 'Sequence Length' },
-            yaxis: { title: 'Frequency' }
+            yaxis: { title: 'Frequency' },
+            showlegend: false,
         };
 
         Plotly.newPlot('sequence-lengths', data, layout);
@@ -278,8 +330,14 @@ HTML_TEMPLATE = """
         var nucleotideData = [];
         for (var nucleotide in nucleotideContentSummary) {
             var stats = nucleotideContentSummary[nucleotide];
+            // use only 3 decimal points for the values
+            stats.min = parseFloat(stats.min).toFixed(3);
+            stats.q1 = parseFloat(stats.q1).toFixed(3);
+            stats.median = parseFloat(stats.median).toFixed(3);
+            stats.q3 = parseFloat(stats.q3).toFixed(3);
+            stats.max = parseFloat(stats.max).toFixed(3);
             nucleotideData.push({
-                y: [stats.min, stats.q1, stats.median, stats.q3, stats.max],
+                y: [stats.min, stats.q1, stats.median, stats.median, stats.q3, stats.max],
                 type: 'box',
                 name: nucleotide,
                 boxpoints: false // Disable individual data points
@@ -303,8 +361,15 @@ HTML_TEMPLATE = """
         var dinucleotideData = [];
         for (var dinucleotide in dinucleotideContentSummary) {
             var stats = dinucleotideContentSummary[dinucleotide];
+            // use only 3 decimal points for the values
+            stats.min = parseFloat(stats.min).toFixed(3);
+            stats.q1 = parseFloat(stats.q1).toFixed(3);
+            stats.median = parseFloat(stats.median).toFixed(3);
+            stats.q3 = parseFloat(stats.q3).toFixed(3);
+            stats.max = parseFloat(stats.max).toFixed(3);
             dinucleotideData.push({
-                y: [stats.min, stats.q1, stats.median, stats.q3, stats.max],
+                // doubling the median value is the current workaround for constructing the boxplot from the summary statistics
+                y: [stats.min, stats.q1, stats.median, stats.median, stats.q3, stats.max], 
                 type: 'box',
                 name: dinucleotide,
                 boxpoints: false // Disable individual data points
