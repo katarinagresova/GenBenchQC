@@ -5,6 +5,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 import pandas as pd
 
 from genbenchQC.report.sequence_html_report import get_html_template
+from genbenchQC.report.dataset_html_report import get_dataset_html_template
 
 def generate_html_report(stats_dict, output_path):
     """
@@ -22,13 +23,11 @@ def generate_dataset_html_report(positive_stats, negative_stats, results, output
     Generate an HTML report comparing the statistics of two datasets.
     Plots are generated using the Plotly library.
     """
+    # Load the HTML template
+    template = get_dataset_html_template(positive_stats, negative_stats, results)
+
     with open(output_path, 'w') as file:
-        file.write("Not implemented yet. Producing a PDF report instead.")
-
-    # get the output path without the extension
-    output_path = str(output_path).split('.')[0] + '.pdf'
-
-    generate_pdf_report(positive_stats, negative_stats, results, output_path)
+        file.write(template)
 
 
 def generate_text_report(stats_dict, output_path):
