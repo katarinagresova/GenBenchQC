@@ -1,5 +1,6 @@
 from collections import Counter
 import numpy as np
+from pathlib import Path
 
 from genbenchQC.utils.fasta_utils import read_fasta
 
@@ -36,7 +37,8 @@ class SequenceStatistics:
         return self.stats
 
     def _compute_basic_statistics(self):
-        self.stats['Filename'] = self.filename
+
+        self.stats['Filename'] = Path(self.filename).name
         self.stats['Number of sequences'] = len(self.sequences)
         self.stats['Number of bases'] = sum(len(sequence) for sequence in self.sequences)
         self.stats['Unique bases'] = list(set(''.join(self.sequences)))
