@@ -1,12 +1,12 @@
 from collections import Counter
 import numpy as np
 
-from genbenchQC.utils.fasta_utils import read_fasta
-
 class SequenceStatistics:
-    def __init__(self, filename):
+    def __init__(self, sequences, filename, label=None, seq_column=None):
         self.filename = filename
-        self.sequences = read_fasta(filename)
+        self.label = label
+        self.seq_column = seq_column
+        self.sequences = sequences
         self.stats = {}
 
     def compute(self):
