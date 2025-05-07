@@ -3,6 +3,7 @@ import seaborn as sns
 from matplotlib.backends.backend_pdf import PdfPages
 
 import pandas as pd
+import os
 
 from genbenchQC.report.sequence_html_report import get_html_template
 
@@ -26,7 +27,7 @@ def generate_dataset_html_report(positive_stats, negative_stats, results, output
         file.write("Not implemented yet. Producing a PDF report instead.")
 
     # get the output path without the extension
-    output_path = str(output_path).split('.')[0] + '.pdf'
+    output_path = os.path.splitext(output_path)[0] + '.pdf'
 
     generate_pdf_report(positive_stats, negative_stats, results, output_path)
 
