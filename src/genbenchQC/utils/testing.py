@@ -6,7 +6,7 @@ from scipy.stats import ranksums, fisher_exact
 from genbenchQC.utils.fasta_utils import read_fasta
 
 
-def flag_significant_differences(pos_fasta, pos_stats, neg_fasta, neg_stats, threshold=0.01):
+def flag_significant_differences(pos_sequences, pos_stats, neg_sequences, neg_stats, threshold=0.01):
     results = {
         'Per sequence nucleotide content': flag_per_sequence_content(pos_stats, neg_stats, 'Per sequence nucleotide content', threshold),
         'Per sequence dinucleotide content': flag_per_sequence_content(pos_stats, neg_stats, 'Per sequence dinucleotide content', threshold),
@@ -14,7 +14,7 @@ def flag_significant_differences(pos_fasta, pos_stats, neg_fasta, neg_stats, thr
         'Per position reversed nucleotide content': flag_per_position_nucleotide_content(pos_stats, neg_stats, threshold, reversed = True),
         'Per sequence GC content': flag_per_sequence_gc_content(pos_stats, neg_stats, threshold),
         'Sequence lengths': flag_sequence_lengths(pos_stats, neg_stats, threshold),
-        'Duplication between positives and negatives': flag_duplication_between_datasets(pos_fasta, neg_fasta)
+        'Duplication between positives and negatives': flag_duplication_between_datasets(pos_sequences, neg_sequences)
     }
 
     return results
@@ -93,10 +93,6 @@ def flag_sequence_lengths(pos_stats, neg_stats, threshold):
 
     return (p_value, passed)
     
-def flag_duplication_between_datasets(pos_fasta, neg_fasta):
-    pos_sequences = read_fasta(pos_fasta)
-    neg_sequences = read_fasta(neg_fasta)
-
+def flag_duplication_between_datasets(pos_sequences, neg_sequences):
     passed = len(set(pos_sequences).intersection(neg_sequences)) == 0
-
     return (None, passed)

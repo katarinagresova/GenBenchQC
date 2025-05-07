@@ -1,6 +1,7 @@
 import argparse
 import pandas as pd
 from pathlib import Path
+from itertools import combinations
 
 from genbenchQC.utils.statistics import SequenceStatistics
 from genbenchQC.utils.testing import flag_significant_differences
@@ -9,35 +10,48 @@ from genbenchQC.utils.fasta_utils import read_fasta, read_sequences_from_df, rea
 
 
 def run_analysis(input_statistics, out_folder):
-    # TODO proper naming of output files, probably accepts a list of sequences
+    out_folder = Path(out_folder)
 
-    seqStats = SequenceStatistics(positive_fasta)
-    positive_stats = seqStats.compute()
-    seqStats = SequenceStatistics(negative_fasta)
-    negative_stats = seqStats.compute()
-    
-    results = flag_significant_differences(positive_fasta, positive_stats, negative_fasta, negative_stats)
+    # run individual analysis
+    for s in input_statistics:
+        stats = s.compute()
 
-    # TODO report generation with filename, label, seq col
-    txt_report_positive_path = out_folder / Path(positive_fasta.stem + '_report.txt')
-    txt_report_negative_path = out_folder / Path(negative_fasta.stem + '_report.txt')
-    html_report_positive_path = out_folder / Path(positive_fasta.stem + '_report.html')
-    html_report_negative_path = out_folder / Path(negative_fasta.stem + '_report.html')
-    simple_report_path = out_folder / 'dataset_report_simple.txt'
-    html_report_path = out_folder / 'dataset_report.html'
-    
-    generate_text_report(positive_stats, txt_report_positive_path)
-    generate_text_report(negative_stats, txt_report_negative_path)
-    generate_html_report(positive_stats, html_report_positive_path)
-    generate_html_report(negative_stats, html_report_negative_path)
-    generate_simple_report(results, simple_report_path)
-    generate_dataset_html_report(positive_stats, negative_stats, results, html_report_path)
+        filename = Path(s.filename).stem
+        if s.seq_column is not None:
+            filename += f'_{s.seq_column}'
+        if s.label is not None:
+            filename += f'_{s.label}'
+        txt_report_positive_path = out_folder / Path(filename + '_report.txt')
+        html_report_positive_path = out_folder / Path(filename + '_report.html')
+
+        generate_text_report(stats, txt_report_positive_path)
+        generate_html_report(stats, html_report_positive_path)
+
+    if len(input_statistics) < 2:
+        return
+
+    # run pair comparison analysis with all combinations
+    for stat1, stat2 in combinations(input_statistics, 2):
+        filename = "dataset_report"
+        if stat1.seq_column is not None:
+            filename += f'_{stat1.seq_column}'
+        if stat1.label is not None and stat2.label is not None:
+            filename += f'_label_{stat1.label}_vs_{stat2.label}'
+        else:
+            filename += f'_{Path(stat1.filename).stem}_{Path(stat2.filename).stem}'
+        simple_report_path = out_folder / Path(f'{filename}.txt')
+        html_report_path = out_folder / Path(f'{filename}.html')
+
+        results = flag_significant_differences(stat1.sequences, stat1.stats, stat2.sequences, stat2.stats)
+        generate_simple_report(results, simple_report_path)
+        generate_dataset_html_report(stat1.stats, stat2.stats, results, html_report_path)
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Evaluate positive and negative sequence datasets.')
     parser.add_argument('--input', type=str, help='Path to the dataset file. '
                                                   'Can be a list of files, each containing sequences from one class.', nargs='+', required=True)
-    parser.add_argument('--format', help="Format of the input files.", choices=['fasta', 'csv', 'tsv'], default='fasta') # potentially add HF support
+    parser.add_argument('--format', help="Format of the input files.", choices=['fasta', 'csv', 'tsv'], required=True) # potentially add HF support
     parser.add_argument('--sequence_column', type=str, help='Name of the columns with sequences to analyze for datasets in CSV/TSV format. '
                                                             'Either one column or list of columns.', nargs='+', default=['sequence'])
     parser.add_argument('--label_column', type=str, help='Name with the label column for datasets in CSV/TSV format.', default='label')
@@ -58,6 +72,7 @@ def main():
         print(f"Error parsing arguments: {e}")
         return
 
+    # we have one file with multiple labels (CSV/TSV)
     if len(args.input) == 1 and args.format != 'fasta':
         # parse the input file
         if args.format == 'tsv':
@@ -75,27 +90,62 @@ def main():
         else:
             labels = args.label_list
 
+        # loop over sequences with specific label and run statistics
         for seq_col in args.sequence_column:
             seq_stats = []
             for label in labels:
                 try:
-                    sequences = read_sequences_from_df(df, seq_col, label)
+                    sequences = read_sequences_from_df(df, seq_col, args.label_column, label)
                 except Exception as e:
-                    print(f"Error reading sequences': {e}")
+                    print(f"Error reading sequences: {e}")
                     return
-                seq_stats += SequenceStatistics(sequences, filename=args.input[0], label=label, seq_column=seq_col)
-            # TODO run statistics
-        # handle multiple sequence columns by concatenating sequences
+                seq_stats += [SequenceStatistics(sequences, filename=args.input[0], label=label, seq_column=seq_col)]
+            run_analysis(seq_stats, args.out_folder)
+
+        # handle multiple sequence columns by concatenating sequences and running statistics on them
         if len(args.sequence_column) > 1:
             seq_stats = []
             for label in labels:
-                sequences = read_multisequence_df(df, args.sequence_column, label)
-                seq_stats += SequenceStatistics(sequences, filename=args.input[0], label=label, seq_column='_'.join(args.sequence_column))
-            # TODO run statistics
+                sequences = read_multisequence_df(df, args.sequence_column, args.label_column, label)
+                seq_stats += [SequenceStatistics(sequences, filename=args.input[0], label=label, seq_column='_'.join(args.sequence_column))]
+            run_analysis(seq_stats, args.out_folder)
 
+    # we have multiple fasta files with one label each
+    elif args.format == 'fasta':
+        seq_stats = []
+        for input_file in args.input:
+            sequences = read_fasta(input_file)
+            seq_stats += [SequenceStatistics(sequences, filename=input_file)]
+        run_analysis(seq_stats, args.out_folder)
+
+    # we have multiple CSV/TSV files with one label each
     else:
-        # TODO loop over input files and run statistics for each pair
-        pass
+        # check the input file format
+        if args.format == 'tsv':
+            delim = '\t'
+        else:
+            delim = ','
+
+        # run statistics across input files
+        for seq_col in args.sequence_column:
+            seq_stats = []
+            for input_file in args.input:
+                try:
+                    sequences = read_sequences_from_df(pd.read_csv(input_file, delimiter=delim), seq_col)
+                except Exception as e:
+                    print(f"Error reading sequences': {e}")
+                    return
+                seq_stats += [SequenceStatistics(sequences, filename=input_file, seq_column=seq_col)]
+            run_analysis(seq_stats, args.out_folder)
+
+        # handle multiple sequence columns
+        if len(args.sequence_column) > 1:
+            seq_stats = []
+            for input_file in args.input:
+                sequences = read_multisequence_df(pd.read_csv(input_file, delimiter=delim), args.sequence_column)
+                seq_stats += [SequenceStatistics(sequences, filename=input_file,
+                                                seq_column='_'.join(args.sequence_column))]
+            run_analysis(seq_stats, args.out_folder)
 
 if __name__ == '__main__':
     main()
