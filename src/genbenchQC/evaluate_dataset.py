@@ -72,80 +72,76 @@ def main():
         print(f"Error parsing arguments: {e}")
         return
 
-    # we have one file with multiple labels (CSV/TSV)
-    if len(args.input) == 1 and args.format != 'fasta':
-        # parse the input file
-        if args.format == 'tsv':
-            delim = '\t'
-        else:
-            delim = ','
-        df = pd.read_csv(args.input[0], delimiter=delim)
-
-        if args.label_column not in df.columns:
-            raise ValueError(f"Label column '{args.label_column}' not found in the input file '{args.input}'.")
-
-        # get the list of labels to consider
-        if len(args.label_list) == 1 and args.label_list[0] == 'infer':
-            labels = df[args.label_column].unique().tolist()
-        else:
-            labels = args.label_list
-
-        # loop over sequences with specific label and run statistics
-        for seq_col in args.sequence_column:
-            seq_stats = []
-            for label in labels:
-                try:
-                    sequences = read_sequences_from_df(df, seq_col, args.label_column, label)
-                except Exception as e:
-                    print(f"Error reading sequences: {e}")
-                    return
-                seq_stats += [SequenceStatistics(sequences, filename=args.input[0], label=label, seq_column=seq_col)]
-            run_analysis(seq_stats, args.out_folder)
-
-        # handle multiple sequence columns by concatenating sequences and running statistics on them
-        if len(args.sequence_column) > 1:
-            seq_stats = []
-            for label in labels:
-                sequences = read_multisequence_df(df, args.sequence_column, args.label_column, label)
-                seq_stats += [SequenceStatistics(sequences, filename=args.input[0], label=label, seq_column='_'.join(args.sequence_column))]
-            run_analysis(seq_stats, args.out_folder)
-
     # we have multiple fasta files with one label each
-    elif args.format == 'fasta':
+    if args.format == 'fasta':
         seq_stats = []
         for input_file in args.input:
             sequences = read_fasta(input_file)
             seq_stats += [SequenceStatistics(sequences, filename=input_file)]
         run_analysis(seq_stats, args.out_folder)
 
-    # we have multiple CSV/TSV files with one label each
+    # we have CSV/TSV
     else:
-        # check the input file format
         if args.format == 'tsv':
             delim = '\t'
         else:
             delim = ','
 
-        # run statistics across input files
-        for seq_col in args.sequence_column:
-            seq_stats = []
-            for input_file in args.input:
-                try:
-                    sequences = read_sequences_from_df(pd.read_csv(input_file, delimiter=delim), seq_col)
-                except Exception as e:
-                    print(f"Error reading sequences': {e}")
-                    return
-                seq_stats += [SequenceStatistics(sequences, filename=input_file, seq_column=seq_col)]
-            run_analysis(seq_stats, args.out_folder)
+        # we have one file with multiple labels
+        if len(args.input) == 1:
+            df = pd.read_csv(args.input[0], delimiter=delim)
 
-        # handle multiple sequence columns
-        if len(args.sequence_column) > 1:
-            seq_stats = []
-            for input_file in args.input:
-                sequences = read_multisequence_df(pd.read_csv(input_file, delimiter=delim), args.sequence_column)
-                seq_stats += [SequenceStatistics(sequences, filename=input_file,
-                                                seq_column='_'.join(args.sequence_column))]
-            run_analysis(seq_stats, args.out_folder)
+            if args.label_column not in df.columns:
+                raise ValueError(f"Label column '{args.label_column}' not found in the input file '{args.input}'.")
+
+            # get the list of labels to consider
+            if len(args.label_list) == 1 and args.label_list[0] == 'infer':
+                labels = df[args.label_column].unique().tolist()
+            else:
+                labels = args.label_list
+
+            # loop over sequences with specific label and run statistics
+            for seq_col in args.sequence_column:
+                seq_stats = []
+                for label in labels:
+                    try:
+                        sequences = read_sequences_from_df(df, seq_col, args.label_column, label)
+                    except Exception as e:
+                        print(f"Error reading sequences: {e}")
+                        return
+                    seq_stats += [SequenceStatistics(sequences, filename=args.input[0], label=label, seq_column=seq_col)]
+                run_analysis(seq_stats, args.out_folder)
+
+            # handle multiple sequence columns by concatenating sequences and running statistics on them
+            if len(args.sequence_column) > 1:
+                seq_stats = []
+                for label in labels:
+                    sequences = read_multisequence_df(df, args.sequence_column, args.label_column, label)
+                    seq_stats += [SequenceStatistics(sequences, filename=args.input[0], label=label, seq_column='_'.join(args.sequence_column))]
+                run_analysis(seq_stats, args.out_folder)
+
+        # we have multiple files with one label each
+        else:
+            # run statistics across input files
+            for seq_col in args.sequence_column:
+                seq_stats = []
+                for input_file in args.input:
+                    try:
+                        sequences = read_sequences_from_df(pd.read_csv(input_file, delimiter=delim), seq_col)
+                    except Exception as e:
+                        print(f"Error reading sequences': {e}")
+                        return
+                    seq_stats += [SequenceStatistics(sequences, filename=input_file, seq_column=seq_col)]
+                run_analysis(seq_stats, args.out_folder)
+
+            # handle multiple sequence columns
+            if len(args.sequence_column) > 1:
+                seq_stats = []
+                for input_file in args.input:
+                    sequences = read_multisequence_df(pd.read_csv(input_file, delimiter=delim), args.sequence_column)
+                    seq_stats += [SequenceStatistics(sequences, filename=input_file,
+                                                     seq_column='_'.join(args.sequence_column))]
+                run_analysis(seq_stats, args.out_folder)
 
 if __name__ == '__main__':
     main()
