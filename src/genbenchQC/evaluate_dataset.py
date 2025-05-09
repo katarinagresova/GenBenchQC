@@ -22,11 +22,11 @@ def run_analysis(input_statistics, out_folder):
             filename += f'_{s.seq_column}'
         if s.label is not None:
             filename += f'_{s.label}'
-        txt_report_positive_path = out_folder / Path(filename + '_report.txt')
-        html_report_positive_path = out_folder / Path(filename + '_report.html')
+        txt_report_path = out_folder / Path(filename + '_report.txt')
+        html_report_path = out_folder / Path(filename + '_report.html')
 
-        generate_text_report(stats, txt_report_positive_path)
-        generate_html_report(stats, html_report_positive_path)
+        generate_text_report(stats, txt_report_path)
+        generate_html_report(stats, html_report_path)
 
     if len(input_statistics) < 2:
         return

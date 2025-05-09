@@ -18,7 +18,7 @@ def generate_html_report(stats_dict, output_path):
     with open(output_path, 'w') as file:
         file.write(template)
 
-def generate_dataset_html_report(positive_stats, negative_stats, results, output_path):
+def generate_dataset_html_report(stats1, stats2, results, output_path):
     """
     Generate an HTML report comparing the statistics of two datasets.
     Plots are generated using the Plotly library.
@@ -29,7 +29,7 @@ def generate_dataset_html_report(positive_stats, negative_stats, results, output
     # get the output path without the extension
     output_path = os.path.splitext(output_path)[0] + '.pdf'
 
-    generate_pdf_report(positive_stats, negative_stats, results, output_path)
+    generate_pdf_report(stats1, stats2, results, output_path)
 
 
 def generate_text_report(stats_dict, output_path):
@@ -52,16 +52,16 @@ def generate_simple_report(results, output_path):
             passed = "Passed" if passed else "Failed"
             file.write(f'{key}: {passed}\n')
 
-def generate_pdf_report(pos_stats, neg_stats, results, output_path, threshold=0.01):
+def generate_pdf_report(stats1, stats2, results, output_path, threshold=0.01):
 
     plots = []
-    bases = list(set(pos_stats['Unique bases'] + neg_stats['Unique bases']))
+    bases = list(set(stats1['Unique bases'] + stats2['Unique bases']))
 
     # Plot per sequence nucleotide content
     fig, ax = plt.subplots(nrows=len(bases), ncols=1, figsize=(10, 2*len(bases)))
     plot_composition_comparison(
-        pos_stats['Per sequence nucleotide content'],
-        neg_stats['Per sequence nucleotide content'],
+        stats1['Per sequence nucleotide content'],
+        stats2['Per sequence nucleotide content'],
         bases = bases,
         x_label='Frequency',
         ax=ax,
@@ -71,12 +71,12 @@ def generate_pdf_report(pos_stats, neg_stats, results, output_path, threshold=0.
     fig.suptitle('Nucleotide composition')
     plots.append(fig)
 
-    dinucleotides = list(set(list(pos_stats['Per sequence dinucleotide content'][0].keys()) + list(neg_stats['Per sequence dinucleotide content'][0].keys())))
+    dinucleotides = list(set(list(stats1['Per sequence dinucleotide content'][0].keys()) + list(stats2['Per sequence dinucleotide content'][0].keys())))
     # Plot per sequence dinucleotide content
     fig, ax = plt.subplots(nrows=len(dinucleotides), ncols=1, figsize=(10, 2*len(dinucleotides)))
     plot_composition_comparison(
-        pos_stats['Per sequence dinucleotide content'],
-        neg_stats['Per sequence dinucleotide content'],
+        stats1['Per sequence dinucleotide content'],
+        stats2['Per sequence dinucleotide content'],
         bases = dinucleotides,
         x_label='Frequency',
         ax=ax,
@@ -89,8 +89,8 @@ def generate_pdf_report(pos_stats, neg_stats, results, output_path, threshold=0.
     # Plot per position nucleotide content
     fig, ax = plt.subplots(nrows=len(bases), ncols=1, figsize=(10, 2*len(bases)))
     plot_per_base_sequence_comparison(
-        pos_stats['Per position nucleotide content'],
-        neg_stats['Per position nucleotide content'],
+        stats1['Per position nucleotide content'],
+        stats2['Per position nucleotide content'],
         bases = bases,
         end_position=100,
         x_label='Position in read (bp)',
@@ -104,8 +104,8 @@ def generate_pdf_report(pos_stats, neg_stats, results, output_path, threshold=0.
     # Plot per position reversed nucleotide content
     fig, ax = plt.subplots(nrows=len(bases), ncols=1, figsize=(10, 2*len(bases)))
     plot_per_base_sequence_comparison(
-        pos_stats['Per position reversed nucleotide content'],
-        neg_stats['Per position reversed nucleotide content'],
+        stats1['Per position reversed nucleotide content'],
+        stats2['Per position reversed nucleotide content'],
         bases = bases,
         end_position=100,
         x_label='Position in read reversed (bp)',
@@ -119,8 +119,8 @@ def generate_pdf_report(pos_stats, neg_stats, results, output_path, threshold=0.
     # Plot length distribution
     fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(10, 2))
     plot_lenght_comparison(
-        pos_stats['Sequence lengths'],
-        neg_stats['Sequence lengths'],
+        stats1['Sequence lengths'],
+        stats2['Sequence lengths'],
         x_label='Length',
         ax=ax,
         stats=results['Sequence lengths'][0],
@@ -151,18 +151,18 @@ def plot_per_base_sequence_content(df, end_position, title='', ax=None):
 
     return ax
 
-def plot_per_base_sequence_comparison(pos_stats, neg_stats, bases, end_position, x_label='', ax=None, stats=None, p_value_thresh=0.01):
+def plot_per_base_sequence_comparison(stats1, stats2, bases, end_position, x_label='', ax=None, stats=None, p_value_thresh=0.01):
 
     if ax is None:
         fig, ax = plt.subplots(nrows=len(bases), ncols=1, figsize=(15, 3 * len(bases)), sharex=True, sharey=True)
 
     for index, base in enumerate(bases):
 
-        pos_df = pd.DataFrame(pos_stats).T
-        neg_df = pd.DataFrame(neg_stats).T
+        df1 = pd.DataFrame(stats1).T
+        df2 = pd.DataFrame(stats2).T
 
-        ax[index].plot(pos_df.index[:end_position], pos_df[base][:end_position], label=f"positive {base}")
-        ax[index].plot(neg_df.index[:end_position], neg_df[base][:end_position], label=f"negative {base}")
+        ax[index].plot(df1.index[:end_position], df1[base][:end_position], label=f"positive {base}")
+        ax[index].plot(df2.index[:end_position], df2[base][:end_position], label=f"negative {base}")
 
         ax[index].set_ylim(-0.1, 1.1)
         ax[index].set_ylabel('Frequency')
@@ -186,17 +186,17 @@ def plot_per_base_sequence_comparison(pos_stats, neg_stats, bases, end_position,
 
     return ax
 
-def plot_composition_comparison(pos_stats, neg_stats, bases, x_label='', ax=None, stats=None, p_value_thresh=0.01):
+def plot_composition_comparison(stats1, stats2, bases, x_label='', ax=None, stats=None, p_value_thresh=0.01):
 
-    pos_df = pd.DataFrame(pos_stats).T
-    neg_df = pd.DataFrame(neg_stats).T
+    df1 = pd.DataFrame(stats1).T
+    df2 = pd.DataFrame(stats2).T
 
     if ax is None:
         fig, ax = plt.subplots(nrows=len(bases), ncols=1, figsize=(10, 2*len(bases)))
     for index, base in enumerate(bases):
 
-        sns.histplot(pos_df[base], ax=ax[index], label='positive', alpha=0.3, stat='probability')
-        sns.histplot(neg_df[base], ax=ax[index], label='negative', alpha=0.3, stat='probability')
+        sns.histplot(df1[base], ax=ax[index], label='positive', alpha=0.3, stat='probability')
+        sns.histplot(df2[base], ax=ax[index], label='negative', alpha=0.3, stat='probability')
 
         if stats:
             p_value = stats.get(base, 0)
@@ -223,21 +223,21 @@ def plot_composition_comparison(pos_stats, neg_stats, bases, x_label='', ax=None
     return ax
 
 
-def plot_composition_comparison_boxplot(pos_df, neg_df, title='', x_label='', ax=None, stats=None, p_value_thresh=0.01):
+def plot_composition_comparison_boxplot(df1, df2, title='', x_label='', ax=None, stats=None, p_value_thresh=0.01):
 
     # get columns names
-    bases = pos_df.columns.values
+    bases = df1.columns.values
     # remove sum from bases (it doesn't have to be the last value)
     bases = bases[bases != 'sum']
 
     if ax is None:
         fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(2 * len(bases), 5))
 
-    new_pos_df = pos_df.assign(label='positive')
-    new_neg_df = neg_df.assign(label='negative')
+    new_df1 = df1.assign(label='positive')
+    new_df2 = df2.assign(label='negative')
 
-    combined_df = pd.concat([new_pos_df, new_neg_df])
-    del new_pos_df, new_neg_df
+    combined_df = pd.concat([new_df1, new_df2])
+    del new_df1, new_df2
 
     for base in bases:
         combined_df[base] = combined_df[base] / combined_df['sum']
@@ -266,16 +266,16 @@ def plot_composition_comparison_boxplot(pos_df, neg_df, title='', x_label='', ax
     return ax
 
 #@DeprecationWarning
-def plot_lenght_comparison(pos_stats, neg_stats, title='', x_label='', ax=None, stats=None, p_value_thresh=0.01):
+def plot_lenght_comparison(stats1, stats2, title='', x_label='', ax=None, stats=None, p_value_thresh=0.01):
 
     if ax is None:
         fig, ax = plt.subplots(1, ncols=1, figsize=(10, 2))
 
-    pos_length_counts = pos_stats.values() 
-    neg_length_counts = neg_stats.values()
+    length_counts1 = stats1.values()
+    length_counts2 = stats2.values()
 
-    sns.histplot(pos_length_counts, ax=ax, label='positive', alpha=0.3, stat='probability')
-    sns.histplot(neg_length_counts, ax=ax, label='negative', alpha=0.3, stat='probability')
+    sns.histplot(length_counts1, ax=ax, label='positive', alpha=0.3, stat='probability')
+    sns.histplot(length_counts2, ax=ax, label='negative', alpha=0.3, stat='probability')
 
     if stats:
         p_value = stats
@@ -301,17 +301,17 @@ def plot_lenght_comparison(pos_stats, neg_stats, title='', x_label='', ax=None, 
     return ax
 
 #@DeprecationWarning
-def plot_lenght_comparison_boxplot(pos_df, neg_df, title='', x_label='', ax=None, stats=None, p_value_thresh=0.01):
+def plot_lenght_comparison_boxplot(df1, df2, title='', x_label='', ax=None, stats=None, p_value_thresh=0.01):
 
     if ax is None:
         fig, ax = plt.subplots(1, ncols=1, figsize=(10, 2))
 
-    new_pos_df = pos_df.assign(label='positive')
-    new_neg_df = neg_df.assign(label='negative')
+    new_df1 = df1.assign(label='positive')
+    new_df2 = df2.assign(label='negative')
 
-    combined_df = pd.concat([new_pos_df, new_neg_df])
+    combined_df = pd.concat([new_df1, new_df2])
     combined_df = combined_df[['sum', 'label']]
-    del new_pos_df, new_neg_df
+    del new_df1, new_df2
 
     sns.boxplot(data=combined_df, x='label', y='sum', ax=ax)
 
