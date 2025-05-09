@@ -6,7 +6,7 @@ import pandas as pd
 
 from genbenchQC.utils.statistics import SequenceStatistics
 from genbenchQC.report.report_generator import generate_text_report, generate_html_report
-from genbenchQC.utils.fasta_utils import read_fasta, read_sequences_from_df, read_multisequence_df
+from genbenchQC.utils.input_utils import read_fasta, read_sequences_from_df, read_multisequence_df
 
 def run_analysis(seq_stats, out_folder):
     stats = seq_stats.compute()

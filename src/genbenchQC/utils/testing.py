@@ -3,8 +3,6 @@ import pandas as pd
 from statsmodels.stats.multitest import fdrcorrection
 from scipy.stats import ranksums, fisher_exact
 
-from genbenchQC.utils.fasta_utils import read_fasta
-
 
 def flag_significant_differences(pos_sequences, pos_stats, neg_sequences, neg_stats, threshold=0.01):
     results = {

@@ -7,7 +7,7 @@ from typing import Optional
 from genbenchQC.utils.statistics import SequenceStatistics
 from genbenchQC.utils.testing import flag_significant_differences
 from genbenchQC.report.report_generator import generate_text_report, generate_html_report, generate_simple_report, generate_dataset_html_report
-from genbenchQC.utils.fasta_utils import read_fasta, read_sequences_from_df, read_multisequence_df
+from genbenchQC.utils.input_utils import read_fasta, read_sequences_from_df, read_multisequence_df
 
 
 def run_analysis(input_statistics, out_folder):
