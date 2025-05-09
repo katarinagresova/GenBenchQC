@@ -2,11 +2,9 @@ import argparse
 from pathlib import Path
 from typing import Optional
 
-import pandas as pd
-
 from genbenchQC.utils.statistics import SequenceStatistics
 from genbenchQC.report.report_generator import generate_text_report, generate_html_report
-from genbenchQC.utils.input_utils import read_fasta, read_sequences_from_df, read_multisequence_df
+from genbenchQC.utils.input_utils import read_fasta, read_sequences_from_df, read_multisequence_df, read_csv_file
 
 def run_analysis(seq_stats, out_folder):
     stats = seq_stats.compute()
@@ -26,8 +24,7 @@ def run(input_file, input_format, out_folder='.', sequence_column: Optional[list
         seqs = read_fasta(input_file)
         run_analysis(SequenceStatistics(seqs, input_file), out_folder)
     else:
-        sep = ',' if input_format == 'csv' else '\t'
-        df = pd.read_csv(input_file, delimiter=sep)
+        df = read_csv_file(input_file, input_format, sequence_column)
 
         for seq_col in sequence_column:
             try:

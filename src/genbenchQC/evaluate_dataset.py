@@ -1,5 +1,4 @@
 import argparse
-import pandas as pd
 from pathlib import Path
 from itertools import combinations
 from typing import Optional
@@ -7,7 +6,7 @@ from typing import Optional
 from genbenchQC.utils.statistics import SequenceStatistics
 from genbenchQC.utils.testing import flag_significant_differences
 from genbenchQC.report.report_generator import generate_text_report, generate_html_report, generate_simple_report, generate_dataset_html_report
-from genbenchQC.utils.input_utils import read_fasta, read_sequences_from_df, read_multisequence_df
+from genbenchQC.utils.input_utils import read_fasta, read_sequences_from_df, read_multisequence_df, read_csv_file
 
 
 def run_analysis(input_statistics, out_folder):
@@ -58,17 +57,9 @@ def run(inputs, input_format, out_folder='.', sequence_column: Optional[list[str
 
     # we have CSV/TSV
     else:
-        if input_format == 'tsv':
-            delim = '\t'
-        else:
-            delim = ','
-
         # we have one file with multiple labels
         if len(inputs) == 1:
-            df = pd.read_csv(inputs[0], delimiter=delim)
-
-            if label_column not in df.columns:
-                raise ValueError(f"Label column '{label_column}' not found in the input file '{inputs}'.")
+            df = read_csv_file(inputs[0], input_format, sequence_column, label_column)
 
             # get the list of labels to consider
             if len(label_list) == 1 and label_list[0] == 'infer':
@@ -105,7 +96,7 @@ def run(inputs, input_format, out_folder='.', sequence_column: Optional[list[str
                 seq_stats = []
                 for input_file in inputs:
                     try:
-                        sequences = read_sequences_from_df(pd.read_csv(input_file, delimiter=delim), seq_col)
+                        sequences = read_sequences_from_df(read_csv_file(input_file, input_format, seq_col), seq_col)
                     except Exception as e:
                         print(f"Error reading sequences': {e}")
                         return
@@ -116,7 +107,7 @@ def run(inputs, input_format, out_folder='.', sequence_column: Optional[list[str
             if len(sequence_column) > 1:
                 seq_stats = []
                 for input_file in inputs:
-                    sequences = read_multisequence_df(pd.read_csv(input_file, delimiter=delim), sequence_column)
+                    sequences = read_multisequence_df(read_csv_file(input_file, input_format, sequence_column), sequence_column)
                     seq_stats += [SequenceStatistics(sequences, filename=input_file,
                                                      seq_column='_'.join(sequence_column))]
                 run_analysis(seq_stats, out_folder)
