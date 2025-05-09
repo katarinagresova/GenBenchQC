@@ -138,9 +138,9 @@ class SequenceStatistics:
             values = [seq_dict.get(nucleotide, 0) for seq_dict in content_dict.values()]
             summary[nucleotide] = {
                 'min': min(values),
-                'q1': np.percentile(values, 25),
-                'median': np.median(values),
-                'q3': np.percentile(values, 75),
+                'q1': float(np.percentile(values, 25)),
+                'median': float(np.median(values)),
+                'q3': float(np.percentile(values, 75)),
                 'max': max(values)
             }
         return summary
