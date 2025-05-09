@@ -27,11 +27,7 @@ def run(input_file, input_format, out_folder='.', sequence_column: Optional[list
         df = read_csv_file(input_file, input_format, sequence_column)
 
         for seq_col in sequence_column:
-            try:
-                sequences = read_sequences_from_df(df, seq_col)
-            except Exception as e:
-                print(f"Error reading sequences: {e}")
-                return
+            sequences = read_sequences_from_df(df, seq_col)
             run_analysis(SequenceStatistics(sequences, filename=input_file, seq_column=seq_col), out_folder)
 
         if len(sequence_column) > 1:
