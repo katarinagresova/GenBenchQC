@@ -10,9 +10,13 @@ from genbenchQC.utils.input_utils import read_fasta, read_sequences_from_df, rea
 
 def run_analysis(seq_stats, out_folder):
     stats = seq_stats.compute()
-    
-    txt_report_path = Path(out_folder, str(Path(seq_stats.filename).stem) + '_report.txt')
-    html_report_path = Path(out_folder, str(Path(seq_stats.filename).stem) + '_report.html')
+
+    filename = Path(seq_stats.filename).stem
+    if seq_stats.seq_column is not None:
+        filename += f'_{seq_stats.seq_column}'
+
+    txt_report_path = Path(out_folder, filename + '_report.txt')
+    html_report_path = Path(out_folder, filename + '_report.html')
 
     generate_text_report(stats, txt_report_path)
     generate_html_report(stats, html_report_path)
