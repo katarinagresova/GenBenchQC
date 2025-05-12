@@ -18,7 +18,7 @@ def generate_html_report(stats_dict, output_path):
     with open(output_path, 'w') as file:
         file.write(template)
 
-def generate_dataset_html_report(stats1, stats2, results, output_path):
+def generate_dataset_html_report(stats1, stats2, results, output_path, threshold):
     """
     Generate an HTML report comparing the statistics of two datasets.
     Plots are generated using the Plotly library.
@@ -29,7 +29,7 @@ def generate_dataset_html_report(stats1, stats2, results, output_path):
     # get the output path without the extension
     output_path = os.path.splitext(output_path)[0] + '.pdf'
 
-    generate_pdf_report(stats1, stats2, results, output_path)
+    generate_pdf_report(stats1, stats2, results, output_path, threshold=threshold)
 
 
 def generate_text_report(stats_dict, output_path):
@@ -52,7 +52,7 @@ def generate_simple_report(results, output_path):
             passed = "Passed" if passed else "Failed"
             file.write(f'{key}: {passed}\n')
 
-def generate_pdf_report(stats1, stats2, results, output_path, threshold=0.01):
+def generate_pdf_report(stats1, stats2, results, output_path, threshold):
 
     plots = []
     bases = list(set(stats1['Unique bases'] + stats2['Unique bases']))
@@ -66,7 +66,7 @@ def generate_pdf_report(stats1, stats2, results, output_path, threshold=0.01):
         x_label='Frequency',
         ax=ax,
         stats=results['Per sequence nucleotide content'][0],
-        p_value_thresh=threshold
+        dist_thresh=threshold
     )
     fig.suptitle('Nucleotide composition')
     plots.append(fig)
@@ -81,7 +81,7 @@ def generate_pdf_report(stats1, stats2, results, output_path, threshold=0.01):
         x_label='Frequency',
         ax=ax,
         stats=results['Per sequence dinucleotide content'][0],
-        p_value_thresh=threshold
+        dist_thresh=threshold
     )
     fig.suptitle('Dinucleotide composition')
     plots.append(fig)
@@ -124,7 +124,7 @@ def generate_pdf_report(stats1, stats2, results, output_path, threshold=0.01):
         x_label='Length',
         ax=ax,
         stats=results['Sequence lengths'][0],
-        p_value_thresh=threshold
+        dist_thresh=threshold
     )
     fig.suptitle('Sequence length distribution')
     plots.append(fig)
@@ -151,7 +151,7 @@ def plot_per_base_sequence_content(df, end_position, title='', ax=None):
 
     return ax
 
-def plot_per_base_sequence_comparison(stats1, stats2, bases, end_position, x_label='', ax=None, stats=None, p_value_thresh=0.01):
+def plot_per_base_sequence_comparison(stats1, stats2, bases, end_position, p_value_thresh, x_label='', ax=None, stats=None):
 
     if ax is None:
         fig, ax = plt.subplots(nrows=len(bases), ncols=1, figsize=(15, 3 * len(bases)), sharex=True, sharey=True)
@@ -180,13 +180,13 @@ def plot_per_base_sequence_comparison(stats1, stats2, bases, end_position, x_lab
                     ax[index].axvspan(i-0.45, i+0.45, facecolor='salmon', alpha=0.5)
 
                 # add new value to legend
-                ax[index].legend([f"positive {base}", f"negative {base}", f"p-value < 0.05"])
+                ax[index].legend([f"positive {base}", f"negative {base}", f"p-value < {p_value_thresh}"])
 
     ax[index].set_xlabel(x_label)
 
     return ax
 
-def plot_composition_comparison(stats1, stats2, bases, x_label='', ax=None, stats=None, p_value_thresh=0.01):
+def plot_composition_comparison(stats1, stats2, bases, dist_thresh, x_label='', ax=None, stats=None, ):
 
     df1 = pd.DataFrame(stats1).T
     df2 = pd.DataFrame(stats2).T
@@ -195,13 +195,13 @@ def plot_composition_comparison(stats1, stats2, bases, x_label='', ax=None, stat
         fig, ax = plt.subplots(nrows=len(bases), ncols=1, figsize=(10, 2*len(bases)))
     for index, base in enumerate(bases):
 
-        sns.histplot(df1[base], ax=ax[index], label='positive', alpha=0.3, stat='probability')
-        sns.histplot(df2[base], ax=ax[index], label='negative', alpha=0.3, stat='probability')
+        sns.histplot(df1[base], ax=ax[index], label='positive', alpha=0.3, stat='probability', element="step", bins='doane')
+        sns.histplot(df2[base], ax=ax[index], label='negative', alpha=0.3, stat='probability', element="step", bins='doane')
 
         if stats:
-            p_value = stats.get(base, 0)
-            if p_value < p_value_thresh:
-                ax[index].text(0.9, 0.01, f"p-value: {p_value:.2e}", ha='center')
+            distance = stats.get(base, 0)
+            if distance > dist_thresh:
+                ax[index].text(0.9, 0.01, f"distance: {distance:.2f}", ha='center')
                 
                 # set frame to gray and width to 2
                 ax[index].spines['bottom'].set_color('red')
@@ -223,7 +223,7 @@ def plot_composition_comparison(stats1, stats2, bases, x_label='', ax=None, stat
     return ax
 
 
-def plot_composition_comparison_boxplot(df1, df2, title='', x_label='', ax=None, stats=None, p_value_thresh=0.01):
+def plot_composition_comparison_boxplot(df1, df2, dist_thresh, title='', x_label='', ax=None, stats=None):
 
     # get columns names
     bases = df1.columns.values
@@ -249,12 +249,12 @@ def plot_composition_comparison_boxplot(df1, df2, title='', x_label='', ax=None,
     for base in bases:
 
         if stats:
-            p_value = stats.get(base, 0)
-            if p_value < p_value_thresh:
+            distance = stats.get(base, 0)
+            if distance > dist_thresh:
 
                 # plot p-value on top of the boxplot
                 index = list(bases).index(base)
-                ax.text(index, -0.15, f"p-value: {p_value:.2e}", ha='center')
+                ax.text(index, -0.15, f"p-value: {distance:.2f}", ha='center')
                 # set background of given column to salmon
                 ax.axvspan(index-0.48, index+0.48, facecolor='salmon', alpha=0.5)
 
@@ -266,7 +266,7 @@ def plot_composition_comparison_boxplot(df1, df2, title='', x_label='', ax=None,
     return ax
 
 #@DeprecationWarning
-def plot_lenght_comparison(stats1, stats2, title='', x_label='', ax=None, stats=None, p_value_thresh=0.01):
+def plot_lenght_comparison(stats1, stats2, dist_thresh, title='', x_label='', ax=None, stats=None):
 
     if ax is None:
         fig, ax = plt.subplots(1, ncols=1, figsize=(10, 2))
@@ -274,13 +274,13 @@ def plot_lenght_comparison(stats1, stats2, title='', x_label='', ax=None, stats=
     length_counts1 = stats1.values()
     length_counts2 = stats2.values()
 
-    sns.histplot(length_counts1, ax=ax, label='positive', alpha=0.3, stat='probability')
-    sns.histplot(length_counts2, ax=ax, label='negative', alpha=0.3, stat='probability')
+    sns.histplot(length_counts1, ax=ax, label='positive', alpha=0.3, stat='probability', bins='doane', element="step")
+    sns.histplot(length_counts2, ax=ax, label='negative', alpha=0.3, stat='probability', bins='doane', element="step")
 
     if stats:
-        p_value = stats
-        if p_value < p_value_thresh:
-            ax.text(0.9, 0.1, f"p-value: {p_value:.2e}", ha='center', transform=ax.transAxes)
+        distance = stats
+        if distance > dist_thresh:
+            ax.text(0.9, 0.1, f"p-value: {distance:.2f}", ha='center', transform=ax.transAxes)
             
             # set frame to gray and width to 2
             ax.spines['bottom'].set_color('salmon')
@@ -301,7 +301,7 @@ def plot_lenght_comparison(stats1, stats2, title='', x_label='', ax=None, stats=
     return ax
 
 #@DeprecationWarning
-def plot_lenght_comparison_boxplot(df1, df2, title='', x_label='', ax=None, stats=None, p_value_thresh=0.01):
+def plot_lenght_comparison_boxplot(df1, df2, dist_thresh, title='', x_label='', ax=None, stats=None):
 
     if ax is None:
         fig, ax = plt.subplots(1, ncols=1, figsize=(10, 2))
@@ -316,10 +316,10 @@ def plot_lenght_comparison_boxplot(df1, df2, title='', x_label='', ax=None, stat
     sns.boxplot(data=combined_df, x='label', y='sum', ax=ax)
 
     if stats:
-        p_value = stats
-        if p_value < p_value_thresh:
+        distance = stats
+        if distance < dist_thresh:
 
-            ax.text(0.5, 0.1, f"p-value: {p_value:.2e}", ha='center', transform=ax.transAxes)
+            ax.text(0.5, 0.1, f"p-value: {distance:.2f}", ha='center', transform=ax.transAxes)
             
             # set frame to gray and width to 2
             ax.spines['bottom'].set_color('salmon')

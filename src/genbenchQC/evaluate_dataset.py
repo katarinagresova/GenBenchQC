@@ -9,7 +9,7 @@ from genbenchQC.report.report_generator import generate_text_report, generate_ht
 from genbenchQC.utils.input_utils import read_fasta, read_sequences_from_df, read_multisequence_df, read_csv_file
 
 
-def run_analysis(input_statistics, out_folder):
+def run_analysis(input_statistics, out_folder, threshold=0.01):
     out_folder = Path(out_folder)
 
     # run individual analysis
@@ -42,9 +42,9 @@ def run_analysis(input_statistics, out_folder):
         simple_report_path = out_folder / Path(f'{filename}.txt')
         html_report_path = out_folder / Path(f'{filename}.html')
 
-        results = flag_significant_differences(stat1.sequences, stat1.stats, stat2.sequences, stat2.stats)
+        results = flag_significant_differences(stat1.sequences, stat1.stats, stat2.sequences, stat2.stats, threshold=threshold)
         generate_simple_report(results, simple_report_path)
-        generate_dataset_html_report(stat1.stats, stat2.stats, results, html_report_path)
+        generate_dataset_html_report(stat1.stats, stat2.stats, results, html_report_path, threshold=threshold)
 
 def run(inputs, input_format, out_folder='.', sequence_column: Optional[list[str]] = ['sequences'], label_column='label', label_list: Optional[list[str]] = ['infer']):
     # we have multiple fasta files with one label each
