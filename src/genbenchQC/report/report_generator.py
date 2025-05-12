@@ -287,8 +287,8 @@ def plot_lenght_comparison(stats1, stats2, dist_thresh, x_label='', label1='posi
     if ax is None:
         fig, ax = plt.subplots(1, ncols=1, figsize=(10, 2))
 
-    length_counts1 = stats1.values()
-    length_counts2 = stats2.values()
+    length_counts1 = list(stats1.values())
+    length_counts2 = list(stats2.values())
 
     sns.histplot(length_counts1, ax=ax, label=label1, alpha=0.3, stat='probability', bins='doane', element="step")
     sns.histplot(length_counts2, ax=ax, label=label2, alpha=0.3, stat='probability', bins='doane', element="step")
