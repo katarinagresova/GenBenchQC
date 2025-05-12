@@ -30,7 +30,9 @@ def flag_per_sequence_content(stats1, stats2, column, threshold, end_position=No
 
     distances = {}
     for base in bases:
-        distances[base] = wasserstein_distance(df1[base][:end_position], df2[base][:end_position])
+        df1_base = df1[base][:end_position] if base in df1 else [0] * end_position
+        df2_base = df2[base][:end_position] if base in df2 else [0] * end_position
+        distances[base] = wasserstein_distance(df1_base, df2_base)
 
     # If there is no significant p-value, this test passed
     passed = np.all(np.array(list(distances.values())) < threshold)
@@ -54,8 +56,10 @@ def flag_per_position_nucleotide_content(stats1, stats2, column, threshold, end_
 
         p_values[base] = []
         for i in range(end_position):
-            table=[[df1[base][i] * 100, (1 - df1[base][i]) * 100],
-                [df2[base][i] * 100, (1 - df2[base][i]) * 100]]
+            df1_base = df1[base][i] if base in df1 else 0
+            df2_base = df2[base][i] if base in df2 else 0
+            table=[[df1_base * 100, (1 - df1_base) * 100],
+                [df2_base * 100, (1 - df2_base) * 100]]
 
             _, p_value = fisher_exact(table=table) 
             p_values[base].append(p_value)

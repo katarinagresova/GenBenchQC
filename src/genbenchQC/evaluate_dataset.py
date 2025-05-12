@@ -44,7 +44,7 @@ def run_analysis(input_statistics, out_folder, threshold=0.01):
 
         results = flag_significant_differences(stat1.sequences, stat1.stats, stat2.sequences, stat2.stats, threshold=threshold)
         generate_simple_report(results, simple_report_path)
-        generate_dataset_html_report(stat1.stats, stat2.stats, results, html_report_path, threshold=threshold)
+        generate_dataset_html_report(stat1, stat2, results, html_report_path, threshold=threshold)
 
 def run(inputs, input_format, out_folder='.', sequence_column: Optional[list[str]] = ['sequences'], label_column='label', label_list: Optional[list[str]] = ['infer']):
     # we have multiple fasta files with one label each
