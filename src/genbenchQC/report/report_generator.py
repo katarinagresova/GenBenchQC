@@ -161,8 +161,11 @@ def plot_per_base_sequence_comparison(stats1, stats2, bases, end_position, p_val
         df1 = pd.DataFrame(stats1).T
         df2 = pd.DataFrame(stats2).T
 
-        ax[index].plot(df1.index[:end_position], df1[base][:end_position], label=f"positive {base}")
-        ax[index].plot(df2.index[:end_position], df2[base][:end_position], label=f"negative {base}")
+        df1_base = df1[base][:end_position] if base in df1 else [0]*end_position
+        df2_base = df2[base][:end_position] if base in df2 else [0]*end_position
+
+        ax[index].plot(df1.index[:end_position], df1_base, label=f"positive {base}")
+        ax[index].plot(df2.index[:end_position], df2_base, label=f"negative {base}")
 
         ax[index].set_ylim(-0.1, 1.1)
         ax[index].set_ylabel('Frequency')
@@ -195,8 +198,11 @@ def plot_composition_comparison(stats1, stats2, bases, dist_thresh, x_label='', 
         fig, ax = plt.subplots(nrows=len(bases), ncols=1, figsize=(10, 2*len(bases)))
     for index, base in enumerate(bases):
 
-        sns.histplot(df1[base], ax=ax[index], label='positive', alpha=0.3, stat='probability', element="step", bins='doane')
-        sns.histplot(df2[base], ax=ax[index], label='negative', alpha=0.3, stat='probability', element="step", bins='doane')
+        df1_base = df1[base] if base in df1 else [0]*len(df1)
+        df2_base = df2[base] if base in df2 else [0]*len(df2)
+
+        sns.histplot(df1_base, ax=ax[index], label='positive', alpha=0.3, stat='probability', element="step", bins='doane')
+        sns.histplot(df2_base, ax=ax[index], label='negative', alpha=0.3, stat='probability', element="step", bins='doane')
 
         if stats:
             distance = stats.get(base, 0)
