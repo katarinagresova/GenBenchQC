@@ -13,7 +13,7 @@ def flag_significant_differences(sequences1, stats1, sequences2, stats2, thresho
         'Per position reversed nucleotide content': flag_per_position_nucleotide_content(stats1, stats2, column='Per position reversed nucleotide content', threshold=threshold),
         'Per sequence GC content': flag_per_sequence_one_stat(stats1, stats2, column='Per sequence GC content', threshold=threshold),
         'Sequence lengths': flag_per_sequence_one_stat(stats1, stats2, column='Sequence lengths', threshold=threshold),
-        'Duplication between positives and negatives': flag_duplication_between_datasets(sequences1, sequences2)
+        'Duplication between labels': flag_duplication_between_datasets(sequences1, sequences2)
     }
 
     return results
