@@ -6,6 +6,7 @@ from scipy.stats import wasserstein_distance, fisher_exact
 
 def flag_significant_differences(sequences1, stats1, sequences2, stats2, threshold):
     results = {
+        'Unique bases': flag_unique_bases(stats1, stats2),
         'Per sequence nucleotide content': flag_per_sequence_content(stats1, stats2, 'Per sequence nucleotide content', threshold=threshold),
         'Per sequence dinucleotide content': flag_per_sequence_content(stats1, stats2, 'Per sequence dinucleotide content', threshold=threshold),
         'Per position nucleotide content': flag_per_position_nucleotide_content(stats1, stats2, column='Per position nucleotide content', threshold=threshold),
@@ -16,6 +17,12 @@ def flag_significant_differences(sequences1, stats1, sequences2, stats2, thresho
     }
 
     return results
+
+def flag_unique_bases(stats1, stats2):
+    if set(stats1['Unique bases']) == set(stats2['Unique bases']):
+        return (None, True)
+    else:
+        return (None, False)
 
 def flag_per_sequence_content(stats1, stats2, column, threshold, end_position=None):
     
