@@ -42,7 +42,7 @@ def flag_per_sequence_content(stats1, stats2, column, threshold, end_position=No
         else:
             df1_base = df1[base][:end_position]
             df2_base = df2[base][:end_position]
-        distances[base] = wasserstein_distance(df1_base, df2_base)
+            distances[base] = wasserstein_distance(df1_base, df2_base)
 
     passed = np.all(np.array(list(distances.values())) < threshold)
     
