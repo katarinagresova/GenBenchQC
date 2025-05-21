@@ -208,11 +208,10 @@ def plot_composition_comparison(stats1, stats2, bases, dist_thresh, x_label='', 
         fig, ax = plt.subplots(nrows=len(bases), ncols=1, figsize=(10, 2*len(bases)))
     for index, base in enumerate(bases):
 
-        df1_base = df1[base] if base in df1 else [0]*len(df1)
-        df2_base = df2[base] if base in df2 else [0]*len(df2)
-
-        sns.histplot(df1_base, ax=ax[index], label=label1, alpha=0.3, stat='probability', element="step", bins='doane')
-        sns.histplot(df2_base, ax=ax[index], label=label2, alpha=0.3, stat='probability', element="step", bins='doane')
+        if base in df1:
+            sns.histplot(df1[base], ax=ax[index], label=label1, alpha=0.3, stat='frequency', element="step", bins='doane')
+        if base in df2:
+            sns.histplot(df2[base], ax=ax[index], label=label2, alpha=0.3, stat='frequency', element="step", bins='doane')
 
         if stats:
             distance = stats.get(base, 0)
