@@ -37,11 +37,13 @@ def flag_per_sequence_content(stats1, stats2, column, threshold, end_position=No
 
     distances = {}
     for base in bases:
-        df1_base = df1[base][:end_position] if base in df1 else [0] * end_position
-        df2_base = df2[base][:end_position] if base in df2 else [0] * end_position
+        if base not in df1 or base not in df2:
+            distances[base] = np.inf
+        else:
+            df1_base = df1[base][:end_position]
+            df2_base = df2[base][:end_position]
         distances[base] = wasserstein_distance(df1_base, df2_base)
 
-    # If there is no significant p-value, this test passed
     passed = np.all(np.array(list(distances.values())) < threshold)
     
     return (distances, passed)
@@ -63,13 +65,16 @@ def flag_per_position_nucleotide_content(stats1, stats2, column, threshold, end_
 
         p_values[base] = []
         for i in range(end_position):
-            df1_base = df1[base][i] if base in df1 else 0
-            df2_base = df2[base][i] if base in df2 else 0
-            table=[[df1_base * 100, (1 - df1_base) * 100],
-                [df2_base * 100, (1 - df2_base) * 100]]
+            if base not in df1 or base not in df2:
+                p_values[base].append(np.inf)
+            else:
+                df1_base = df1[base][i] if base in df1 else 0
+                df2_base = df2[base][i] if base in df2 else 0
+                table=[[df1_base * 100, (1 - df1_base) * 100],
+                    [df2_base * 100, (1 - df2_base) * 100]]
 
-            _, p_value = fisher_exact(table=table) 
-            p_values[base].append(p_value)
+                _, p_value = fisher_exact(table=table) 
+                p_values[base].append(p_value)
 
         # Correcting for FDR per base
         _, p_values[base] = fdrcorrection(p_values[base])
