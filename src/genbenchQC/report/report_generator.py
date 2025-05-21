@@ -58,14 +58,14 @@ def generate_simple_report(results, output_path):
 def generate_pdf_report(stats1, stats2, results, output_path, threshold):
 
     plots = []
-    bases = list(set(stats1.stats['Unique bases'] + stats2.stats['Unique bases']))
+    bases_overlap = list(set(stats1.stats['Unique bases']) & set(stats2.stats['Unique bases']))
 
     # Plot per sequence nucleotide content
-    fig, ax = plt.subplots(nrows=len(bases), ncols=1, figsize=(10, 2*len(bases)))
+    fig, ax = plt.subplots(nrows=len(bases_overlap), ncols=1, figsize=(10, 2*len(bases_overlap)))
     plot_composition_comparison(
         stats1.stats['Per sequence nucleotide content'],
         stats2.stats['Per sequence nucleotide content'],
-        bases = bases,
+        bases = bases_overlap,
         x_label='Frequency',
         ax=ax,
         label1=stats1.label,
@@ -77,7 +77,7 @@ def generate_pdf_report(stats1, stats2, results, output_path, threshold):
     plots.append(fig)
     plt.close(fig)
 
-    dinucleotides = list(set(list(stats1.stats['Per sequence dinucleotide content'][0].keys()) + list(stats2.stats['Per sequence dinucleotide content'][0].keys())))
+    dinucleotides = list(set(stats1.stats['Per sequence dinucleotide content'][0].keys()) & set(stats2.stats['Per sequence dinucleotide content'][0].keys()))
     # Plot per sequence dinucleotide content
     fig, ax = plt.subplots(nrows=len(dinucleotides), ncols=1, figsize=(10, 2*len(dinucleotides)))
     plot_composition_comparison(
@@ -95,7 +95,7 @@ def generate_pdf_report(stats1, stats2, results, output_path, threshold):
     plots.append(fig)
     plt.close(fig)
 
-    bases_overlap = list(set(stats1.stats['Unique bases']) & set(stats2.stats['Unique bases']))
+    
     # Plot per position nucleotide content
     fig, ax = plt.subplots(nrows=len(bases_overlap), ncols=1, figsize=(10, 2*len(bases_overlap)))
     plot_per_base_sequence_comparison(
@@ -231,10 +231,8 @@ def plot_composition_comparison(stats1, stats2, bases, dist_thresh, x_label='', 
         fig, ax = plt.subplots(nrows=len(bases), ncols=1, figsize=(10, 2*len(bases)))
     for index, base in enumerate(bases):
 
-        if base in df1:
-            sns.histplot(df1[base], ax=ax[index], label=label1, alpha=0.3, stat='frequency', element="step", bins='doane', color=LABEL1_COLOR)
-        if base in df2:
-            sns.histplot(df2[base], ax=ax[index], label=label2, alpha=0.3, stat='frequency', element="step", bins='doane', color=LABEL2_COLOR)
+        sns.histplot(df1[base], ax=ax[index], label=label1, alpha=0.3, stat='probability', element="step", bins='doane', color=LABEL1_COLOR)
+        sns.histplot(df2[base], ax=ax[index], label=label2, alpha=0.3, stat='probability', element="step", bins='doane', color=LABEL2_COLOR)
 
         if stats:
             distance = stats.get(base, 0)
