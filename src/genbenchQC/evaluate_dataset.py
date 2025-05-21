@@ -9,7 +9,7 @@ from genbenchQC.report.report_generator import generate_text_report, generate_ht
 from genbenchQC.utils.input_utils import read_fasta, read_sequences_from_df, read_multisequence_df, read_csv_file
 
 
-def run_analysis(input_statistics, out_folder, threshold=0.01):
+def run_analysis(input_statistics, out_folder, threshold=0.015):
     out_folder = Path(out_folder)
 
     # run individual analysis
