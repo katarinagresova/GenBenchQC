@@ -95,12 +95,13 @@ def generate_pdf_report(stats1, stats2, results, output_path, threshold):
     plots.append(fig)
     plt.close(fig)
 
+    bases_overlap = list(set(stats1.stats['Unique bases']) & set(stats2.stats['Unique bases']))
     # Plot per position nucleotide content
-    fig, ax = plt.subplots(nrows=len(bases), ncols=1, figsize=(10, 2*len(bases)))
+    fig, ax = plt.subplots(nrows=len(bases_overlap), ncols=1, figsize=(10, 2*len(bases_overlap)))
     plot_per_base_sequence_comparison(
         stats1.stats['Per position nucleotide content'],
         stats2.stats['Per position nucleotide content'],
-        bases = bases,
+        bases = bases_overlap,
         end_position=100,
         x_label='Position in read (bp)',
         label1=stats1.label,
@@ -114,11 +115,11 @@ def generate_pdf_report(stats1, stats2, results, output_path, threshold):
     plt.close(fig)
 
     # Plot per position reversed nucleotide content
-    fig, ax = plt.subplots(nrows=len(bases), ncols=1, figsize=(10, 2*len(bases)))
+    fig, ax = plt.subplots(nrows=len(bases_overlap), ncols=1, figsize=(10, 2*len(bases_overlap)))
     plot_per_base_sequence_comparison(
         stats1.stats['Per position reversed nucleotide content'],
         stats2.stats['Per position reversed nucleotide content'],
-        bases = bases,
+        bases = bases_overlap,
         end_position=100,
         x_label='Position in read reversed (bp)',
         label1=stats1.label,
@@ -194,9 +195,8 @@ def plot_per_base_sequence_comparison(stats1, stats2, bases, end_position, p_val
         df1 = pd.DataFrame(stats1).T
         df2 = pd.DataFrame(stats2).T
 
-        df1_base = df1[base][:end_position] if base in df1 else [0]*end_position
-        df2_base = df2[base][:end_position] if base in df2 else [0]*end_position
-
+        df1_base = df1[base][:end_position]
+        df2_base = df2[base][:end_position]
         ax[index].plot(df1.index[:end_position], df1_base, label=f"{label1} {base}", color=LABEL1_COLOR)
         ax[index].plot(df2.index[:end_position], df2_base, label=f"{label2} {base}", color=LABEL2_COLOR)
 
