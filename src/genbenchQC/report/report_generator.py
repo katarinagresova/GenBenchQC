@@ -75,6 +75,7 @@ def generate_pdf_report(stats1, stats2, results, output_path, threshold):
     )
     fig.suptitle('Nucleotide composition')
     plots.append(fig)
+    plt.close(fig)
 
     dinucleotides = list(set(list(stats1.stats['Per sequence dinucleotide content'][0].keys()) + list(stats2.stats['Per sequence dinucleotide content'][0].keys())))
     # Plot per sequence dinucleotide content
@@ -92,6 +93,7 @@ def generate_pdf_report(stats1, stats2, results, output_path, threshold):
     )
     fig.suptitle('Dinucleotide composition')
     plots.append(fig)
+    plt.close(fig)
 
     # Plot per position nucleotide content
     fig, ax = plt.subplots(nrows=len(bases), ncols=1, figsize=(10, 2*len(bases)))
@@ -109,6 +111,7 @@ def generate_pdf_report(stats1, stats2, results, output_path, threshold):
     )
     fig.suptitle('Nucleotide composition per position')
     plots.append(fig)
+    plt.close(fig)
 
     # Plot per position reversed nucleotide content
     fig, ax = plt.subplots(nrows=len(bases), ncols=1, figsize=(10, 2*len(bases)))
@@ -126,10 +129,11 @@ def generate_pdf_report(stats1, stats2, results, output_path, threshold):
     )
     fig.suptitle('Reversed nucleotide composition per position')
     plots.append(fig)
+    plt.close(fig)
 
     # Plot length distribution
     fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(10, 2))
-    plot_lenght_comparison(
+    plot_one_stat_comparison(
         stats1.stats['Sequence lengths'],
         stats2.stats['Sequence lengths'],
         x_label='Length',
@@ -141,7 +145,23 @@ def generate_pdf_report(stats1, stats2, results, output_path, threshold):
     )
     fig.suptitle('Sequence length distribution')
     plots.append(fig)
+    plt.close(fig)
 
+    # Plot per sequence GC content
+    fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(10, 2))
+    plot_one_stat_comparison(
+        stats1.stats['Per sequence GC content'],
+        stats2.stats['Per sequence GC content'],
+        x_label='GC content',
+        label1=stats1.label,
+        label2=stats2.label,
+        ax=ax,
+        stats=results['Per sequence GC content'][0],
+        dist_thresh=threshold
+    )
+    fig.suptitle('GC content distribution')
+    plots.append(fig)
+    plt.close(fig)
 
     with PdfPages(output_path) as pdf:
         for fig in plots:
@@ -283,8 +303,7 @@ def plot_composition_comparison_boxplot(df1, df2, dist_thresh, title='', x_label
 
     return ax
 
-#@DeprecationWarning
-def plot_lenght_comparison(stats1, stats2, dist_thresh, x_label='', label1='positive', label2='negative', ax=None, stats=None):
+def plot_one_stat_comparison(stats1, stats2, dist_thresh, x_label='', label1='positive', label2='negative', ax=None, stats=None):
 
     if ax is None:
         fig, ax = plt.subplots(1, ncols=1, figsize=(10, 2))
