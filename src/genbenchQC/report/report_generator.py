@@ -197,8 +197,8 @@ def plot_per_base_sequence_comparison(stats1, stats2, bases, end_position, p_val
 
         df1_base = df1[base][:end_position]
         df2_base = df2[base][:end_position]
-        ax[index].plot(df1.index[:end_position], df1_base, label=f"{label1} {base}", color=LABEL1_COLOR)
-        ax[index].plot(df2.index[:end_position], df2_base, label=f"{label2} {base}", color=LABEL2_COLOR)
+        ax[index].plot(df1.index[:end_position], df1_base, label=f"{label1}", color=LABEL1_COLOR)
+        ax[index].plot(df2.index[:end_position], df2_base, label=f"{label2}", color=LABEL2_COLOR)
 
         ax[index].set_ylim(-0.1, 1.1)
         ax[index].set_ylabel('Frequency')
@@ -216,7 +216,7 @@ def plot_per_base_sequence_comparison(stats1, stats2, bases, end_position, p_val
                     ax[index].axvspan(i-0.45, i+0.45, facecolor='salmon', alpha=0.5)
 
                 # add new value to legend
-                ax[index].legend([f"{label1} {base}", f"{label2} {base}", f"p-value < {p_value_thresh}"])
+                ax[index].legend([f"{label1}", f"{label2}", f"p-value < {p_value_thresh}"], title="Label")
 
     ax[index].set_xlabel(x_label)
 
@@ -253,7 +253,7 @@ def plot_composition_comparison(stats1, stats2, bases, dist_thresh, x_label='', 
 
         ax[index].set_xlim(0, 1)
         ax[index].set_ylabel('Seq Frequency')
-        ax[index].legend()
+        ax[index].legend(title="Label")
         ax[index].set_title(f'Base: {base}')
 
     ax[index].set_xlabel(x_label)
@@ -331,7 +331,7 @@ def plot_one_stat_comparison(stats1, stats2, dist_thresh, x_label='', label1='po
 
     #ax.set_xlim(0, 1)
     ax.set_ylabel('Frequency')
-    ax.legend()
+    ax.legend(title="Label")
 
     ax.set_xlabel(x_label)
 
