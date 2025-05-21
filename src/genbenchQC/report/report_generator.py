@@ -7,6 +7,9 @@ import os
 
 from genbenchQC.report.sequence_html_report import get_html_template
 
+LABEL1_COLOR = '#1f77b4'
+LABEL2_COLOR = '#ff7f0e'
+
 def generate_html_report(stats_dict, output_path):
     """
     Generate an HTML report from the given statistics dictionary.
@@ -174,8 +177,8 @@ def plot_per_base_sequence_comparison(stats1, stats2, bases, end_position, p_val
         df1_base = df1[base][:end_position] if base in df1 else [0]*end_position
         df2_base = df2[base][:end_position] if base in df2 else [0]*end_position
 
-        ax[index].plot(df1.index[:end_position], df1_base, label=f"{label1} {base}")
-        ax[index].plot(df2.index[:end_position], df2_base, label=f"{label2} {base}")
+        ax[index].plot(df1.index[:end_position], df1_base, label=f"{label1} {base}", color=LABEL1_COLOR)
+        ax[index].plot(df2.index[:end_position], df2_base, label=f"{label2} {base}", color=LABEL2_COLOR)
 
         ax[index].set_ylim(-0.1, 1.1)
         ax[index].set_ylabel('Frequency')
@@ -209,9 +212,9 @@ def plot_composition_comparison(stats1, stats2, bases, dist_thresh, x_label='', 
     for index, base in enumerate(bases):
 
         if base in df1:
-            sns.histplot(df1[base], ax=ax[index], label=label1, alpha=0.3, stat='frequency', element="step", bins='doane')
+            sns.histplot(df1[base], ax=ax[index], label=label1, alpha=0.3, stat='frequency', element="step", bins='doane', color=LABEL1_COLOR)
         if base in df2:
-            sns.histplot(df2[base], ax=ax[index], label=label2, alpha=0.3, stat='frequency', element="step", bins='doane')
+            sns.histplot(df2[base], ax=ax[index], label=label2, alpha=0.3, stat='frequency', element="step", bins='doane', color=LABEL2_COLOR)
 
         if stats:
             distance = stats.get(base, 0)
@@ -328,7 +331,7 @@ def plot_lenght_comparison_boxplot(df1, df2, dist_thresh, x_label='', label1='po
     combined_df = combined_df[['sum', 'label']]
     del new_df1, new_df2
 
-    sns.boxplot(data=combined_df, x='label', y='sum', ax=ax)
+    sns.boxplot(data=combined_df, x='label', y='sum', ax=ax, palette=[LABEL1_COLOR, LABEL2_COLOR])
 
     if stats:
         distance = stats
