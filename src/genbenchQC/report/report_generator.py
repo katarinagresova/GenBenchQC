@@ -295,7 +295,7 @@ def plot_lenght_comparison(stats1, stats2, dist_thresh, x_label='', label1='posi
     if stats:
         distance = stats
         if distance > dist_thresh:
-            ax.text(0.9, 0.1, f"p-value: {distance:.2f}", ha='center', transform=ax.transAxes)
+            ax.text(0.9, 0.1, f"distance: {distance:.2f}", ha='center', transform=ax.transAxes)
             
             # set frame to gray and width to 2
             ax.spines['bottom'].set_color('salmon')
