@@ -319,11 +319,11 @@ def plot_one_stat_comparison(stats1, stats2, dist_thresh, x_label='', label1='po
         if distance > dist_thresh:
             ax.text(0.9, 0.1, f"distance: {distance:.2f}", ha='center', transform=ax.transAxes)
             
-            # set frame to gray and width to 2
-            ax.spines['bottom'].set_color('salmon')
-            ax.spines['top'].set_color('salmon')
-            ax.spines['right'].set_color('salmon')
-            ax.spines['left'].set_color('salmon')
+            # set frame to red and width to 2
+            ax.spines['bottom'].set_color('red')
+            ax.spines['top'].set_color('red')
+            ax.spines['right'].set_color('red')
+            ax.spines['left'].set_color('red')
             ax.spines['bottom'].set_linewidth(2)
             ax.spines['top'].set_linewidth(2)
             ax.spines['right'].set_linewidth(2)
