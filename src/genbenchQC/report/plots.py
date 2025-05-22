@@ -91,6 +91,8 @@ def plot_per_base_sequence_comparison(stats1, stats2, stats_name, result, p_valu
     red_flag = False
     for index, nt in enumerate(nucleotides):
 
+        end_position = min(end_position, len(df1[nt]), len(df2[nt]))
+
         df1_base = df1[nt][:end_position]
         df2_base = df2[nt][:end_position]
         axs[index].plot(df1.index[:end_position], df1_base, label=f"{stats1.label}", color=HuePalette()[0])
