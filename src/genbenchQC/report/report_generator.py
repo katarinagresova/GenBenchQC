@@ -7,6 +7,7 @@ import os
 
 from genbenchQC.report.sequence_html_report import get_html_template
 from genbenchQC.utils.input_utils import read_stats_json, write_stats_json
+from genbenchQC.report.plots import violin_plot_nucleotides, violin_plot_dinucleotides
 
 LABEL1_COLOR = '#1f77b4'
 LABEL2_COLOR = '#ff7f0e'
@@ -64,40 +65,26 @@ def generate_pdf_report(stats1, stats2, results, output_path, threshold):
     bases_overlap = list(set(stats1.stats['Unique bases']) & set(stats2.stats['Unique bases']))
 
     # Plot per sequence nucleotide content
-    fig, ax = plt.subplots(nrows=len(bases_overlap), ncols=1, figsize=(10, 2*len(bases_overlap)))
-    plot_composition_comparison(
-        stats1.stats['Per sequence nucleotide content'],
-        stats2.stats['Per sequence nucleotide content'],
-        bases = bases_overlap,
-        x_label='Frequency',
-        ax=ax,
-        label1=stats1.label,
-        label2=stats2.label,
-        stats=results['Per sequence nucleotide content'][0],
+    fig = violin_plot_nucleotides(
+        stats1,
+        stats2,
+        nucleotides = bases_overlap,
+        result=results['Per sequence nucleotide content'],
         dist_thresh=threshold
     )
-    fig.suptitle('Nucleotide composition')
     plots.append(fig)
     plt.close(fig)
 
-    dinucleotides = list(set(stats1.stats['Per sequence dinucleotide content'][0].keys()) & set(stats2.stats['Per sequence dinucleotide content'][0].keys()))
     # Plot per sequence dinucleotide content
-    fig, ax = plt.subplots(nrows=len(dinucleotides), ncols=1, figsize=(10, 2*len(dinucleotides)))
-    plot_composition_comparison(
-        stats1.stats['Per sequence dinucleotide content'],
-        stats2.stats['Per sequence dinucleotide content'],
-        bases = dinucleotides,
-        x_label='Frequency',
-        label1=stats1.label,
-        label2=stats2.label,
-        ax=ax,
-        stats=results['Per sequence dinucleotide content'][0],
+    fig = violin_plot_dinucleotides(
+        stats1,
+        stats2,
+        nucleotides = bases_overlap,
+        result=results['Per sequence dinucleotide content'],
         dist_thresh=threshold
     )
-    fig.suptitle('Dinucleotide composition')
     plots.append(fig)
     plt.close(fig)
-
     
     # Plot per position nucleotide content
     fig, ax = plt.subplots(nrows=len(bases_overlap), ncols=1, figsize=(10, 2*len(bases_overlap)))
