@@ -11,14 +11,11 @@ def write_fasta(sequences, output_file):
 def read_csv_file(file_path, input_format, seq_columns, label_columns=None):
     delim = '\t' if input_format == 'tsv' else ','
 
-    try:
-        columns = seq_columns.copy()
-        if label_columns is not None:
-            columns += [label_columns]
-        df = pd.read_csv(file_path, delimiter=delim, usecols=columns)
-        df[seq_columns] = df[seq_columns].apply(lambda col: col.str.upper())
-    except pd.errors.ParserError as e:
-        raise ValueError(f"Error parsing CSV file {file_path}: {e}")
+    columns = seq_columns.copy()
+    if label_columns is not None:
+        columns += [label_columns]
+    df = pd.read_csv(file_path, delimiter=delim, usecols=columns)
+    df[seq_columns] = df[seq_columns].apply(lambda col: col.str.upper())
 
     return df
 

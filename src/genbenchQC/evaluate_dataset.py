@@ -9,7 +9,7 @@ from genbenchQC.report.report_generator import generate_text_report, generate_ht
 from genbenchQC.utils.input_utils import read_fasta, read_sequences_from_df, read_multisequence_df, read_csv_file
 
 
-def run_analysis(input_statistics, out_folder):
+def run_analysis(input_statistics, out_folder, threshold=0.015):
     out_folder = Path(out_folder)
 
     # run individual analysis
@@ -42,9 +42,9 @@ def run_analysis(input_statistics, out_folder):
         simple_report_path = out_folder / Path(f'{filename}.txt')
         html_report_path = out_folder / Path(f'{filename}.html')
 
-        results = flag_significant_differences(stat1.sequences, stat1.stats, stat2.sequences, stat2.stats)
+        results = flag_significant_differences(stat1.sequences, stat1.stats, stat2.sequences, stat2.stats, threshold=threshold)
         generate_simple_report(results, simple_report_path)
-        generate_dataset_html_report(stat1.stats, stat2.stats, results, html_report_path)
+        generate_dataset_html_report(stat1, stat2, results, html_report_path, threshold=threshold)
 
 def run(inputs, input_format, out_folder='.', sequence_column: Optional[list[str]] = ['sequences'], label_column='label', label_list: Optional[list[str]] = ['infer']):
     # we have multiple fasta files with one label each
@@ -71,11 +71,7 @@ def run(inputs, input_format, out_folder='.', sequence_column: Optional[list[str
             for seq_col in sequence_column:
                 seq_stats = []
                 for label in labels:
-                    try:
-                        sequences = read_sequences_from_df(df, seq_col, label_column, label)
-                    except Exception as e:
-                        print(f"Error reading sequences: {e}")
-                        return
+                    sequences = read_sequences_from_df(df, seq_col, label_column, label)
                     seq_stats += [
                         SequenceStatistics(sequences, filename=inputs[0], label=label, seq_column=seq_col)]
                 run_analysis(seq_stats, out_folder)
@@ -95,11 +91,7 @@ def run(inputs, input_format, out_folder='.', sequence_column: Optional[list[str
             for seq_col in sequence_column:
                 seq_stats = []
                 for input_file in inputs:
-                    try:
-                        sequences = read_sequences_from_df(read_csv_file(input_file, input_format, seq_col), seq_col)
-                    except Exception as e:
-                        print(f"Error reading sequences': {e}")
-                        return
+                    sequences = read_sequences_from_df(read_csv_file(input_file, input_format, seq_col), seq_col)
                     seq_stats += [SequenceStatistics(sequences, filename=input_file, seq_column=seq_col)]
                 run_analysis(seq_stats, out_folder)
 
@@ -132,12 +124,8 @@ def parse_args():
     return args
 
 def main():
-    try:
-        args = parse_args()
-        run(args.input, args.format, args.out_folder, args.sequence_column, args.label_column, args.label_list)
-    except Exception as e:
-        print(f"Error parsing arguments: {e}")
-        return
+    args = parse_args()
+    run(args.input, args.format, args.out_folder, args.sequence_column, args.label_column, args.label_list)
 
 if __name__ == '__main__':
     main()
