@@ -2,6 +2,25 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
 
+def plot_nucleotides(stats1, stats2, result, dist_thresh, nucleotides, plot_type='violin'):
+    """
+    Plot the nucleotide content of two sequences.
+    """
+    if plot_type == 'violin':
+        return violin_plot_nucleotides(stats1, stats2, result, dist_thresh, nucleotides)
+    else:
+        raise ValueError(f"Unknown plot type: {plot_type}")
+    
+def plot_dinucleotides(stats1, stats2, result, dist_thresh, nucleotides, plot_type='violin'):
+    """
+    Plot the dinucleotide content of two sequences.
+    """
+    if plot_type == 'violin':
+        return violin_plot_dinucleotides(stats1, stats2, result, dist_thresh, nucleotides)
+    else:
+        raise ValueError(f"Unknown plot type: {plot_type}")
+
+
 def violin_plot_nucleotides(stats1, stats2, result, dist_thresh, nucleotides):
 
     df = melt_stats(stats1, stats2, 'Per sequence nucleotide content', var_name='Nucleotide', value_name='Percentage')
