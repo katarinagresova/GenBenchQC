@@ -82,7 +82,47 @@ def violin_plot_dinucleotides(stats1, stats2, result, dist_thresh, nucleotides):
 
     return fig
 
-def melt_stats(stats1, stats2, stats_name, var_name='Metric', value_name='Value'):
+def plot_per_base_sequence_comparison(stats1, stats2, stats_name, result, p_value_thresh, nucleotides, end_position, x_label='', title=''):
+
+    df1 = pd.DataFrame(stats1.stats[stats_name]).T
+    df2 = pd.DataFrame(stats2.stats[stats_name]).T
+
+    fig, axs = plt.subplots(len(nucleotides), 1, figsize=(10, len(nucleotides) * 3 + 2), sharey=True, dpi=300)
+    red_flag = False
+    for index, nt in enumerate(nucleotides):
+
+        df1_base = df1[nt][:end_position]
+        df2_base = df2[nt][:end_position]
+        axs[index].plot(df1.index[:end_position], df1_base, label=f"{stats1.label}", color=HuePalette()[0])
+        axs[index].plot(df2.index[:end_position], df2_base, label=f"{stats2.label}", color=HuePalette()[1])
+
+        axs[index].set_ylim(-0.1, 1.1)
+        axs[index].set_ylabel('Frequency', fontsize=14)
+        axs[index].legend().set_visible(False)
+        axs[index].tick_params(axis='x', labelsize=12)
+        axs[index].tick_params(axis='y', labelsize=12)
+
+        # add text to the plot with the nucleotide name
+        axs[index].text(0.9, 0.85, f'Nucleotide: {nt}', ha='center', va='bottom', fontsize=14, transform=axs[index].transAxes)
+
+        if title and index == 0:
+            axs[index].set_title(f'{title}', fontsize=16)
+
+
+        if result:
+            for i in range(end_position):
+                
+                p_value = result[0][nt][i]
+                if p_value < p_value_thresh:
+                    axs[index].axvspan(i-0.45, i+0.45, facecolor='red', alpha=0.2)
+                    red_flag = True
+
+    axs[index].set_xlabel(x_label, fontsize=14)
+    axs[index] = prepare_legend(axs[index], red_flag, p_value_thresh)
+
+    return fig
+
+def melt_stats(stats1, stats2, stats_name, var_name='Metric', value_name='Value', keep_positions=False):
     """
     Melt the stats DataFrame to long format and add a label column.
     """

@@ -7,7 +7,7 @@ import os
 
 from genbenchQC.report.sequence_html_report import get_html_template
 from genbenchQC.utils.input_utils import read_stats_json, write_stats_json
-from genbenchQC.report.plots import violin_plot_nucleotides, violin_plot_dinucleotides
+from genbenchQC.report.plots import violin_plot_nucleotides, violin_plot_dinucleotides, plot_per_base_sequence_comparison
 
 LABEL1_COLOR = '#1f77b4'
 LABEL2_COLOR = '#ff7f0e'
@@ -87,38 +87,32 @@ def generate_pdf_report(stats1, stats2, results, output_path, threshold):
     plt.close(fig)
     
     # Plot per position nucleotide content
-    fig, ax = plt.subplots(nrows=len(bases_overlap), ncols=1, figsize=(10, 2*len(bases_overlap)))
-    plot_per_base_sequence_comparison(
-        stats1.stats['Per position nucleotide content'],
-        stats2.stats['Per position nucleotide content'],
-        bases = bases_overlap,
+    fig = plot_per_base_sequence_comparison(
+        stats1,
+        stats2,
+        stats_name='Per position nucleotide content',
+        result=results['Per position nucleotide content'],
+        p_value_thresh=threshold,
+        nucleotides = bases_overlap,
         end_position=100,
         x_label='Position in read (bp)',
-        label1=stats1.label,
-        label2=stats2.label,
-        ax=ax,
-        stats=results['Per position nucleotide content'][0],
-        p_value_thresh=threshold
+        title='Nucleotide composition per position',
     )
-    fig.suptitle('Nucleotide composition per position')
     plots.append(fig)
     plt.close(fig)
 
-    # Plot per position reversed nucleotide content
-    fig, ax = plt.subplots(nrows=len(bases_overlap), ncols=1, figsize=(10, 2*len(bases_overlap)))
-    plot_per_base_sequence_comparison(
-        stats1.stats['Per position reversed nucleotide content'],
-        stats2.stats['Per position reversed nucleotide content'],
-        bases = bases_overlap,
+    # Plot per reversed position nucleotide content
+    fig = plot_per_base_sequence_comparison(
+        stats1,
+        stats2,
+        stats_name='Per position reversed nucleotide content',
+        result=results['Per position reversed nucleotide content'],
+        p_value_thresh=threshold,
+        nucleotides = bases_overlap,
         end_position=100,
         x_label='Position in read reversed (bp)',
-        label1=stats1.label,
-        label2=stats2.label,
-        ax=ax,
-        stats=results['Per position reversed nucleotide content'][0],
-        p_value_thresh=threshold
+        title='Reversed nucleotide composition per position',
     )
-    fig.suptitle('Reversed nucleotide composition per position')
     plots.append(fig)
     plt.close(fig)
 
@@ -175,42 +169,6 @@ def plot_per_base_sequence_content(df, end_position, title='', ax=None):
 
     return ax
 
-def plot_per_base_sequence_comparison(stats1, stats2, bases, end_position, p_value_thresh, x_label='', label1='positive', label2='negative', ax=None, stats=None):
-
-    if ax is None:
-        fig, ax = plt.subplots(nrows=len(bases), ncols=1, figsize=(15, 3 * len(bases)), sharex=True, sharey=True)
-
-    for index, base in enumerate(bases):
-
-        df1 = pd.DataFrame(stats1).T
-        df2 = pd.DataFrame(stats2).T
-
-        df1_base = df1[base][:end_position]
-        df2_base = df2[base][:end_position]
-        ax[index].plot(df1.index[:end_position], df1_base, label=f"{label1}", color=LABEL1_COLOR)
-        ax[index].plot(df2.index[:end_position], df2_base, label=f"{label2}", color=LABEL2_COLOR)
-
-        ax[index].set_ylim(-0.1, 1.1)
-        ax[index].set_ylabel('Frequency')
-        ax[index].legend()
-        ax[index].set_title(f'Base: {base}')
-
-        if stats:
-            for i in range(end_position):
-                
-                p_value = stats[base][i]
-                if p_value < p_value_thresh:
-                    ax[index].plot(i, p_value, 'ro',)
-
-                    # plot salmon background on position with p-value < 0.05
-                    ax[index].axvspan(i-0.45, i+0.45, facecolor='salmon', alpha=0.5)
-
-                # add new value to legend
-                ax[index].legend([f"{label1}", f"{label2}", f"p-value < {p_value_thresh}"], title="Label")
-
-    ax[index].set_xlabel(x_label)
-
-    return ax
 
 def plot_composition_comparison(stats1, stats2, bases, dist_thresh, x_label='', label1='positive', label2='negative', ax=None, stats=None, ):
 
