@@ -17,6 +17,7 @@ def violin_plot_nucleotides(stats1, stats2, result, dist_thresh, nucleotides):
         data=df[df['Nucleotide'].isin(nucleotides)],
         gap=.1,
         order=nucleotides,
+        hue_order=[stats1.label, stats2.label],
         density_norm='width',
         palette=HuePalette(),
     )
@@ -57,6 +58,8 @@ def violin_plot_dinucleotides(stats1, stats2, result, dist_thresh, nucleotides):
             split=True, 
             data=row,
             gap=.1,
+            order=dinucleotides,
+            hue_order=[stats1.label, stats2.label],
             ax=axs[index],
             density_norm='width',
             palette=HuePalette()
