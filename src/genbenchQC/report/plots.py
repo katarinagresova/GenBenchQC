@@ -18,6 +18,7 @@ def violin_plot_nucleotides(stats1, stats2, result, dist_thresh, nucleotides):
         gap=.1,
         order=nucleotides,
         density_norm='width',
+        palette=HuePalette(),
     )
 
     red_flag = False
@@ -57,7 +58,8 @@ def violin_plot_dinucleotides(stats1, stats2, result, dist_thresh, nucleotides):
             data=row,
             gap=.1,
             ax=axs[index],
-            density_norm='width'
+            density_norm='width',
+            palette=HuePalette()
         )
         
         if index == 0:
@@ -124,3 +126,14 @@ def make_red_flag_rectangle(index, min_y, max_y, margin=0.02):
     flag_box_width = 1 - 2 * margin
     flag_box_hight = max_y - min_y + 2 * margin
     return plt.Rectangle((index - 0.5 + margin, min_y - margin), flag_box_width, flag_box_hight, color='red', alpha=0.2, zorder=-1)
+
+class HuePalette:
+
+    _palette = None
+
+    def __new__(palette):
+        if palette._palette is None:
+            palette._palette = sns.color_palette()[:2]
+
+        return palette._palette
+                
