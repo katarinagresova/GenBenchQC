@@ -68,8 +68,8 @@ def flag_per_position_nucleotide_content(stats1, stats2, column, threshold, end_
             if base not in df1 or base not in df2:
                 p_values[base].append(np.inf)
             else:
-                df1_base = df1[base][i] if base in df1 else 0
-                df2_base = df2[base][i] if base in df2 else 0
+                df1_base = df1[base][i]
+                df2_base = df2[base][i]
                 table=[[df1_base * 100, (1 - df1_base) * 100],
                     [df2_base * 100, (1 - df2_base) * 100]]
 
