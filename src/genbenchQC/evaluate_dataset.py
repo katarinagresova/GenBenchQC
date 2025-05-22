@@ -5,7 +5,7 @@ from typing import Optional
 
 from genbenchQC.utils.statistics import SequenceStatistics
 from genbenchQC.utils.testing import flag_significant_differences
-from genbenchQC.report.report_generator import generate_text_report, generate_html_report, generate_simple_report, generate_dataset_html_report
+from genbenchQC.report.report_generator import generate_json_report, generate_html_report, generate_simple_report, generate_dataset_html_report
 from genbenchQC.utils.input_utils import read_fasta, read_sequences_from_df, read_multisequence_df, read_csv_file
 
 
@@ -21,10 +21,10 @@ def run_analysis(input_statistics, out_folder, threshold=0.015):
             filename += f'_{s.seq_column}'
         if s.label is not None:
             filename += f'_{s.label}'
-        txt_report_path = out_folder / Path(filename + '_report.txt')
+        json_report_path = out_folder / Path(filename + '_report.json')
         html_report_path = out_folder / Path(filename + '_report.html')
 
-        generate_text_report(stats, txt_report_path)
+        generate_json_report(stats, json_report_path)
         generate_html_report(stats, html_report_path)
 
     if len(input_statistics) < 2:

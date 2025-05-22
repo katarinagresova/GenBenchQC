@@ -6,6 +6,7 @@ import pandas as pd
 import os
 
 from genbenchQC.report.sequence_html_report import get_html_template
+from genbenchQC.utils.input_utils import read_stats_json, write_stats_json
 
 LABEL1_COLOR = '#1f77b4'
 LABEL2_COLOR = '#ff7f0e'
@@ -34,6 +35,8 @@ def generate_dataset_html_report(stats1, stats2, results, output_path, threshold
 
     generate_pdf_report(stats1, stats2, results, output_path, threshold=threshold)
 
+def generate_json_report(stats_dict, output_path):
+    write_stats_json(stats_dict, output_path)
 
 def generate_text_report(stats_dict, output_path):
     with open(output_path, 'w') as file:
