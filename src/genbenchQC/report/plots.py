@@ -23,14 +23,14 @@ def plot_dinucleotides(stats1, stats2, result, dist_thresh, nucleotides, plot_ty
 
 def violin_plot_nucleotides(stats1, stats2, result, dist_thresh, nucleotides):
 
-    df = melt_stats(stats1, stats2, 'Per sequence nucleotide content', var_name='Nucleotide', value_name='Percentage')
-    min_y = df['Percentage'].min()
-    max_y = df['Percentage'].max()
+    df = melt_stats(stats1, stats2, 'Per sequence nucleotide content', var_name='Nucleotide', value_name='Frequency')
+    min_y = df['Frequency'].min()
+    max_y = df['Frequency'].max()
 
     fig, ax = plt.subplots(1, 1, figsize=(10, 4), dpi=300)
     sns.violinplot(
         x='Nucleotide', 
-        y='Percentage', 
+        y='Frequency', 
         hue="label", 
         split=True, 
         data=df[df['Nucleotide'].isin(nucleotides)],
@@ -50,7 +50,7 @@ def violin_plot_nucleotides(stats1, stats2, result, dist_thresh, nucleotides):
 
     ax.set_title('Nucleotide content', fontsize=16)
     ax.set_xlabel('Nucleotide', fontsize=14)
-    ax.set_ylabel('Percentage', fontsize=14)
+    ax.set_ylabel('Frequency', fontsize=14)
     ax.tick_params(axis='x', labelsize=12)
     ax.tick_params(axis='y', labelsize=12)
     ax = prepare_legend(ax, red_flag, dist_thresh)
@@ -60,9 +60,9 @@ def violin_plot_nucleotides(stats1, stats2, result, dist_thresh, nucleotides):
 
 def violin_plot_dinucleotides(stats1, stats2, result, dist_thresh, nucleotides):
 
-    df = melt_stats(stats1, stats2, 'Per sequence dinucleotide content', var_name='Dinucleotide', value_name='Percentage')
-    min_y = df['Percentage'].min()
-    max_y = df['Percentage'].max()
+    df = melt_stats(stats1, stats2, 'Per sequence dinucleotide content', var_name='Dinucleotide', value_name='Frequency')
+    min_y = df['Frequency'].min()
+    max_y = df['Frequency'].max()
     
     fig, axs = plt.subplots(len(nucleotides), 1, figsize=(10, len(nucleotides) * 3 + 2), sharey=True, dpi=300)
     red_flag = False
@@ -72,7 +72,7 @@ def violin_plot_dinucleotides(stats1, stats2, result, dist_thresh, nucleotides):
 
         sns.violinplot(
             x='Dinucleotide', 
-            y='Percentage', 
+            y='Frequency', 
             hue="label", 
             split=True, 
             data=row,
@@ -89,7 +89,7 @@ def violin_plot_dinucleotides(stats1, stats2, result, dist_thresh, nucleotides):
 
         axs[index].set_xlabel('')
         axs[index].legend().set_visible(False)
-        axs[index].set_ylabel('Percentage', fontsize=14)
+        axs[index].set_ylabel('Frequency', fontsize=14)
         axs[index].tick_params(axis='x', labelsize=12)
         axs[index].tick_params(axis='y', labelsize=12)
 
