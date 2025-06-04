@@ -7,7 +7,7 @@ import os
 
 from genbenchQC.report.sequence_html_report import get_html_template
 from genbenchQC.utils.input_utils import read_stats_json, write_stats_json
-from genbenchQC.report.plots import violin_plot_nucleotides, violin_plot_dinucleotides, plot_per_base_sequence_comparison
+from genbenchQC.report.plots import plot_nucleotides, plot_dinucleotides, plot_per_base_sequence_comparison
 
 LABEL1_COLOR = '#1f77b4'
 LABEL2_COLOR = '#ff7f0e'
@@ -37,6 +37,10 @@ def generate_dataset_html_report(stats1, stats2, results, output_path, threshold
     generate_pdf_report(stats1, stats2, results, output_path, threshold=threshold)
 
 def generate_json_report(stats_dict, output_path):
+
+    if not os.path.exists(os.path.dirname(output_path)):
+        os.makedirs(os.path.dirname(output_path))
+
     write_stats_json(stats_dict, output_path)
 
 def generate_text_report(stats_dict, output_path):
@@ -65,23 +69,25 @@ def generate_pdf_report(stats1, stats2, results, output_path, threshold):
     bases_overlap = list(set(stats1.stats['Unique bases']) & set(stats2.stats['Unique bases']))
 
     # Plot per sequence nucleotide content
-    fig = violin_plot_nucleotides(
+    fig = plot_nucleotides(
         stats1,
         stats2,
         nucleotides = bases_overlap,
         result=results['Per sequence nucleotide content'],
-        dist_thresh=threshold
+        dist_thresh=threshold,
+        plot_type='violin'
     )
     plots.append(fig)
     plt.close(fig)
 
     # Plot per sequence dinucleotide content
-    fig = violin_plot_dinucleotides(
+    fig = plot_dinucleotides(
         stats1,
         stats2,
         nucleotides = bases_overlap,
         result=results['Per sequence dinucleotide content'],
-        dist_thresh=threshold
+        dist_thresh=threshold,
+        plot_type='violin'
     )
     plots.append(fig)
     plt.close(fig)
