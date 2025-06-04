@@ -109,7 +109,7 @@ def plot_per_base_sequence_comparison(stats1, stats2, stats_name, result, p_valu
     df1 = pd.DataFrame(stats1.stats[stats_name]).T
     df2 = pd.DataFrame(stats2.stats[stats_name]).T
 
-    fig, axs = plt.subplots(len(nucleotides), 1, figsize=(10, len(nucleotides) * 3 + 2), sharey=True, dpi=300)
+    fig, axs = plt.subplots(len(nucleotides), 1, figsize=(10, len(nucleotides) * 2 + 2), sharey=True, dpi=300)
     red_flag = False
     for index, nt in enumerate(nucleotides):
 
@@ -142,7 +142,7 @@ def plot_per_base_sequence_comparison(stats1, stats2, stats_name, result, p_valu
                     red_flag = True
 
     axs[index].set_xlabel(x_label, fontsize=14)
-    axs[index] = prepare_legend(axs[index], red_flag, p_value_thresh)
+    axs[index] = prepare_legend(axs[index], red_flag, p_value_thresh, box_to_anchor=(0.5, -0.3))
 
     return fig
 
@@ -162,7 +162,7 @@ def melt_stats(stats1, stats2, stats_name, var_name='Metric', value_name='Value'
 
     return df
 
-def prepare_legend(ax, red_flag, dist_thresh):
+def prepare_legend(ax, red_flag, dist_thresh, box_to_anchor=(0.5, -0.2)):
     """
     Prepare the legend for the plot.
     """
@@ -178,7 +178,7 @@ def prepare_legend(ax, red_flag, dist_thresh):
         title_fontsize='14',
         fontsize='12',
         loc='upper center', 
-        bbox_to_anchor=(0.5, -0.2), 
+        bbox_to_anchor=box_to_anchor, 
         ncol=3,
     )
     return ax
