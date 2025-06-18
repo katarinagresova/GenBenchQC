@@ -48,7 +48,13 @@ def parse_args():
     parser.add_argument('--label', type=str,
                         help='Label of the class to select from the whole dataset. If not specified, the whole dataset is taken and analyzed as one piece.', default=None)
     parser.add_argument('--out_folder', type=str, help='Path to the output folder.', default='.')
-    return parser.parse_args()
+
+    args = parser.parse_args()
+
+    if (args.label_column is not None and args.label is None) or (args.label_column is None and args.label is not None):
+        parser.error("--label_column and --label must be provided together.")
+
+    return args
 
 def main():
     args = parse_args()
