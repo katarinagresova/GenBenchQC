@@ -1,5 +1,3 @@
-from genbenchQC.report.report_generator import LABEL2_COLOR
-
 # Genomic Benchmarks QC: Automated Quality Control for Genomic Machine Learning Datasets
 
 ## Installation
