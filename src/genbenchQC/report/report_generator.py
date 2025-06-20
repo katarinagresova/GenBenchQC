@@ -4,6 +4,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 
 import pandas as pd
 import os
+import logging
 
 from genbenchQC.report.sequence_html_report import get_html_template
 from genbenchQC.utils.input_utils import read_stats_json, write_stats_json
@@ -22,6 +23,8 @@ def generate_html_report(stats_dict, output_path):
     Generate an HTML report from the given statistics dictionary.
     Plots are generated using the Plotly library.
     """
+    logging.info(f"Generating HTML report: {output_path}")
+
     # Load the HTML template
     template = get_html_template(stats_dict)
 
@@ -65,6 +68,7 @@ def generate_simple_report(results, output_path):
             file.write(f'{key}: {passed}\n')
 
 def generate_pdf_report(stats1, stats2, results, output_path, threshold):
+    logging.info(f"Generating PDF report: {output_path}")
 
     plots = []
     bases_overlap = list(set(stats1.stats['Unique bases']) & set(stats2.stats['Unique bases']))

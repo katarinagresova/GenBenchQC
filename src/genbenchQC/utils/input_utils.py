@@ -1,5 +1,6 @@
 from Bio import SeqIO, SeqRecord, Seq
 import pandas as pd
+import logging
 import json
 
 def read_fasta(fasta_file):
@@ -27,6 +28,7 @@ def read_sequences_from_df(df, seq_column, label_column=None, label=None):
     df_parsed = df[df[label_column] == label]
 
     if df_parsed.empty:
+        logging.error(f"No sequences found for label '{label}' in column '{label_column}'.")
         raise ValueError(f"No sequences found for label '{label}' in column '{label_column}'.")
 
     return df_parsed[seq_column].tolist()
@@ -35,6 +37,30 @@ def read_multisequence_df(df, seq_columns, label_column=None, label=None):
     all_sequences = [read_sequences_from_df(df, seq_column, label_column, label) for seq_column in seq_columns]
     concatenated_sequences = [''.join(seqs) for seqs in zip(*all_sequences)]
     return concatenated_sequences
+
+def setup_logger(level=logging.INFO, file=None):
+    if file:
+        logging.basicConfig(
+            level=level,
+            format='%(asctime)s - %(levelname)s - %(message)s',
+            datefmt='%Y-%m-%d %H:%M:%S',
+            handlers=[
+                logging.FileHandler(file, mode='w'),
+                logging.StreamHandler()
+            ]
+        )
+    else:
+        logging.basicConfig(
+            level=level,
+            format='%(asctime)s - %(levelname)s - %(message)s',
+            datefmt='%Y-%m-%d %H:%M:%S',
+            handlers=[
+                logging.StreamHandler()
+            ]
+        )
+
+    # Suppress matplotlib debug messages
+    logging.getLogger("matplotlib").setLevel(logging.WARNING)
 
 def read_stats_json(stats_json_file):
     with open(stats_json_file, 'r') as file:
