@@ -124,6 +124,7 @@ class SequenceStatistics:
 
     def _compute_summary_statistics(self):
         if 'Per sequence nucleotide content' not in self.stats or 'Per sequence dinucleotide content' not in self.stats:
+            logging.error("Per sequence (di)nucleotide content not computed. Run _compute_per_sequence_statistics() first.")
             raise ValueError("Per sequence (di)nucleotide content not computed. Run _compute_per_sequence_statistics() first.")
 
         nucleotides = self.stats['Unique bases'] if 'Unique bases' in self.stats else list(set(''.join(self.sequences)))

@@ -27,12 +27,14 @@ def run(input_file, input_format, out_folder='.', sequence_column: Optional[list
 
     if input_format == 'fasta':
         seqs = read_fasta(input_file)
+        logging.debug(f"Read {len(seqs)} sequences from FASTA file.")
         run_analysis(SequenceStatistics(seqs, input_file), out_folder)
     else:
         df = read_csv_file(input_file, input_format, sequence_column, label_column)
 
         for seq_col in sequence_column:
             sequences = read_sequences_from_df(df, seq_col, label_column, label)
+            logging.debug(f"Read {len(sequences)} sequences from CSV/TSV file.")
             run_analysis(SequenceStatistics(sequences, filename=input_file, seq_column=seq_col, label=label), out_folder)
 
         if len(sequence_column) > 1:

@@ -38,8 +38,11 @@ def run_analysis(input_statistics, out_folder, threshold=0.015):
             filename += f'_{stat1.seq_column}'
         if stat1.label is not None and stat2.label is not None:
             filename += f'_label_{stat1.label}_vs_{stat2.label}'
+            logging.debug(f"Comparing datasets label: {stat1.label} vs {stat2.label}")
         else:
             filename += f'_{Path(stat1.filename).stem}_{Path(stat2.filename).stem}'
+            logging.debug(
+                f"Comparing datasets: {stat1.filename} vs {stat2.filename}")
         simple_report_path = out_folder / Path(f'{filename}.txt')
         html_report_path = out_folder / Path(f'{filename}.html')
 
@@ -54,6 +57,7 @@ def run(inputs, input_format, out_folder='.', sequence_column: Optional[list[str
         seq_stats = []
         for input_file in inputs:
             sequences = read_fasta(input_file)
+            logging.debug(f"Read {len(sequences)} sequences from FASTA file {input_file}.")
             seq_stats += [SequenceStatistics(sequences, filename=input_file)]
         run_analysis(seq_stats, out_folder)
 
@@ -66,6 +70,7 @@ def run(inputs, input_format, out_folder='.', sequence_column: Optional[list[str
             # get the list of labels to consider
             if len(label_list) == 1 and label_list[0] == 'infer':
                 labels = df[label_column].unique().tolist()
+                logging.debug(f"Inferred labels: {labels}")
             else:
                 labels = label_list
 
@@ -74,6 +79,7 @@ def run(inputs, input_format, out_folder='.', sequence_column: Optional[list[str
                 seq_stats = []
                 for label in labels:
                     sequences = read_sequences_from_df(df, seq_col, label_column, label)
+                    logging.debug(f"Read {len(sequences)} sequences for label '{label}' from column '{seq_col}'.")
                     seq_stats += [
                         SequenceStatistics(sequences, filename=inputs[0], label=label, seq_column=seq_col)]
                 run_analysis(seq_stats, out_folder)
@@ -94,6 +100,7 @@ def run(inputs, input_format, out_folder='.', sequence_column: Optional[list[str
                 seq_stats = []
                 for input_file in inputs:
                     sequences = read_sequences_from_df(read_csv_file(input_file, input_format, seq_col), seq_col)
+                    logging.debug(f"Read {len(sequences)} sequences from file {input_file} in column '{seq_col}'.")
                     seq_stats += [SequenceStatistics(sequences, filename=input_file, seq_column=seq_col)]
                 run_analysis(seq_stats, out_folder)
 
