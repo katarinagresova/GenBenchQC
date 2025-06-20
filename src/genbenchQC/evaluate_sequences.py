@@ -32,6 +32,7 @@ def run(input_file, input_format, out_folder='.', sequence_column: Optional[list
 
     if input_format == 'fasta':
         seqs = read_fasta(input_file)
+        logging.debug(f"Read {len(seqs)} sequences from FASTA file.")
         run_analysis(
             SequenceStatistics(seqs, Path(input_file).name, label=label),
             out_folder
@@ -41,6 +42,7 @@ def run(input_file, input_format, out_folder='.', sequence_column: Optional[list
 
         for seq_col in sequence_column:
             sequences = read_sequences_from_df(df, seq_col, label_column, label)
+            logging.debug(f"Read {len(sequences)} sequences from CSV/TSV file.")
             run_analysis(
                 SequenceStatistics(sequences, filename=Path(input_file).name, seq_column=seq_col, label=label),
                 out_folder
