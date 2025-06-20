@@ -1,10 +1,11 @@
 import argparse
 from pathlib import Path
 from typing import Optional
+import logging
 
 from genbenchQC.utils.statistics import SequenceStatistics
 from genbenchQC.report.report_generator import generate_text_report, generate_html_report
-from genbenchQC.utils.input_utils import read_fasta, read_sequences_from_df, read_multisequence_df, read_csv_file
+from genbenchQC.utils.input_utils import read_fasta, read_sequences_from_df, read_multisequence_df, read_csv_file, setup_logger
 
 def run_analysis(seq_stats, out_folder):
     stats = seq_stats.compute()
@@ -22,6 +23,8 @@ def run_analysis(seq_stats, out_folder):
     generate_html_report(stats, html_report_path)
 
 def run(input_file, input_format, out_folder='.', sequence_column: Optional[list[str]] = ['sequences'], label_column=None, label: Optional[str] = None):
+    logging.info("Starting sequence evaluation.")
+
     if input_format == 'fasta':
         seqs = read_fasta(input_file)
         run_analysis(SequenceStatistics(seqs, input_file), out_folder)
@@ -36,6 +39,8 @@ def run(input_file, input_format, out_folder='.', sequence_column: Optional[list
             sequences = read_multisequence_df(df, sequence_column, label_column, label)
             run_analysis(SequenceStatistics(sequences, filename=input_file, seq_column='_'.join(sequence_column), label=label), out_folder)
 
+    logging.info("Sequence evaluation successfully completed.")
+
 def parse_args():
     parser = argparse.ArgumentParser(description='A tools for evaluating sequence data.')
     parser.add_argument('--input', type=str, help='Path to the input file.', required=True)
@@ -48,6 +53,9 @@ def parse_args():
     parser.add_argument('--label', type=str,
                         help='Label of the class to select from the whole dataset. If not specified, the whole dataset is taken and analyzed as one piece.', default=None)
     parser.add_argument('--out_folder', type=str, help='Path to the output folder.', default='.')
+    parser.add_argument('--log_level', type=str, help='Logging level, default to INFO.',
+                        choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'], default='INFO')
+    parser.add_argument('--log_file', type=str, help='Path to the log file.', default=None)
 
     args = parser.parse_args()
 
@@ -58,6 +66,7 @@ def parse_args():
 
 def main():
     args = parse_args()
+    setup_logger(args.log_level, args.log_file)
     run(args.input, args.format, args.out_folder, args.sequence_column, args.label_column, args.label)
 
 

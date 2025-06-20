@@ -1,4 +1,5 @@
 import argparse
+import logging
 from pathlib import Path
 from itertools import combinations
 from typing import Optional
@@ -6,7 +7,7 @@ from typing import Optional
 from genbenchQC.utils.statistics import SequenceStatistics
 from genbenchQC.utils.testing import flag_significant_differences
 from genbenchQC.report.report_generator import generate_text_report, generate_html_report, generate_simple_report, generate_dataset_html_report
-from genbenchQC.utils.input_utils import read_fasta, read_sequences_from_df, read_multisequence_df, read_csv_file
+from genbenchQC.utils.input_utils import read_fasta, read_sequences_from_df, read_multisequence_df, read_csv_file, setup_logger
 
 
 def run_analysis(input_statistics, out_folder, threshold=0.015):
@@ -47,6 +48,7 @@ def run_analysis(input_statistics, out_folder, threshold=0.015):
         generate_dataset_html_report(stat1, stat2, results, html_report_path, threshold=threshold)
 
 def run(inputs, input_format, out_folder='.', sequence_column: Optional[list[str]] = ['sequences'], label_column='label', label_list: Optional[list[str]] = ['infer']):
+    logging.info("Starting dataset evaluation.")
     # we have multiple fasta files with one label each
     if input_format == 'fasta':
         seq_stats = []
@@ -104,6 +106,8 @@ def run(inputs, input_format, out_folder='.', sequence_column: Optional[list[str
                                                      seq_column='_'.join(sequence_column))]
                 run_analysis(seq_stats, out_folder)
 
+    logging.info("Dataset evaluation successfully completed.")
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Evaluate positive and negative sequence datasets.')
@@ -116,6 +120,8 @@ def parse_args():
     parser.add_argument('--label_list', type=str, nargs='+', help='List of label classes to consider or "infer" to parse different labels automatically from label column.'
                                                        ' For datasets in CSV/TSV format.', default=['infer'])
     parser.add_argument('--out_folder', type=str, help='Path to the output folder.', default='.')
+    parser.add_argument('--log_level', type=str, help='Logging level, default to INFO.', choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'], default='INFO')
+    parser.add_argument('--log_file', type=str, help='Path to the log file.', default=None)
     args = parser.parse_args()
 
     if args.format == 'fasta' and len(args.input) < 2:
@@ -125,6 +131,7 @@ def parse_args():
 
 def main():
     args = parse_args()
+    setup_logger(args.log_level, args.log_file)
     run(args.input, args.format, args.out_folder, args.sequence_column, args.label_column, args.label_list)
 
 if __name__ == '__main__':
