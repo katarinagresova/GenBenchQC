@@ -161,6 +161,7 @@ def violin_plot_one_stat(stats1, stats2, stats_name, result, dist_thresh, x_labe
     ax.set_ylabel(stats_name, fontsize=14)
     ax.tick_params(axis='x', labelsize=12)
     ax.tick_params(axis='y', labelsize=12)
+    ax.ticklabel_format(axis='both', style='plain')
     ax = prepare_legend(ax, red_flag, dist_thresh) 
 
     return fig
@@ -245,6 +246,7 @@ def plot_plot_basic_descriptive_stats(stats1, stats2):
     ax.set_yticks([])  # remove the y ticks
     ax.set_xticklabels([])  # remove the x tick labels
     ax.set_yticklabels([])  # remove the y tick labels
+    ax.ticklabel_format(axis='both', style='plain')
     ax.spines['top'].set_visible(False)  # remove the top spine
     ax.spines['right'].set_visible(False)  # remove the right spine
     ax.spines['left'].set_visible(False)  # remove the left spine
