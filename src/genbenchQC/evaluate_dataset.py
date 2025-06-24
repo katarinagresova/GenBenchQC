@@ -46,7 +46,7 @@ def run_analysis(input_statistics, out_folder, threshold=0.015):
         generate_simple_report(results, simple_report_path)
         generate_dataset_html_report(stat1, stat2, results, html_report_path, threshold=threshold)
 
-def run(inputs, input_format, out_folder='.', sequence_column: Optional[list[str]] = ['sequences'], label_column='label', label_list: Optional[list[str]] = ['infer']):
+def run(inputs, input_format, out_folder='.', sequence_column: Optional[list[str]] = ['sequences'], label_column='label', label_list: Optional[list[str]] = ['infer'], regression: Optional[bool] = False):
     # we have multiple fasta files with one label each
     if input_format == 'fasta':
         seq_stats = []
@@ -57,12 +57,19 @@ def run(inputs, input_format, out_folder='.', sequence_column: Optional[list[str
 
     # we have CSV/TSV
     else:
-        # we have one file with multiple labels
+        # we have one file with multiple labels or regression target
         if len(inputs) == 1:
             df = read_csv_file(inputs[0], input_format, sequence_column, label_column)
 
+            # if regression is True, we split the label column into two classes
+            if regression:
+                # infer the threshold as the median of the label column
+                threshold = df[label_column].median()
+                df[label_column] = df[label_column].apply(lambda x: 'high' if x >= threshold else 'low')
+                labels = ['high', 'low']
+
             # get the list of labels to consider
-            if len(label_list) == 1 and label_list[0] == 'infer':
+            elif len(label_list) == 1 and label_list[0] == 'infer':
                 labels = df[label_column].unique().tolist()
             else:
                 labels = label_list
@@ -115,6 +122,7 @@ def parse_args():
     parser.add_argument('--label_column', type=str, help='Name with the label column for datasets in CSV/TSV format.', default='label')
     parser.add_argument('--label_list', type=str, nargs='+', help='List of label classes to consider or "infer" to parse different labels automatically from label column.'
                                                        ' For datasets in CSV/TSV format.', default=['infer'])
+    parser.add_argument('--regression', action='store_true', help='If True, label column is considered as a regression target and values are split into 2 classes')
     parser.add_argument('--out_folder', type=str, help='Path to the output folder.', default='.')
     args = parser.parse_args()
 
@@ -125,7 +133,7 @@ def parse_args():
 
 def main():
     args = parse_args()
-    run(args.input, args.format, args.out_folder, args.sequence_column, args.label_column, args.label_list)
+    run(args.input, args.format, args.out_folder, args.sequence_column, args.label_column, args.label_list, args.regression)
 
 if __name__ == '__main__':
     main()
