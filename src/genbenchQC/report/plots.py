@@ -161,7 +161,10 @@ def violin_plot_one_stat(stats1, stats2, stats_name, result, dist_thresh, x_labe
     ax.set_ylabel(stats_name, fontsize=14)
     ax.tick_params(axis='x', labelsize=12)
     ax.tick_params(axis='y', labelsize=12)
-    ax.ticklabel_format(axis='both', style='plain')
+    if min_y == max_y:
+        # show only one value
+        ax.set_yticks([min_y])
+    ax.ticklabel_format(axis='y', style='plain')
     ax = prepare_legend(ax, red_flag, dist_thresh) 
 
     return fig
@@ -204,6 +207,7 @@ def plot_per_base_sequence_comparison(stats1, stats2, stats_name, result, p_valu
                     red_flag = True
 
     axs[index].set_xlabel(x_label, fontsize=14)
+    axs[index].ticklabel_format(axis='both', style='plain')
     axs[index] = prepare_legend(axs[index], red_flag, p_value_thresh, box_to_anchor=(0.5, -0.3))
 
     return fig
@@ -216,6 +220,8 @@ def plot_plot_basic_descriptive_stats(stats1, stats2):
     # hide the axes
     ax.axis('off')
 
+    unique_bases1 = sorted(stats1.stats["Unique bases"])
+    unique_bases2 = sorted(stats2.stats["Unique bases"])
     # create a table with the basic descriptive statistics
     table_data = [
         ["Filename", stats1.filename, stats2.filename],
@@ -223,7 +229,7 @@ def plot_plot_basic_descriptive_stats(stats1, stats2):
         ["Number of sequences", stats1.stats["Number of sequences"], stats2.stats["Number of sequences"]],
         ["Unique sequences", stats1.stats["Number of sequences left after deduplication"], stats2.stats["Number of sequences left after deduplication"]],
         ["Number of bases", stats1.stats["Number of bases"], stats2.stats["Number of bases"]],
-        ["Unique bases", ', '.join(stats1.stats["Unique bases"]), ', '.join(stats2.stats["Unique bases"])],
+        ["Unique bases", ', '.join(unique_bases1), ', '.join(unique_bases2)],
         ["%GC content", f"{stats1.stats['%GC content']:.2%}", f"{stats2.stats['%GC content']:.2%}"],
         
     ]
@@ -246,7 +252,6 @@ def plot_plot_basic_descriptive_stats(stats1, stats2):
     ax.set_yticks([])  # remove the y ticks
     ax.set_xticklabels([])  # remove the x tick labels
     ax.set_yticklabels([])  # remove the y tick labels
-    ax.ticklabel_format(axis='both', style='plain')
     ax.spines['top'].set_visible(False)  # remove the top spine
     ax.spines['right'].set_visible(False)  # remove the right spine
     ax.spines['left'].set_visible(False)  # remove the left spine
@@ -255,6 +260,50 @@ def plot_plot_basic_descriptive_stats(stats1, stats2):
     ax.set_ylim(0, 1)  # set the y limits to [0, 1]
 
     return fig
+
+def plot_duplicates(result):
+
+    if result[0] is None:
+        return None
+    else:
+        # initialize the figure
+        fig, ax = plt.subplots(1, 1, figsize=(10, 4), dpi=300)
+
+        # hide the axes
+        ax.axis('off')
+
+        # create a table with the duplicates max top 10 duplicates
+        table_data = []
+        for seq in list(result[0])[:10]:
+            if len(seq) > 50:
+                seq = seq[:50] + '...'
+            table_data.append([seq])
+        if len(result[0]) > 10:
+            table_data.append(['... and more (saving to file)'])
+
+        table = ax.table(cellText=table_data, colLabels=None, cellLoc='center', loc='center')
+
+        table.auto_set_font_size(False)
+        table.set_fontsize(14)
+        table.scale(0.7, 1.7)  # scale the table to make it more readable
+        table.auto_set_column_width([0, 1])
+
+    # set the title of the plot
+    ax.set_title('Duplicate Sequences', fontsize=16)
+    ax.set_frame_on(False)  # remove the frame around the table
+    ax.set_xticks([])  # remove the x ticks
+    ax.set_yticks([])  # remove the y ticks
+    ax.set_xticklabels([])  # remove the x tick labels
+    ax.set_yticklabels([])  # remove the y tick labels
+    ax.spines['top'].set_visible(False)  # remove the top spine
+    ax.spines['right'].set_visible(False)  # remove the right spine
+    ax.spines['left'].set_visible(False)  # remove the left spine
+    ax.spines['bottom'].set_visible(False)  # remove the bottom spine
+    ax.set_xlim(0, 1)  # set the x limits to [0, 1]
+    ax.set_ylim(0, 1)  # set the y limits to [0, 1] 
+
+    return fig
+
 
 def melt_stats(stats1, stats2, stats_name, var_name='Metric', value_name='Value', keep_positions=False):
     """

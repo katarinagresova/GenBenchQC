@@ -14,6 +14,7 @@ from genbenchQC.report.plots import (
     plot_per_base_sequence_comparison, 
     plot_lengths,
     plot_gc_content,
+    plot_duplicates
 )
 
 def generate_html_report(stats_dict, output_path):
@@ -150,6 +151,20 @@ def generate_pdf_report(stats1, stats2, results, output_path, threshold):
     )
     plots.append(fig)
     plt.close(fig)
+
+    fig = plot_duplicates(result=results['Duplication between labels'])
+    if fig:
+        plots.append(fig)
+        plt.close(fig)
+
+        # save duplicate sequences to a file
+        duplicate_seqs = results['Duplication between labels'][0]
+        # remove extension from output path, add '_duplicates.txt'
+        duplicate_seqs_path = os.path.splitext(output_path)[0] + '_duplicates.txt'
+        with open(duplicate_seqs_path, 'w') as f:
+            for seq in duplicate_seqs:
+                f.write(f"{seq}\n")
+        print(f"Duplicate sequences saved to {duplicate_seqs_path}")
 
     with PdfPages(output_path) as pdf:
         for fig in plots:
