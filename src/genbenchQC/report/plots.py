@@ -20,6 +20,23 @@ def plot_dinucleotides(stats1, stats2, result, dist_thresh, nucleotides, plot_ty
     else:
         raise ValueError(f"Unknown plot type: {plot_type}")
 
+def plot_lengths(stats1, stats2, result, dist_thresh, plot_type='violin'):
+    """
+    Plot the sequence lengths of two sequences.
+    """
+    if plot_type == 'violin':
+        return violin_plot_one_stat(stats1, stats2, 'Sequence lengths', result, dist_thresh, x_label='Sequence length', title='Sequence Length Distribution')
+    else:
+        raise ValueError(f"Unknown plot type: {plot_type}")
+    
+def plot_gc_content(stats1, stats2, result, dist_thresh, plot_type='violin'):
+    """
+    Plot the GC content of two sequences.
+    """
+    if plot_type == 'violin':
+        return violin_plot_one_stat(stats1, stats2, 'Per sequence GC content', result, dist_thresh, x_label='GC content', title='GC Content Distribution')
+    else:
+        raise ValueError(f"Unknown plot type: {plot_type}")
 
 def violin_plot_nucleotides(stats1, stats2, result, dist_thresh, nucleotides):
 
@@ -101,6 +118,50 @@ def violin_plot_dinucleotides(stats1, stats2, result, dist_thresh, nucleotides):
 
     axs[index] = prepare_legend(axs[index], red_flag, dist_thresh)
     axs[index].set_xlabel('Dinucleotide', fontsize=14)
+
+    return fig
+
+def violin_plot_one_stat(stats1, stats2, stats_name, result, dist_thresh, x_label='', title=''):
+    """
+    Plot a single statistic from two stats objects.
+    """
+
+    # make dataframe with two columns: label and values
+    df1 = pd.DataFrame(stats1.stats[stats_name].values(), columns=[stats_name])
+    df2 = pd.DataFrame(stats2.stats[stats_name].values(), columns=[stats_name])
+    df1['label'] = str(stats1.label)
+    df2['label'] = str(stats2.label)
+    df = pd.concat([df1, df2], ignore_index=True)
+    
+    min_y = df[stats_name].min()
+    max_y = df[stats_name].max()
+
+    fig, ax = plt.subplots(1, 1, figsize=(4, 4), dpi=300)
+    sns.violinplot(
+        y=stats_name, 
+        hue="label", 
+        split=True, 
+        data=df,
+        gap=.1,
+        hue_order=[str(stats1.label), str(stats2.label)],
+        ax=ax,
+        density_norm='width',
+        palette=HuePalette()
+    )
+    
+    # result is a tuple of (distances, passed)
+    red_flag = False
+    if result and result[0] > dist_thresh:
+        red_flag = True
+        # draw a red rectangle around the violins
+        ax.add_patch(make_red_flag_rectangle(0, min_y, max_y))
+
+    ax.set_title(title, fontsize=16)
+    ax.set_xlabel(x_label, fontsize=14)
+    ax.set_ylabel(stats_name, fontsize=14)
+    ax.tick_params(axis='x', labelsize=12)
+    ax.tick_params(axis='y', labelsize=12)
+    ax = prepare_legend(ax, red_flag, dist_thresh) 
 
     return fig
 
