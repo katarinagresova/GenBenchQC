@@ -56,6 +56,14 @@ def flag_per_position_nucleotide_content(stats1, stats2, column, threshold, end_
     if end_position is None:
         end_position = min(len(df1), len(df2))
 
+    # get second end position - where one of the stats contains less then 50% values
+    lengths = np.array(list(stats1['Sequence lengths'].values()))
+    lengths_75th = np.percentile(lengths, 75)
+    # round to nearest integer
+    lengths_75th = int(np.round(lengths_75th))
+    
+    end_position = min(end_position, lengths_75th)
+
     # get columns names
     bases = list(set(list(df1.columns.values) + list(df2.columns.values)))
 
