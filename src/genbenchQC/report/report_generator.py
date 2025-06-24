@@ -7,7 +7,7 @@ import os
 
 from genbenchQC.report.sequence_html_report import get_html_template
 from genbenchQC.utils.input_utils import read_stats_json, write_stats_json
-from genbenchQC.report.plots import plot_nucleotides, plot_dinucleotides, plot_per_base_sequence_comparison
+from genbenchQC.report.plots import plot_nucleotides, plot_dinucleotides, plot_per_base_sequence_comparison, plot_plot_basic_descriptive_stats
 
 LABEL1_COLOR = '#1f77b4'
 LABEL2_COLOR = '#ff7f0e'
@@ -67,6 +67,11 @@ def generate_pdf_report(stats1, stats2, results, output_path, threshold):
 
     plots = []
     bases_overlap = list(set(stats1.stats['Unique bases']) & set(stats2.stats['Unique bases']))
+
+    # Plot basic descriptive statistics
+    fig = plot_plot_basic_descriptive_stats(stats1, stats2)
+    plots.append(fig)
+    plt.close(fig)
 
     # Plot per sequence nucleotide content
     fig = plot_nucleotides(

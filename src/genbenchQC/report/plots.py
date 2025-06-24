@@ -146,6 +146,53 @@ def plot_per_base_sequence_comparison(stats1, stats2, stats_name, result, p_valu
 
     return fig
 
+def plot_plot_basic_descriptive_stats(stats1, stats2):
+
+    # initialize the figure
+    fig, ax = plt.subplots(1, 1, figsize=(10, 3), dpi=300)
+
+    # hide the axes
+    ax.axis('off')
+
+    # create a table with the basic descriptive statistics
+    table_data = [
+        ["Filename", stats1.filename, stats2.filename],
+        ["Label", stats1.label, stats2.label],
+        ["Number of sequences", stats1.stats["Number of sequences"], stats2.stats["Number of sequences"]],
+        ["Unique sequences", stats1.stats["Number of sequences left after deduplication"], stats2.stats["Number of sequences left after deduplication"]],
+        ["Number of bases", stats1.stats["Number of bases"], stats2.stats["Number of bases"]],
+        ["Unique bases", ', '.join(stats1.stats["Unique bases"]), ', '.join(stats2.stats["Unique bases"])],
+        ["%GC content", f"{stats1.stats['%GC content']:.2%}", f"{stats2.stats['%GC content']:.2%}"],
+        
+    ]
+    table = ax.table(cellText=table_data, colLabels=None, cellLoc='center', loc='center')
+    # set first column to left align
+    for cell in table.get_celld().values():
+        if cell.get_text() and cell.get_text().get_text() in [row[0] for row in table_data]:
+            cell.set_text_props(ha='left', va='center')
+        else:
+            cell.set_text_props(ha='center', va='center')
+    table.auto_set_font_size(False)
+    table.set_fontsize(14)
+    table.scale(0.7, 1.7)  # scale the table to make it more readable
+    table.auto_set_column_width([0, 1, 2])
+
+    # set the title of the plot
+    ax.set_title('Basic Descriptive Statistics', fontsize=16)
+    ax.set_frame_on(False)  # remove the frame around the table
+    ax.set_xticks([])  # remove the x ticks
+    ax.set_yticks([])  # remove the y ticks
+    ax.set_xticklabels([])  # remove the x tick labels
+    ax.set_yticklabels([])  # remove the y tick labels
+    ax.spines['top'].set_visible(False)  # remove the top spine
+    ax.spines['right'].set_visible(False)  # remove the right spine
+    ax.spines['left'].set_visible(False)  # remove the left spine
+    ax.spines['bottom'].set_visible(False)  # remove the bottom spine
+    ax.set_xlim(0, 1)  # set the x limits to [0, 1]
+    ax.set_ylim(0, 1)  # set the y limits to [0, 1]
+
+    return fig
+
 def melt_stats(stats1, stats2, stats_name, var_name='Metric', value_name='Value', keep_positions=False):
     """
     Melt the stats DataFrame to long format and add a label column.
