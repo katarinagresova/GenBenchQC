@@ -6,7 +6,7 @@ import pandas as pd
 import os
 
 from genbenchQC.report.sequence_html_report import get_html_template
-from genbenchQC.utils.input_utils import read_stats_json, write_stats_json
+from genbenchQC.utils.input_utils import write_stats_json
 from genbenchQC.report.plots import (
     plot_plot_basic_descriptive_stats,
     plot_nucleotides, 
@@ -39,7 +39,7 @@ def generate_dataset_html_report(stats1, stats2, results, output_path, threshold
     # get the output path without the extension
     output_path = os.path.splitext(output_path)[0] + '.pdf'
 
-    generate_pdf_report(stats1, stats2, results, output_path, threshold=threshold)
+    generate_dataset_pdf_report(stats1, stats2, results, output_path, threshold=threshold)
 
 def generate_json_report(stats_dict, output_path):
     write_stats_json(stats_dict, output_path)
@@ -56,7 +56,7 @@ def generate_simple_report(results, output_path):
     # save to csv
     df.to_csv(output_path, index=False, header=False)
 
-def generate_pdf_report(stats1, stats2, results, output_path, threshold):
+def generate_dataset_pdf_report(stats1, stats2, results, output_path, threshold):
 
     plots = []
     bases_overlap = list(set(stats1.stats['Unique bases']) & set(stats2.stats['Unique bases']))
