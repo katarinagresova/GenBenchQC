@@ -47,6 +47,11 @@ def run_analysis(input_statistics, out_folder, threshold=0.015):
         generate_dataset_html_report(stat1, stat2, results, html_report_path, threshold=threshold)
 
 def run(inputs, input_format, out_folder='.', sequence_column: Optional[list[str]] = ['sequences'], label_column='label', label_list: Optional[list[str]] = ['infer']):
+    
+    if not Path(out_folder).exists():
+        print(f"Output folder {out_folder} does not exist. Creating it.")
+        Path(out_folder).mkdir(parents=True, exist_ok=True)
+    
     # we have multiple fasta files with one label each
     if input_format == 'fasta':
         seq_stats = []

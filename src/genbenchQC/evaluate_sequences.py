@@ -7,6 +7,11 @@ from genbenchQC.report.report_generator import generate_json_report, generate_ht
 from genbenchQC.utils.input_utils import read_fasta, read_sequences_from_df, read_multisequence_df, read_csv_file
 
 def run_analysis(seq_stats, out_folder):
+
+    if not Path(out_folder).exists():
+        print(f"Output folder {out_folder} does not exist. Creating it.")
+        Path(out_folder).mkdir(parents=True, exist_ok=True)
+
     stats = seq_stats.compute()
 
     filename = Path(seq_stats.filename).stem
@@ -23,7 +28,7 @@ def run_analysis(seq_stats, out_folder):
 
 def run(input_file, input_format, out_folder='.', sequence_column: Optional[list[str]] = ['sequences'], label_column=None, label: Optional[str] = None):
     
-    label = label if label else Path(input_file).stem
+    label = label if label else None
     if input_format == 'fasta':
         seqs = read_fasta(input_file)
         run_analysis(
