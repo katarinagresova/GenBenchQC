@@ -22,17 +22,17 @@ def run_analysis(seq_stats, out_folder):
 def run(input_file, input_format, out_folder='.', sequence_column: Optional[list[str]] = ['sequences']):
     if input_format == 'fasta':
         seqs = read_fasta(input_file)
-        run_analysis(SequenceStatistics(seqs, input_file), out_folder)
+        run_analysis(SequenceStatistics(seqs, Path(input_file).name, label=Path(input_file).stem), out_folder)
     else:
         df = read_csv_file(input_file, input_format, sequence_column)
 
         for seq_col in sequence_column:
             sequences = read_sequences_from_df(df, seq_col)
-            run_analysis(SequenceStatistics(sequences, filename=input_file, seq_column=seq_col), out_folder)
+            run_analysis(SequenceStatistics(sequences, filename=Path(input_file).name, seq_column=seq_col, label=Path(input_file).stem), out_folder)
 
         if len(sequence_column) > 1:
             sequences = read_multisequence_df(df, sequence_column)
-            run_analysis(SequenceStatistics(sequences, filename=input_file, seq_column='_'.join(sequence_column)), out_folder)
+            run_analysis(SequenceStatistics(sequences, filename=Path(input_file).name, seq_column='_'.join(sequence_column), label=Path(input_file).stem), out_folder)
 
 def parse_args():
     parser = argparse.ArgumentParser(description='A tools for evaluating sequence data.')
