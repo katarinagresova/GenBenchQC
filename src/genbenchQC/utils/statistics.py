@@ -2,7 +2,7 @@ from collections import Counter
 import numpy as np
 
 class SequenceStatistics:
-    def __init__(self, sequences, filename, label=None, seq_column=None):
+    def __init__(self, sequences, filename, label, seq_column=None):
         self.filename = filename
         self.label = label
         self.seq_column = seq_column

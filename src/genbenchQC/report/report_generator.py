@@ -42,10 +42,6 @@ def generate_dataset_html_report(stats1, stats2, results, output_path, threshold
     generate_pdf_report(stats1, stats2, results, output_path, threshold=threshold)
 
 def generate_json_report(stats_dict, output_path):
-
-    if not os.path.exists(os.path.dirname(output_path)):
-        os.makedirs(os.path.dirname(output_path))
-
     write_stats_json(stats_dict, output_path)
 
 def generate_text_report(stats_dict, output_path):

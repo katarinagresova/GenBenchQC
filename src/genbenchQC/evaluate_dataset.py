@@ -46,13 +46,19 @@ def run_analysis(input_statistics, out_folder, threshold=0.015):
         generate_simple_report(results, simple_report_path)
         generate_dataset_html_report(stat1, stat2, results, html_report_path, threshold=threshold)
 
+
 def run(inputs, input_format, out_folder='.', sequence_column: Optional[list[str]] = ['sequences'], label_column='label', label_list: Optional[list[str]] = ['infer'], regression: Optional[bool] = False):
+
+    if not Path(out_folder).exists():
+        print(f"Output folder {out_folder} does not exist. Creating it.")
+        Path(out_folder).mkdir(parents=True, exist_ok=True)
+    
     # we have multiple fasta files with one label each
     if input_format == 'fasta':
         seq_stats = []
         for input_file in inputs:
             sequences = read_fasta(input_file)
-            seq_stats += [SequenceStatistics(sequences, filename=input_file)]
+            seq_stats += [SequenceStatistics(sequences, filename=Path(input_file).name, label=Path(input_file).stem)]
         run_analysis(seq_stats, out_folder)
 
     # we have CSV/TSV
@@ -80,7 +86,7 @@ def run(inputs, input_format, out_folder='.', sequence_column: Optional[list[str
                 for label in labels:
                     sequences = read_sequences_from_df(df, seq_col, label_column, label)
                     seq_stats += [
-                        SequenceStatistics(sequences, filename=inputs[0], label=label, seq_column=seq_col)]
+                        SequenceStatistics(sequences, filename=Path(inputs[0]).name, label=label, seq_column=seq_col)]
                 run_analysis(seq_stats, out_folder)
 
             # handle multiple sequence columns by concatenating sequences and running statistics on them
@@ -88,7 +94,7 @@ def run(inputs, input_format, out_folder='.', sequence_column: Optional[list[str
                 seq_stats = []
                 for label in labels:
                     sequences = read_multisequence_df(df, sequence_column, label_column, label)
-                    seq_stats += [SequenceStatistics(sequences, filename=inputs[0], label=label,
+                    seq_stats += [SequenceStatistics(sequences, filename=Path(inputs[0]).name, label=label,
                                                      seq_column='_'.join(sequence_column))]
                 run_analysis(seq_stats, out_folder)
 
@@ -99,7 +105,7 @@ def run(inputs, input_format, out_folder='.', sequence_column: Optional[list[str
                 seq_stats = []
                 for input_file in inputs:
                     sequences = read_sequences_from_df(read_csv_file(input_file, input_format, seq_col), seq_col)
-                    seq_stats += [SequenceStatistics(sequences, filename=input_file, seq_column=seq_col)]
+                    seq_stats += [SequenceStatistics(sequences, filename=Path(input_file).name, label=Path(input_file).stem, seq_column=seq_col)]
                 run_analysis(seq_stats, out_folder)
 
             # handle multiple sequence columns
@@ -107,7 +113,7 @@ def run(inputs, input_format, out_folder='.', sequence_column: Optional[list[str
                 seq_stats = []
                 for input_file in inputs:
                     sequences = read_multisequence_df(read_csv_file(input_file, input_format, sequence_column), sequence_column)
-                    seq_stats += [SequenceStatistics(sequences, filename=input_file,
+                    seq_stats += [SequenceStatistics(sequences, filename=Path(input_file).name, label=Path(input_file).stem,
                                                      seq_column='_'.join(sequence_column))]
                 run_analysis(seq_stats, out_folder)
 
