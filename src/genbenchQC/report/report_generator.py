@@ -45,13 +45,16 @@ def generate_json_report(stats_dict, output_path):
     write_stats_json(stats_dict, output_path)
 
 def generate_simple_report(results, output_path):
-    with open(output_path, 'w') as file:
-        for key, value in results.items():
-            if key == 'Filename':
-                continue
-            _, passed = value
-            passed = "Passed" if passed else "Failed"
-            file.write(f'{key}: {passed}\n')
+
+    # construct table from results - Name and Passed/Failed status
+    df = pd.DataFrame({
+        'Name': [key for key in results.keys()],
+        'Passed': [value[1] for value in results.values()]
+    })
+    # convert boolean to string
+    df['Passed'] = df['Passed'].apply(lambda x: 'Passed' if x else 'Failed')
+    # save to csv
+    df.to_csv(output_path, index=False, header=False)
 
 def generate_pdf_report(stats1, stats2, results, output_path, threshold):
 

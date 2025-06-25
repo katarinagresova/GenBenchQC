@@ -45,7 +45,7 @@ def run_analysis(input_statistics, out_folder, report_types, threshold=0.015):
         results = flag_significant_differences(stat1.sequences, stat1.stats, stat2.sequences, stat2.stats, threshold=threshold)
         
         if 'simple' in report_types:
-            simple_report_path = out_folder / Path(f'{filename}.txt')
+            simple_report_path = out_folder / Path(f'{filename}.csv')
             generate_simple_report(results, simple_report_path)
 
         if 'html' in report_types:
