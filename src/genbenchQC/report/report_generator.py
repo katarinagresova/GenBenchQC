@@ -7,7 +7,7 @@ import os
 
 from genbenchQC.report.sequence_html_report import get_html_template
 from genbenchQC.utils.input_utils import write_stats_json
-from genbenchQC.report.plots import (
+from genbenchQC.report.dataset_plots import (
     plot_plot_basic_descriptive_stats,
     plot_nucleotides, 
     plot_dinucleotides, 
