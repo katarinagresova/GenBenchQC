@@ -3,10 +3,15 @@ from pathlib import Path
 from typing import Optional
 
 from genbenchQC.utils.statistics import SequenceStatistics
-from genbenchQC.report.report_generator import generate_text_report, generate_html_report
+from genbenchQC.report.report_generator import generate_json_report, generate_html_report
 from genbenchQC.utils.input_utils import read_fasta, read_sequences_from_df, read_multisequence_df, read_csv_file
 
 def run_analysis(seq_stats, out_folder):
+
+    if not Path(out_folder).exists():
+        print(f"Output folder {out_folder} does not exist. Creating it.")
+        Path(out_folder).mkdir(parents=True, exist_ok=True)
+
     stats = seq_stats.compute()
 
     filename = Path(seq_stats.filename).stem
@@ -15,26 +20,37 @@ def run_analysis(seq_stats, out_folder):
     if seq_stats.label is not None:
         filename += f'_{seq_stats.label}'
 
-    txt_report_path = Path(out_folder, filename + '_report.txt')
+    json_report_path = Path(out_folder, filename + '_report.json')
     html_report_path = Path(out_folder, filename + '_report.html')
 
-    generate_text_report(stats, txt_report_path)
+    generate_json_report(stats, json_report_path)
     generate_html_report(stats, html_report_path)
 
 def run(input_file, input_format, out_folder='.', sequence_column: Optional[list[str]] = ['sequences'], label_column=None, label: Optional[str] = None):
+    
+    label = label if label else None
     if input_format == 'fasta':
         seqs = read_fasta(input_file)
-        run_analysis(SequenceStatistics(seqs, input_file), out_folder)
+        run_analysis(
+            SequenceStatistics(seqs, Path(input_file).name, label=label), 
+            out_folder
+        )
     else:
         df = read_csv_file(input_file, input_format, sequence_column, label_column)
 
         for seq_col in sequence_column:
             sequences = read_sequences_from_df(df, seq_col, label_column, label)
-            run_analysis(SequenceStatistics(sequences, filename=input_file, seq_column=seq_col, label=label), out_folder)
+            run_analysis(
+                SequenceStatistics(sequences, filename=Path(input_file).name, seq_column=seq_col, label=label), 
+                out_folder
+            )
 
         if len(sequence_column) > 1:
             sequences = read_multisequence_df(df, sequence_column, label_column, label)
-            run_analysis(SequenceStatistics(sequences, filename=input_file, seq_column='_'.join(sequence_column), label=label), out_folder)
+            run_analysis(
+                SequenceStatistics(sequences, filename=Path(input_file).name, seq_column='_'.join(sequence_column), label=label), 
+                out_folder
+            )
 
 def parse_args():
     parser = argparse.ArgumentParser(description='A tools for evaluating sequence data.')

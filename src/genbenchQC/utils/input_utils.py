@@ -1,5 +1,6 @@
 from Bio import SeqIO, SeqRecord, Seq
 import pandas as pd
+import json
 
 def read_fasta(fasta_file):
     return [str(record.seq).upper() for record in SeqIO.parse(fasta_file, 'fasta')]
@@ -19,7 +20,6 @@ def read_csv_file(file_path, input_format, seq_columns, label_columns=None):
 
     return df
 
-
 def read_sequences_from_df(df, seq_column, label_column=None, label=None):
     if label_column is None:
         return df[seq_column].tolist()
@@ -36,4 +36,11 @@ def read_multisequence_df(df, seq_columns, label_column=None, label=None):
     concatenated_sequences = [''.join(seqs) for seqs in zip(*all_sequences)]
     return concatenated_sequences
 
+def read_stats_json(stats_json_file):
+    with open(stats_json_file, 'r') as file:
+        stats = json.load(file)
+    return stats
 
+def write_stats_json(stats, stats_json_file):
+    with open(stats_json_file, 'w') as file:
+        json.dump(stats, file, indent=4)
