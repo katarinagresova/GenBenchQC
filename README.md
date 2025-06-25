@@ -2,6 +2,8 @@
 
 ## Installation
 
+Install Genomic Benchmarks QC using pip:
+
 ```bash
 pip install git+https://github.com/katarinagresova/GenBenchQC.git
 ```
@@ -11,13 +13,25 @@ pip install git+https://github.com/katarinagresova/GenBenchQC.git
 ### Sequence evaluator
 
 ```bash
-evaluate_sequences --input INPUT_PATH --format FASTA/CSV/TSV [--out_folder OUT_FOLDER, --sequence_column SEQUENCE_COLUMN, --label_column LABEL_COLUMN, --label LABEL]
+evaluate_sequences \
+  --input INPUT_PATH \
+  --format FASTA/CSV/TSV \
+  [--out_folder OUT_FOLDER] \
+  [--sequence_column SEQUENCE_COLUMN] \ 
+  [--label_column LABEL_COLUMN] \
+  [--label LABEL]
 ```
 
 ### Dataset evaluator
 
 ```bash
-evaluate_dataset --input INPUT_PATHS --format FASTA/CSV/TSV [--out_folder OUT_FOLDER, --sequence_column SEQUENCE_COLUMN, --label_column LABEL_COLUMN, --label_list LABEL1 LABEL2 ...]
+evaluate_dataset \
+  --input INPUT_PATHS \
+  --format FASTA/CSV/TSV \
+  [--out_folder OUT_FOLDER] \
+  [--sequence_column SEQUENCE_COLUMN] \
+  [--label_column LABEL_COLUMN] \
+  [--label_list LABEL1 LABEL2 ...]
 ```
 
 ## Running from Python
@@ -27,7 +41,13 @@ evaluate_dataset --input INPUT_PATHS --format FASTA/CSV/TSV [--out_folder OUT_FO
 ```python
 from genbenchQC import evaluate_sequences
 
-evaluate_sequences.run(INPUT_PATH, FILE_FORMAT, OUT_FOLDER, SEQUENCE_COLUMN_LIST, LABEL_COLUMN, LABEL)
+evaluate_sequences.run(
+  INPUT_PATH, 
+  FILE_FORMAT, 
+  OUT_FOLDER, 
+  SEQUENCE_COLUMN_LIST, 
+  LABEL_COLUMN, 
+  LABEL)
 ```
 
 ### Dataset evaluator
@@ -35,7 +55,13 @@ evaluate_sequences.run(INPUT_PATH, FILE_FORMAT, OUT_FOLDER, SEQUENCE_COLUMN_LIST
 ```python
 from genbenchQC import evaluate_dataset
 
-evaluate_dataset.run(INPUT_PATHS_LIST, FILE_FORMAT, OUT_FOLDER, SEQUENCE_COLUMN_LIST, LABEL_COLUMN, LABEL_LIST)
+evaluate_dataset.run(
+  INPUT_PATHS_LIST, 
+  FILE_FORMAT, 
+  OUT_FOLDER, 
+  SEQUENCE_COLUMN_LIST, 
+  LABEL_COLUMN, 
+  LABEL_LIST)
 ```
 
 ## Description
