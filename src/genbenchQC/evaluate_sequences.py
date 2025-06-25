@@ -6,7 +6,7 @@ from genbenchQC.utils.statistics import SequenceStatistics
 from genbenchQC.report.report_generator import generate_json_report, generate_html_report
 from genbenchQC.utils.input_utils import read_fasta, read_sequences_from_df, read_multisequence_df, read_csv_file
 
-def run_analysis(seq_stats, out_folder):
+def run_analysis(seq_stats, out_folder, report_types):
 
     if not Path(out_folder).exists():
         print(f"Output folder {out_folder} does not exist. Creating it.")
@@ -20,13 +20,20 @@ def run_analysis(seq_stats, out_folder):
     if seq_stats.label is not None:
         filename += f'_{seq_stats.label}'
 
-    json_report_path = Path(out_folder, filename + '_report.json')
-    html_report_path = Path(out_folder, filename + '_report.html')
+    if 'json' in report_types:
+        json_report_path = Path(out_folder, filename + '_report.json')
+        generate_json_report(stats, json_report_path)
+    if 'html' in report_types:
+        html_report_path = Path(out_folder, filename + '_report.html')
+        generate_html_report(stats, html_report_path)
 
-    generate_json_report(stats, json_report_path)
-    generate_html_report(stats, html_report_path)
-
-def run(input_file, input_format, out_folder='.', sequence_column: Optional[list[str]] = ['sequences'], label_column=None, label: Optional[str] = None):
+def run(input_file, 
+        input_format, 
+        out_folder='.', 
+        sequence_column: Optional[list[str]] = ['sequences'], 
+        label_column=None, 
+        label: Optional[str] = None,
+        report_types: Optional[list[str]] = ['json', 'html']):
     
     label = label if label else None
     if input_format == 'fasta':
@@ -42,14 +49,16 @@ def run(input_file, input_format, out_folder='.', sequence_column: Optional[list
             sequences = read_sequences_from_df(df, seq_col, label_column, label)
             run_analysis(
                 SequenceStatistics(sequences, filename=Path(input_file).name, seq_column=seq_col, label=label), 
-                out_folder
+                out_folder,
+                report_types
             )
 
         if len(sequence_column) > 1:
             sequences = read_multisequence_df(df, sequence_column, label_column, label)
             run_analysis(
                 SequenceStatistics(sequences, filename=Path(input_file).name, seq_column='_'.join(sequence_column), label=label), 
-                out_folder
+                out_folder,
+                report_types
             )
 
 def parse_args():
@@ -64,6 +73,8 @@ def parse_args():
     parser.add_argument('--label', type=str,
                         help='Label of the class to select from the whole dataset. If not specified, the whole dataset is taken and analyzed as one piece.', default=None)
     parser.add_argument('--out_folder', type=str, help='Path to the output folder.', default='.')
+    parser.add_argument('--report_types', type=str, nargs='+',
+                        help='Types of reports to generate. Options: json, html. Default: [json, html]', default=['json', 'html'])
 
     args = parser.parse_args()
 
@@ -74,7 +85,14 @@ def parse_args():
 
 def main():
     args = parse_args()
-    run(args.input, args.format, args.out_folder, args.sequence_column, args.label_column, args.label)
+    run(args.input, 
+        args.format, 
+        args.out_folder, 
+        args.sequence_column, 
+        args.label_column, 
+        args.label, 
+        args.report_types
+    )
 
 
 if __name__ == '__main__':

@@ -8,8 +8,7 @@ from genbenchQC.utils.testing import flag_significant_differences
 from genbenchQC.report.report_generator import generate_json_report, generate_html_report, generate_simple_report, generate_dataset_html_report
 from genbenchQC.utils.input_utils import read_fasta, read_sequences_from_df, read_multisequence_df, read_csv_file
 
-
-def run_analysis(input_statistics, out_folder, threshold=0.015):
+def run_analysis(input_statistics, out_folder, report_types, threshold=0.015):
     out_folder = Path(out_folder)
 
     # run individual analysis
@@ -21,11 +20,14 @@ def run_analysis(input_statistics, out_folder, threshold=0.015):
             filename += f'_{s.seq_column}'
         if s.label is not None:
             filename += f'_{s.label}'
-        json_report_path = out_folder / Path(filename + '_report.json')
-        html_report_path = out_folder / Path(filename + '_report.html')
 
-        generate_json_report(stats, json_report_path)
-        generate_html_report(stats, html_report_path)
+        if 'json' in report_types:
+            json_report_path = out_folder / Path(filename + '_report.json')
+            generate_json_report(stats, json_report_path)
+
+        if 'html' in report_types:
+            html_report_path = out_folder / Path(filename + '_report.html')
+            generate_html_report(stats, html_report_path)
 
     if len(input_statistics) < 2:
         return
@@ -39,14 +41,24 @@ def run_analysis(input_statistics, out_folder, threshold=0.015):
             filename += f'_label_{stat1.label}_vs_{stat2.label}'
         else:
             filename += f'_{Path(stat1.filename).stem}_{Path(stat2.filename).stem}'
-        simple_report_path = out_folder / Path(f'{filename}.txt')
-        html_report_path = out_folder / Path(f'{filename}.html')
-
+    
         results = flag_significant_differences(stat1.sequences, stat1.stats, stat2.sequences, stat2.stats, threshold=threshold)
-        generate_simple_report(results, simple_report_path)
-        generate_dataset_html_report(stat1, stat2, results, html_report_path, threshold=threshold)
+        
+        if 'simple' in report_types:
+            simple_report_path = out_folder / Path(f'{filename}.txt')
+            generate_simple_report(results, simple_report_path)
 
-def run(inputs, input_format, out_folder='.', sequence_column: Optional[list[str]] = ['sequences'], label_column='label', label_list: Optional[list[str]] = ['infer']):
+        if 'html' in report_types:
+            html_report_path = out_folder / Path(f'{filename}.html')
+            generate_dataset_html_report(stat1, stat2, results, html_report_path, threshold=threshold)
+
+def run(inputs, 
+        input_format, 
+        out_folder='.', 
+        sequence_column: Optional[list[str]] = ['sequences'], 
+        label_column='label', 
+        label_list: Optional[list[str]] = ['infer'],
+        report_types: Optional[list[str]] = ['json', 'html', 'simple']):
     
     if not Path(out_folder).exists():
         print(f"Output folder {out_folder} does not exist. Creating it.")
@@ -58,7 +70,7 @@ def run(inputs, input_format, out_folder='.', sequence_column: Optional[list[str
         for input_file in inputs:
             sequences = read_fasta(input_file)
             seq_stats += [SequenceStatistics(sequences, filename=Path(input_file).name, label=Path(input_file).stem)]
-        run_analysis(seq_stats, out_folder)
+        run_analysis(seq_stats, out_folder, report_types)
 
     # we have CSV/TSV
     else:
@@ -79,7 +91,7 @@ def run(inputs, input_format, out_folder='.', sequence_column: Optional[list[str
                     sequences = read_sequences_from_df(df, seq_col, label_column, label)
                     seq_stats += [
                         SequenceStatistics(sequences, filename=Path(inputs[0]).name, label=label, seq_column=seq_col)]
-                run_analysis(seq_stats, out_folder)
+                run_analysis(seq_stats, out_folder, report_types)
 
             # handle multiple sequence columns by concatenating sequences and running statistics on them
             if len(sequence_column) > 1:
@@ -88,7 +100,7 @@ def run(inputs, input_format, out_folder='.', sequence_column: Optional[list[str
                     sequences = read_multisequence_df(df, sequence_column, label_column, label)
                     seq_stats += [SequenceStatistics(sequences, filename=Path(inputs[0]).name, label=label,
                                                      seq_column='_'.join(sequence_column))]
-                run_analysis(seq_stats, out_folder)
+                run_analysis(seq_stats, out_folder, report_types)
 
         # we have multiple files with one label each
         else:
@@ -98,7 +110,7 @@ def run(inputs, input_format, out_folder='.', sequence_column: Optional[list[str
                 for input_file in inputs:
                     sequences = read_sequences_from_df(read_csv_file(input_file, input_format, seq_col), seq_col)
                     seq_stats += [SequenceStatistics(sequences, filename=Path(input_file).name, label=Path(input_file).stem, seq_column=seq_col)]
-                run_analysis(seq_stats, out_folder)
+                run_analysis(seq_stats, out_folder, report_types)
 
             # handle multiple sequence columns
             if len(sequence_column) > 1:
@@ -107,7 +119,7 @@ def run(inputs, input_format, out_folder='.', sequence_column: Optional[list[str
                     sequences = read_multisequence_df(read_csv_file(input_file, input_format, sequence_column), sequence_column)
                     seq_stats += [SequenceStatistics(sequences, filename=Path(input_file).name, label=Path(input_file).stem,
                                                      seq_column='_'.join(sequence_column))]
-                run_analysis(seq_stats, out_folder)
+                run_analysis(seq_stats, out_folder, report_types)
 
 
 def parse_args():
@@ -121,6 +133,8 @@ def parse_args():
     parser.add_argument('--label_list', type=str, nargs='+', help='List of label classes to consider or "infer" to parse different labels automatically from label column.'
                                                        ' For datasets in CSV/TSV format.', default=['infer'])
     parser.add_argument('--out_folder', type=str, help='Path to the output folder.', default='.')
+    parser.add_argument('--report_types', type=str, nargs='+',  default=['json', 'html', 'simple'],
+                        help='Types of reports to generate. Options: json, html, simple. Default: [json, html, simple].')
     args = parser.parse_args()
 
     if args.format == 'fasta' and len(args.input) < 2:
@@ -130,7 +144,14 @@ def parse_args():
 
 def main():
     args = parse_args()
-    run(args.input, args.format, args.out_folder, args.sequence_column, args.label_column, args.label_list)
+    run(args.input, 
+        args.format, 
+        args.out_folder, 
+        args.sequence_column, 
+        args.label_column, 
+        args.label_list,
+        args.report_types
+    )
 
 if __name__ == '__main__':
     main()
