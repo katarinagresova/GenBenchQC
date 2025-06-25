@@ -26,7 +26,10 @@ def run(input_file, input_format, out_folder='.', sequence_column: Optional[list
     label = label if label else Path(input_file).stem
     if input_format == 'fasta':
         seqs = read_fasta(input_file)
-        run_analysis(SequenceStatistics(seqs, Path(input_file).name, label=label, out_folder)
+        run_analysis(
+            SequenceStatistics(seqs, Path(input_file).name, label=label), 
+            out_folder
+        )
     else:
         df = read_csv_file(input_file, input_format, sequence_column, label_column)
 
