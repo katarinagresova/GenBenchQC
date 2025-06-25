@@ -65,3 +65,13 @@ from genbenchQC import evaluate_dataset
 
 evaluate_dataset.run(['positives.tsv', 'negatives.tsv'], 'tsv', 'output_folder', ['seq1', 'seq2'])
 ```
+
+## Development
+
+If you want to help with the development of Genomic Benchmarks QC, you are more than welcome to join in!
+
+For a guidance, have a look at [CONTRIBUTING.md](CONTRIBUTING.md)
+
+## License
+
+Genomic Benchmarks QC is MIT-style licensed, as found in the LICENSE file.
