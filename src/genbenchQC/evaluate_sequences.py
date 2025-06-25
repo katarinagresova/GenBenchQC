@@ -28,7 +28,6 @@ def run_analysis(seq_stats, out_folder):
 
 def run(input_file, input_format, out_folder='.', sequence_column: Optional[list[str]] = ['sequences'], label_column=None, label: Optional[str] = None):
     
-    label = label if label else None
     if input_format == 'fasta':
         seqs = read_fasta(input_file)
         run_analysis(
