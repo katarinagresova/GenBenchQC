@@ -44,17 +44,6 @@ def generate_dataset_html_report(stats1, stats2, results, output_path, threshold
 def generate_json_report(stats_dict, output_path):
     write_stats_json(stats_dict, output_path)
 
-def generate_text_report(stats_dict, output_path):
-    with open(output_path, 'w') as file:
-        file.write('Sequence Statistics Report\n')
-        for key, value in stats_dict.items():
-            file.write(f'\n{key}:\n')
-            if isinstance(value, dict):
-                for sub_key, sub_value in value.items():
-                    file.write(f'  {sub_key}: {sub_value}\n')
-            else:
-                file.write(f'  {value}\n')
-
 def generate_simple_report(results, output_path):
     with open(output_path, 'w') as file:
         for key, value in results.items():
