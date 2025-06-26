@@ -62,7 +62,7 @@ HTML_TEMPLATE = """
         }
 
         .count_column {
-            width: 5%; /* Fixed width for the first column */
+            width: 45px; /* Fixed width for the first column */
         }
 
         .sequence_column {
@@ -177,6 +177,9 @@ HTML_TEMPLATE = """
                             <!-- Table rows will be dynamically populated -->
                         </tbody>
                     </table>
+                    <div id="sequence-duplication-levels-info">
+                        <p>And {{sequence_duplication_levels_rest}} more</p>
+                    </div>
                 </div>
             </section>
 
@@ -201,6 +204,27 @@ HTML_TEMPLATE = """
             </section>
         </div>
     </div>
+
+    <script>
+        var sequenceDuplicationLevels = {{sequence_duplication_levels}};
+
+        // Populate table for sequence duplication levels
+        var tableBody = document.querySelector("#sequence-duplication-levels tbody");
+        for (var sequence in sequenceDuplicationLevels) {
+            var row = document.createElement("tr");
+            var countCell = document.createElement("td");
+            var sequenceCell = document.createElement("td");
+
+            countCell.textContent = sequenceDuplicationLevels[sequence];
+            countCell.className = "count_column";
+            sequenceCell.textContent = sequence;
+            sequenceCell.className = "sequence_column";
+
+            row.appendChild(countCell);
+            row.appendChild(sequenceCell);
+            tableBody.appendChild(row);
+        }
+    </script>
 
 </body>
 </html>
@@ -267,30 +291,30 @@ def get_html_template(stats, plots_path):
     html_template = put_data(html_template, "{{dedup_sequences}}", str(stats['Number of sequences left after deduplication']))  
 
     html_template = put_data(html_template, "{{sequence_length_plot}}", str(plots_path['Sequence lengths']))
-    #html_template = put_data(html_template, "{{per-sequence-nucleotide-content}}", plots_path['Per sequence nucleotide content'])
-    #html_template = put_data(html_template, "{{per-sequence-dinucleotide-content}}", plots_path['Per sequence dinucleotide content'])
-    #html_template = put_data(html_template, "{{per-position-nucleotide-content}}", plots_path['Per position nucleotide content'])
-    #html_template = put_data(html_template, "{{per-position-reversed-nucleotide-content}}", plots_path['Per position reversed nucleotide content'])
+    html_template = put_data(html_template, "{{per-sequence-nucleotide-content}}", str(plots_path['Per sequence nucleotide content']))
+    html_template = put_data(html_template, "{{per-sequence-dinucleotide-content}}", str(plots_path['Per sequence dinucleotide content']))
+    html_template = put_data(html_template, "{{per-position-nucleotide-content}}", str(plots_path['Per position nucleotide content']))
+    html_template = put_data(html_template, "{{per-position-reversed-nucleotide-content}}", str(plots_path['Per position reversed nucleotide content']))
     html_template = put_data(html_template, "{{per-sequence-gc-content}}", str(plots_path['Per sequence GC content']))
 
-    # # Replace placeholders with computed statistics
-    # html_template = put_data(html_template, "{{filename}}", escape_str(str(stats['Filename'])))
-    # html_template = put_data(html_template, "{{number_of_sequences}}", str(stats['Number of sequences']))
-    # html_template = put_data(html_template, "{{number_of_bases}}", str(stats['Number of bases']))
-    # html_template = put_data(html_template, "{{unique_bases}}", '[' + ', '.join(escape_str(x) for x in stats['Unique bases']) + ']')
-    # html_template = put_data(html_template, "{{gc_content}}", f"{(stats['%GC content']*100):.2f}")
-    # html_template = put_data(html_template, "{{dedup_sequences}}", str(stats['Number of sequences left after deduplication']))
-    # html_template = put_data(html_template, "{{sequence_lengths}}", '[' + ', '.join(map(str, stats['Sequence lengths'].values())) + ']')
-    # html_template = put_data(html_template, "{{sequence_duplication_levels}}", str(stats['Sequence duplication levels']).replace("'", '"').replace(", ", ",\n"))
-    # html_template = put_data(html_template, "{{per_sequence_nucleotide_content_summary}}", str(stats['Nucleotide content summary']).replace("'", '"').replace(", ", ",\n"))
-    # html_template = put_data(html_template, "{{per_sequence_dinucleotide_content_summary}}", str(stats['Dinucleotide content summary']).replace("'", '"').replace(", ", ",\n"))
-    # # Take only first 100 positions from per position nucleotide content
-    # position_content = {pos: stats['Per position nucleotide content'][pos] for pos in list(stats['Per position nucleotide content'].keys())[:100]}
-    # html_template = put_data(html_template, "{{per_position_nucleotide_content}}", str(position_content).replace("'", '"').replace(", ", ",\n"))
-
-    # reverse_position_content = {pos: stats['Per position reversed nucleotide content'][pos] for pos in list(stats['Per position reversed nucleotide content'].keys())[:100]}
-    # html_template = put_data(html_template, "{{per_position_reversed_nucleotide_content}}", str(reverse_position_content).replace("'", '"').replace(", ", ",\n"))
-
-    # html_template = put_data(html_template, "{{per_sequence_gc_content}}", str(stats['Per sequence GC content']).replace("'", '"').replace(", ", ",\n"))
-
+    # take max 10 sequences for sequence duplication levels - stats['Sequence duplication levels'] is a dictionary
+    # with sequence as key and count as value, we convert it to a list of tuples
+    sequence_duplication_levels = list(stats['Sequence duplication levels'].items())
+    # Sort by count in descending order and take the top 10
+    sequence_duplication_levels.sort(key=lambda x: x[1], reverse=True)
+    # Limit to the first 10 sequences if there are more than 10
+    if len(sequence_duplication_levels) > 10:
+        # Take the top 10 sequences
+        sequence_duplication_levels = sequence_duplication_levels[:10]
+        html_template = put_data(html_template, "{{sequence_duplication_levels_rest}}", str(len(stats['Sequence duplication levels']) - 10))
+    else:
+        # If there are 10 or fewer sequences, set the rest to 0
+        html_template = put_data(html_template, "{{sequence_duplication_levels_rest}}", "0")
+    # Convert sequence duplication levels back to a dictionary-like structure for JSON-like string with sequence and count
+    sequence_duplication_levels_dict = {str(seq): count for seq, count in sequence_duplication_levels}
+    # Convert to JSON-like string for JavaScript
+    sequence_duplication_levels_str = str(sequence_duplication_levels_dict).replace("'", '"').replace(", ", ",\n")
+    # Replace the placeholder with the JSON-like string
+    html_template = put_data(html_template, "{{sequence_duplication_levels}}", sequence_duplication_levels_str)
+    
     return html_template

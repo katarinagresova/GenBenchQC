@@ -20,12 +20,17 @@ from genbenchQC.report.dataset_plots import (
 
 from genbenchQC.report.sequences_plots import (
     hist_plot_one_stat,
+    violin_plot_nucleotides,
+    violin_plot_dinucleotides,
+    plot_per_position_nucleotide_content
 )
 
 def generate_plots(stats_dict, output_path):
     """
     Generate a plots from the given statistics dictionary.
     """
+
+    nucleotides = sorted(stats_dict['Unique bases'])
 
     plots_paths = {}
     fig = hist_plot_one_stat(
@@ -47,6 +52,34 @@ def generate_plots(stats_dict, output_path):
     )
     plots_paths['Per sequence GC content'] = Path(output_path.name) / 'per_sequence_gc_content.png'
     fig.savefig(output_path / 'per_sequence_gc_content.png', bbox_inches='tight')
+    plt.close(fig)
+
+    fig = violin_plot_nucleotides(stats_dict)
+    plots_paths['Per sequence nucleotide content'] = Path(output_path.name) / 'per_sequence_nucleotide_content.png'
+    fig.savefig(output_path / 'per_sequence_nucleotide_content.png', bbox_inches='tight')
+    plt.close(fig)  
+
+    fig = violin_plot_dinucleotides(stats_dict, nucleotides=nucleotides)
+    plots_paths['Per sequence dinucleotide content'] = Path(output_path.name) / 'per_sequence_dinucleotide_content.png'
+    fig.savefig(output_path / 'per_sequence_dinucleotide_content.png', bbox_inches='tight')
+    plt.close(fig)
+
+    fig = plot_per_position_nucleotide_content(
+        stats_dict,
+        stat_name='Per position nucleotide content',
+        nucleotides=nucleotides,
+    )
+    plots_paths['Per position nucleotide content'] = Path(output_path.name) / 'per_position_nucleotide_content.png'
+    fig.savefig(output_path / 'per_position_nucleotide_content.png', bbox_inches='tight')
+    plt.close(fig)
+
+    fig = plot_per_position_nucleotide_content(
+        stats_dict,
+        stat_name='Per position reversed nucleotide content',
+        nucleotides=nucleotides,
+    )
+    plots_paths['Per position reversed nucleotide content'] = Path(output_path.name) / 'per_position_reversed_nucleotide_content.png'
+    fig.savefig(output_path / 'per_position_reversed_nucleotide_content.png', bbox_inches='tight')
     plt.close(fig)
 
     return plots_paths
