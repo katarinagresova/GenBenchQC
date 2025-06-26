@@ -27,7 +27,8 @@ def run_analysis(input_statistics, out_folder, report_types, threshold=0.015):
 
         if 'html' in report_types:
             html_report_path = out_folder / Path(filename + '_report.html')
-            generate_html_report(stats, html_report_path)
+            plots_path = out_folder / Path(filename + '_plots')
+            generate_html_report(stats, html_report_path, plots_path)
 
     if len(input_statistics) < 2:
         return

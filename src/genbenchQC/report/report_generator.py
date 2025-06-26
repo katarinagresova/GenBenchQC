@@ -4,6 +4,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 
 import pandas as pd
 import os
+from pathlib import Path
 
 from genbenchQC.report.sequence_html_report import get_html_template
 from genbenchQC.utils.input_utils import write_stats_json
@@ -17,13 +18,52 @@ from genbenchQC.report.dataset_plots import (
     plot_duplicates
 )
 
-def generate_html_report(stats_dict, output_path):
+from genbenchQC.report.sequences_plots import (
+    hist_plot_one_stat,
+)
+
+def generate_plots(stats_dict, output_path):
+    """
+    Generate a plots from the given statistics dictionary.
+    """
+
+    plots_paths = {}
+    fig = hist_plot_one_stat(
+        stats_dict,
+        stats_name='Sequence lengths',
+        x_label='Sequence lengths',
+        title='Sequence lengths'
+    )
+
+    plots_paths['Sequence lengths'] = Path(output_path.name) / 'sequence_lengths.png'
+    fig.savefig(output_path / 'sequence_lengths.png', bbox_inches='tight')
+    plt.close(fig)
+
+    fig = hist_plot_one_stat(
+        stats_dict,
+        stats_name='Per sequence GC content',
+        x_label='GC content (%)',
+        title='Per sequence GC content'
+    )
+    plots_paths['Per sequence GC content'] = Path(output_path.name) / 'per_sequence_gc_content.png'
+    fig.savefig(output_path / 'per_sequence_gc_content.png', bbox_inches='tight')
+    plt.close(fig)
+
+    return plots_paths
+
+def generate_html_report(stats_dict, output_path, plots_path):
     """
     Generate an HTML report from the given statistics dictionary.
     Plots are generated using the Plotly library.
     """
+
+    plots_path.mkdir(parents=True, exist_ok=True)
+
+    # generate 
+    plots_paths = generate_plots(stats_dict, plots_path)
+
     # Load the HTML template
-    template = get_html_template(stats_dict)
+    template = get_html_template(stats_dict, plots_paths)
 
     with open(output_path, 'w') as file:
         file.write(template)

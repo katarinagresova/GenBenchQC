@@ -24,7 +24,7 @@ class SequenceStatistics:
             - Per position nucleotide content: dict {position: dict {nucleotide: count}}
             - Per position reversed nucleotide content: dict {position: dict {nucleotide: count}}
             - Per sequence GC content: dict {sequence_id: float}
-            - Sequence lenghts: dict {sequence_id: int}
+            - Sequence lengths: dict {sequence_id: int}
             - Sequence duplication levels: dict {sequence: count}
         """
 
@@ -60,7 +60,7 @@ class SequenceStatistics:
             dinucleotides_per_sequence[id] = self._compute_dinucleotide_content(sequence, dinucleotides)
             self._compute_per_position_nucleotide_content(nucleotides_per_position, sequence)
             self._compute_per_position_nucleotide_content(nucleotides_per_position_reversed, sequence[::-1])
-            gc_content_per_sequence[id] = (sequence.count('G') + sequence.count('C')) / len(sequence)
+            gc_content_per_sequence[id] = (sequence.count('G') + sequence.count('C')) / len(sequence) * 100
             lengths_per_sequence[id] = len(sequence)
 
         self.stats['Per sequence nucleotide content'] = nucleotides_per_sequence

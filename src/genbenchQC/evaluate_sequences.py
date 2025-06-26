@@ -25,7 +25,8 @@ def run_analysis(seq_stats, out_folder, report_types):
         generate_json_report(stats, json_report_path)
     if 'html' in report_types:
         html_report_path = Path(out_folder, filename + '_report.html')
-        generate_html_report(stats, html_report_path)
+        plots_path = out_folder / Path(filename + '_plots')
+        generate_html_report(stats, html_report_path, plots_path)
 
 def run(input_file, 
         input_format, 

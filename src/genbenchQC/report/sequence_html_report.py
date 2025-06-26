@@ -138,22 +138,22 @@ HTML_TEMPLATE = """
             <section id="basic-descriptive-statistics">
                 <h2>Basic Descriptive Statistics</h2>
                 <div class="data-item" id="filename">
-                    <span>Filename:</span> <!-- Filename will be displayed here -->
+                    <span>Filename:</span> {{filename}} <!-- Filename will be displayed here -->
                 </div>
                 <div class="data-item" id="num-sequences">
-                    <span>Number of sequences:</span> <!-- Number of sequences will be displayed here -->
+                    <span>Number of sequences:</span> {{number_of_sequences}} <!-- Number of sequences will be displayed here -->
                 </div>
                 <div class="data-item" id="num-bases">
-                    <span>Number of bases:</span> <!-- Number of bases will be displayed here -->
+                    <span>Number of bases:</span> {{number_of_bases}} <!-- Number of bases will be displayed here -->
                 </div>
                 <div class="data-item" id="unique-bases">
-                    <span>Unique bases:</span> <!-- Unique bases will be displayed here -->
+                    <span>Unique bases:</span> {{unique_bases}} <!-- Unique bases will be displayed here -->
                 </div>
                 <div class="data-item" id="gc-content">
-                    <span>%GC content:</span> <!-- %GC content will be displayed here -->
+                    <span>%GC content:</span> {{gc_content}} <!-- %GC content will be displayed here -->
                 </div>
                 <div class="data-item" id="dedup-sequences">
-                    <span>Number of sequences left after deduplication:</span> <!-- Number of sequences left after deduplication will be displayed here -->
+                    <span>Number of sequences left after deduplication:</span> {{dedup_sequences}} <!-- Number of sequences left after deduplication will be displayed here -->
                 </div>
             </section>
 
@@ -161,9 +161,9 @@ HTML_TEMPLATE = """
                 <h2>General Descriptive Statistics</h2>
 
                 <h3>Sequence lengths</h3>
-                <div class="chart-container" id="sequence-lengths">
+                <!-- This will be populated with png plot --->
+                <img src={{sequence_length_plot}} alt="Sequence Lengths Plot" style="max-width: 100%; height: auto;">
 
-                </div>
                 <div id="sequence-duplication-levels">
                     <h3>Sequence duplication levels</h3>
                     <table>
@@ -184,194 +184,23 @@ HTML_TEMPLATE = """
                 <h2>Per Sequence Descriptive Stats</h2>
 
                 <h3>Per Sequence Nucleotide Content</h3>
-                <div class="chart-container" id="per-sequence-nucleotide-content">
-                </div>
+                <img src={{per-sequence-nucleotide-content}} alt="Per Sequence Nucleotide Content" style="max-width: 100%; height: auto;">
 
                 <h3>Per Sequence Dinucleotide Content</h3>
-                <div class="chart-container" id="per-sequence-dinucleotide-content">
-                </div>
+                <img src={{per-sequence-dinucleotide-content}} alt="Per Sequence Dinucleotide Content" style="max-width: 100%; height: auto;">
 
                 <h3>Per Position Nucleotide Content</h3>
-                <div class="chart-container" id="per-position-nucleotide-content">
-                </div>
+                <img src={{per-position-nucleotide-content}} alt="Per Position Nucleotide Content" style="max-width: 100%; height: auto;">
 
                 <h3>Per Position Reversed Nucleotide Content</h3>
-                <div class="chart-container" id="per-position-reversed-nucleotide-content">
-                    <div id="reversed-position-nucleotide-content-chart"></div>
-                </div>
+                <img src={{per-position-reversed-nucleotide-content}} alt="Per Position Reversed Nucleotide Content" style="max-width: 100%; height: auto;">
 
                 <h3>Per Sequence GC Content</h3>
-                <div class="chart-container" id="per-sequence-gc-content">
-                    <div id="sequence-gc-content-chart"></div>
-                </div>
+                <img src={{per-sequence-gc-content}} alt="Per Sequence GC Content" style="max-width: 100%; height: auto;">
 
             </section>
         </div>
     </div>
-
-    <script>
-<!--Basic stats section-->
-        var basicStats = {
-            filename: {{filename}},
-            numSequences: {{number_of_sequences}},
-            numBases: {{number_of_bases}},
-            uniqueBases: {{unique_bases}},
-            gcContent: {{gc_content}},
-            dedupSequences: {{dedup_sequences}}
-        };
-
-        // Populate the Basic Descriptive Statistics section with the example data
-        document.getElementById("filename").innerHTML += basicStats.filename;
-        document.getElementById("num-sequences").innerHTML += basicStats.numSequences;
-        document.getElementById("num-bases").innerHTML += basicStats.numBases;
-        document.getElementById("unique-bases").innerHTML += basicStats.uniqueBases.join(", ");
-        document.getElementById("gc-content").innerHTML += basicStats.gcContent + "%";
-        document.getElementById("dedup-sequences").innerHTML += basicStats.dedupSequences;
-
-        var sequenceDuplicationLevels = {{sequence_duplication_levels}};
-
-        var lengths = {{sequence_lengths}};
-
-        // Building the Frequency Histogram
-        var trace = {
-            x: lengths,
-            type: 'histogram',
-        };
-        var data = [trace];
-        var layout = {
-            xaxis: { title: 'Sequence Length' },
-            yaxis: { title: 'Frequency' }
-        };
-
-        Plotly.newPlot('sequence-lengths', data, layout);
-
-
-        // Populate table for sequence duplication levels
-        var tableBody = document.querySelector("#sequence-duplication-levels tbody");
-        for (var sequence in sequenceDuplicationLevels) {
-            var row = document.createElement("tr");
-            var countCell = document.createElement("td");
-            var sequenceCell = document.createElement("td");
-
-            countCell.textContent = sequenceDuplicationLevels[sequence];
-            countCell.className = "count_column";
-            sequenceCell.textContent = sequence;
-            sequenceCell.className = "sequence_column";
-
-            row.appendChild(countCell);
-            row.appendChild(sequenceCell);
-            tableBody.appendChild(row);
-        }
-
-        ///PER SEQUENCE PLOTS
-
-
-        var perSequenceGCContent = {
-            "seq1": 55.5,
-            "seq2": 44.5
-        };
-
-        // Summary statistics for per sequence nucleotide content
-        var nucleotideContentSummary = {{per_sequence_nucleotide_content_summary}};
-
-        // Prepare data for the box plot
-        var nucleotideData = [];
-        for (var nucleotide in nucleotideContentSummary) {
-            var stats = nucleotideContentSummary[nucleotide];
-            nucleotideData.push({
-                y: [stats.min, stats.q1, stats.median, stats.q3, stats.max],
-                type: 'box',
-                name: nucleotide,
-                boxpoints: false // Disable individual data points
-            });
-        }
-
-        // Layout for the plot
-        var layoutNuc = {
-            xaxis: { title: 'Nucleotide' },
-            yaxis: { title: 'Counts' },
-            showlegend: false
-        };
-
-        // Render the plot
-        Plotly.newPlot('per-sequence-nucleotide-content', nucleotideData, layoutNuc);
-
-        // Summary statistics for per sequence dinucleotide content
-        var dinucleotideContentSummary = {{per_sequence_dinucleotide_content_summary}};
-
-        // Prepare data for the box plot
-        var dinucleotideData = [];
-        for (var dinucleotide in dinucleotideContentSummary) {
-            var stats = dinucleotideContentSummary[dinucleotide];
-            dinucleotideData.push({
-                y: [stats.min, stats.q1, stats.median, stats.q3, stats.max],
-                type: 'box',
-                name: dinucleotide,
-                boxpoints: false // Disable individual data points
-            });
-        }
-
-        // Layout for the plot
-        var layoutNuc = {
-            xaxis: { title: 'Dinucleotide' },
-            yaxis: { title: 'Frequency' },
-            showlegend: false
-        };
-
-        // Render the plot
-        Plotly.newPlot('per-sequence-dinucleotide-content', dinucleotideData, layoutNuc);
-
-        // Per position nucleotide content, plotted as lineplots
-        var perPositionNucleotideContent = {{per_position_nucleotide_content}};
-        var positions = Object.keys(perPositionNucleotideContent);
-        var nucleotides = basicStats.uniqueBases;
-
-        var scatterData = nucleotides.map(nucleotide => {
-            return {
-                y: positions.map(pos => perPositionNucleotideContent[pos][nucleotide] || 0),
-                type: 'scatter',
-                name: nucleotide,
-            };
-        });
-        var scatterLayout = {
-            xaxis: { title: 'Position' },
-            yaxis: { title: 'Frequency' },
-            showlegend: true,
-        };
-        Plotly.newPlot('per-position-nucleotide-content', scatterData, scatterLayout);
-
-        // Reverse per position nucleotide content, plotted as lineplots
-        var revPerPositionNucleotideContent = {{per_position_reversed_nucleotide_content}};
-        var positions = Object.keys(revPerPositionNucleotideContent);
-        var nucleotides = basicStats.uniqueBases;
-
-        var scatterData = nucleotides.map(nucleotide => {
-            return {
-                y: positions.map(pos => revPerPositionNucleotideContent[pos][nucleotide] || 0),
-                type: 'scatter',
-                name: nucleotide,
-            };
-        });
-        var scatterLayout = {
-            xaxis: { title: 'Position' },
-            yaxis: { title: 'Frequency' },
-            showlegend: true,
-        };
-        Plotly.newPlot('per-position-reversed-nucleotide-content', scatterData, scatterLayout);
-
-        var perSequenceGCContent = {{per_sequence_gc_content}};
-        var gcContentData = {
-            x: Object.values(perSequenceGCContent),
-            type: 'histogram',
-            name: 'GC Content'
-        };
-        var gcContentLayout = {
-            xaxis: { title: 'GC Content (%)' },
-            yaxis: { title: 'Counts' },
-        };
-        Plotly.newPlot('sequence-gc-content-chart', [gcContentData], gcContentLayout);
-
-    </script>
 
 </body>
 </html>
@@ -424,30 +253,44 @@ def escape_str(s):
     """
     return '"' + s + '"'
 
-def get_html_template(stats):
+def get_html_template(stats, plots_path):
     """
     Returns the HTML template for the report.
     """
     html_template = HTML_TEMPLATE
 
-    # Replace placeholders with computed statistics
-    html_template = put_data(html_template, "{{filename}}", escape_str(str(stats['Filename'])))
+    html_template = put_file_details(html_template, stats['Filename'])
     html_template = put_data(html_template, "{{number_of_sequences}}", str(stats['Number of sequences']))
     html_template = put_data(html_template, "{{number_of_bases}}", str(stats['Number of bases']))
     html_template = put_data(html_template, "{{unique_bases}}", '[' + ', '.join(escape_str(x) for x in stats['Unique bases']) + ']')
-    html_template = put_data(html_template, "{{gc_content}}", f"{(stats['%GC content']*100):.2f}")
-    html_template = put_data(html_template, "{{dedup_sequences}}", str(stats['Number of sequences left after deduplication']))
-    html_template = put_data(html_template, "{{sequence_lengths}}", '[' + ', '.join(map(str, stats['Sequence lengths'].values())) + ']')
-    html_template = put_data(html_template, "{{sequence_duplication_levels}}", str(stats['Sequence duplication levels']).replace("'", '"').replace(", ", ",\n"))
-    html_template = put_data(html_template, "{{per_sequence_nucleotide_content_summary}}", str(stats['Nucleotide content summary']).replace("'", '"').replace(", ", ",\n"))
-    html_template = put_data(html_template, "{{per_sequence_dinucleotide_content_summary}}", str(stats['Dinucleotide content summary']).replace("'", '"').replace(", ", ",\n"))
-    # Take only first 100 positions from per position nucleotide content
-    position_content = {pos: stats['Per position nucleotide content'][pos] for pos in list(stats['Per position nucleotide content'].keys())[:100]}
-    html_template = put_data(html_template, "{{per_position_nucleotide_content}}", str(position_content).replace("'", '"').replace(", ", ",\n"))
+    html_template = put_data(html_template, "{{gc_content}}", f"{(stats['%GC content']*100):.2f}")  
+    html_template = put_data(html_template, "{{dedup_sequences}}", str(stats['Number of sequences left after deduplication']))  
 
-    reverse_position_content = {pos: stats['Per position reversed nucleotide content'][pos] for pos in list(stats['Per position reversed nucleotide content'].keys())[:100]}
-    html_template = put_data(html_template, "{{per_position_reversed_nucleotide_content}}", str(reverse_position_content).replace("'", '"').replace(", ", ",\n"))
+    html_template = put_data(html_template, "{{sequence_length_plot}}", str(plots_path['Sequence lengths']))
+    #html_template = put_data(html_template, "{{per-sequence-nucleotide-content}}", plots_path['Per sequence nucleotide content'])
+    #html_template = put_data(html_template, "{{per-sequence-dinucleotide-content}}", plots_path['Per sequence dinucleotide content'])
+    #html_template = put_data(html_template, "{{per-position-nucleotide-content}}", plots_path['Per position nucleotide content'])
+    #html_template = put_data(html_template, "{{per-position-reversed-nucleotide-content}}", plots_path['Per position reversed nucleotide content'])
+    html_template = put_data(html_template, "{{per-sequence-gc-content}}", str(plots_path['Per sequence GC content']))
 
-    html_template = put_data(html_template, "{{per_sequence_gc_content}}", str(stats['Per sequence GC content']).replace("'", '"').replace(", ", ",\n"))
+    # # Replace placeholders with computed statistics
+    # html_template = put_data(html_template, "{{filename}}", escape_str(str(stats['Filename'])))
+    # html_template = put_data(html_template, "{{number_of_sequences}}", str(stats['Number of sequences']))
+    # html_template = put_data(html_template, "{{number_of_bases}}", str(stats['Number of bases']))
+    # html_template = put_data(html_template, "{{unique_bases}}", '[' + ', '.join(escape_str(x) for x in stats['Unique bases']) + ']')
+    # html_template = put_data(html_template, "{{gc_content}}", f"{(stats['%GC content']*100):.2f}")
+    # html_template = put_data(html_template, "{{dedup_sequences}}", str(stats['Number of sequences left after deduplication']))
+    # html_template = put_data(html_template, "{{sequence_lengths}}", '[' + ', '.join(map(str, stats['Sequence lengths'].values())) + ']')
+    # html_template = put_data(html_template, "{{sequence_duplication_levels}}", str(stats['Sequence duplication levels']).replace("'", '"').replace(", ", ",\n"))
+    # html_template = put_data(html_template, "{{per_sequence_nucleotide_content_summary}}", str(stats['Nucleotide content summary']).replace("'", '"').replace(", ", ",\n"))
+    # html_template = put_data(html_template, "{{per_sequence_dinucleotide_content_summary}}", str(stats['Dinucleotide content summary']).replace("'", '"').replace(", ", ",\n"))
+    # # Take only first 100 positions from per position nucleotide content
+    # position_content = {pos: stats['Per position nucleotide content'][pos] for pos in list(stats['Per position nucleotide content'].keys())[:100]}
+    # html_template = put_data(html_template, "{{per_position_nucleotide_content}}", str(position_content).replace("'", '"').replace(", ", ",\n"))
+
+    # reverse_position_content = {pos: stats['Per position reversed nucleotide content'][pos] for pos in list(stats['Per position reversed nucleotide content'].keys())[:100]}
+    # html_template = put_data(html_template, "{{per_position_reversed_nucleotide_content}}", str(reverse_position_content).replace("'", '"').replace(", ", ",\n"))
+
+    # html_template = put_data(html_template, "{{per_sequence_gc_content}}", str(stats['Per sequence GC content']).replace("'", '"').replace(", ", ",\n"))
 
     return html_template
