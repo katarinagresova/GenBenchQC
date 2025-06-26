@@ -34,7 +34,7 @@ def run(input_file,
         sequence_column: Optional[list[str]] = ['sequences'], 
         label_column=None, 
         label: Optional[str] = None,
-        report_types: Optional[list[str]] = ['json', 'html']):
+        report_types: Optional[list[str]] = ['html']):
     
     label = label if label else None
     if input_format == 'fasta':
@@ -75,7 +75,7 @@ def parse_args():
                         help='Label of the class to select from the whole dataset. If not specified, the whole dataset is taken and analyzed as one piece.', default=None)
     parser.add_argument('--out_folder', type=str, help='Path to the output folder.', default='.')
     parser.add_argument('--report_types', type=str, nargs='+',
-                        help='Types of reports to generate. Options: json, html. Default: [json, html]', default=['json', 'html'])
+                        help='Types of reports to generate. Options: json, html. Default: [html]', default=['html'])
 
     args = parser.parse_args()
 

@@ -59,7 +59,7 @@ def run(inputs,
         sequence_column: Optional[list[str]] = ['sequences'], 
         label_column='label', 
         label_list: Optional[list[str]] = ['infer'],
-        report_types: Optional[list[str]] = ['json', 'html', 'simple']):
+        report_types: Optional[list[str]] = ['html', 'simple']):
     
     if not Path(out_folder).exists():
         print(f"Output folder {out_folder} does not exist. Creating it.")
@@ -134,8 +134,8 @@ def parse_args():
     parser.add_argument('--label_list', type=str, nargs='+', help='List of label classes to consider or "infer" to parse different labels automatically from label column.'
                                                        ' For datasets in CSV/TSV format.', default=['infer'])
     parser.add_argument('--out_folder', type=str, help='Path to the output folder.', default='.')
-    parser.add_argument('--report_types', type=str, nargs='+',  default=['json', 'html', 'simple'],
-                        help='Types of reports to generate. Options: json, html, simple. Default: [json, html, simple].')
+    parser.add_argument('--report_types', type=str, nargs='+',  default=['html', 'simple'],
+                        help='Types of reports to generate. Options: json, html, simple. Default: [html, simple].')
     args = parser.parse_args()
 
     if args.format == 'fasta' and len(args.input) < 2:
