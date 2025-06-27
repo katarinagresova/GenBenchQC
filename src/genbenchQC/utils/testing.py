@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from statsmodels.stats.multitest import fdrcorrection
 from scipy.stats import wasserstein_distance, fisher_exact
+import logging
 
 
 def flag_significant_differences(sequences1, stats1, sequences2, stats2, threshold):
@@ -63,6 +64,8 @@ def flag_per_position_nucleotide_content(stats1, stats2, column, threshold, end_
     lengths_75th = int(np.round(lengths_75th))
     
     end_position = min(end_position, lengths_75th)
+
+    logging.debug(f"Using end position: {end_position} for {column} comparison. This is the 75th percentile of sequence lengths.")
 
     # get columns names
     bases = list(set(list(df1.columns.values) + list(df2.columns.values)))

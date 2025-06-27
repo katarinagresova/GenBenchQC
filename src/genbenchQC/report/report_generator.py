@@ -188,8 +188,7 @@ def generate_dataset_plots(stats1, stats2, results, output_path, threshold):
         result=results['Per position nucleotide content'],
         p_value_thresh=threshold,
         nucleotides = bases_overlap,
-        end_position=100,
-        x_label='Position in read (bp)',
+        x_label='Position in sequence',
         title='Nucleotide composition per position',
     )
     plots_paths['Per position nucleotide content'] = Path(output_path.name) / 'per_position_nucleotide_content.png'
@@ -204,8 +203,7 @@ def generate_dataset_plots(stats1, stats2, results, output_path, threshold):
         result=results['Per position reversed nucleotide content'],
         p_value_thresh=threshold,
         nucleotides = bases_overlap,
-        end_position=100,
-        x_label='Position in read reversed (bp)',
+        x_label='Position in reversed sequence',
         title='Reversed nucleotide composition per position',
     )
     plots_paths['Per position reversed nucleotide content'] = Path(output_path.name) / 'per_position_reversed_nucleotide_content.png'

@@ -1,6 +1,7 @@
 import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
+import logging
 
 def plot_nucleotides(stats1, stats2, result, dist_thresh, nucleotides, plot_type='violin'):
     """
@@ -56,6 +57,7 @@ def violin_plot_nucleotides(stats1, stats2, result, dist_thresh, nucleotides):
         hue_order=[stats1.label, stats2.label],
         density_norm='width',
         palette=HuePalette(),
+        cut=0
     )
 
     red_flag = False
@@ -98,7 +100,8 @@ def violin_plot_dinucleotides(stats1, stats2, result, dist_thresh, nucleotides):
             hue_order=[stats1.label, stats2.label],
             ax=axs[index],
             density_norm='width',
-            palette=HuePalette()
+            palette=HuePalette(),
+            cut=0
         )
         
         if index == 0:
@@ -146,7 +149,8 @@ def violin_plot_one_stat(stats1, stats2, stats_name, result, dist_thresh, x_labe
         hue_order=[str(stats1.label), str(stats2.label)],
         ax=ax,
         density_norm='width',
-        palette=HuePalette()
+        palette=HuePalette(),
+        cut=0
     )
     
     # result is a tuple of (distances, passed)
@@ -169,21 +173,35 @@ def violin_plot_one_stat(stats1, stats2, stats_name, result, dist_thresh, x_labe
 
     return fig
 
-def plot_per_base_sequence_comparison(stats1, stats2, stats_name, result, p_value_thresh, nucleotides, end_position, x_label='', title=''):
+def plot_per_base_sequence_comparison(stats1, stats2, stats_name, result, p_value_thresh, nucleotides, end_position=-1, x_label='', title=''):
 
     df1 = pd.DataFrame(stats1.stats[stats_name]).T
     df2 = pd.DataFrame(stats2.stats[stats_name]).T
 
-    fig, axs = plt.subplots(len(nucleotides), 1, figsize=(10, len(nucleotides) * 2 + 2), sharey=True, dpi=300)
+    seq_lengths = list(stats1.stats['Sequence lengths'].values()) + list(stats2.stats['Sequence lengths'].values())
+    if end_position == -1:
+        # Find the maximum sequence length from the stats    
+        end_position = max(seq_lengths)
+    else:
+        # Ensure end_position is not greater than the maximum sequence length
+        if end_position > max(seq_lengths):
+            logging.warning(f"end_position {end_position} is greater than the maximum sequence length {max(seq_lengths)}. Setting end_position to {max(seq_lengths)}.")
+            end_position = max(seq_lengths)
+
+    fig, axs = plt.subplots(
+        len(nucleotides) + 1, 1, 
+        figsize=(10, len(nucleotides) * 2 + 2), 
+        height_ratios=[1] * len(nucleotides) + [0.5],
+        sharey=True, dpi=300
+    )
+
     red_flag = False
     for index, nt in enumerate(nucleotides):
 
-        end_position = min(end_position, len(result[0][nt]))
-
         df1_base = df1[nt][:end_position]
         df2_base = df2[nt][:end_position]
-        axs[index].plot(df1.index[:end_position], df1_base, label=f"{stats1.label}", color=HuePalette()[0])
-        axs[index].plot(df2.index[:end_position], df2_base, label=f"{stats2.label}", color=HuePalette()[1])
+        axs[index].plot(df1.index[:end_position], df1_base, label=f"{stats1.label}", color=HuePalette()[0], alpha=0.7)
+        axs[index].plot(df2.index[:end_position], df2_base, label=f"{stats2.label}", color=HuePalette()[1], alpha=0.7)
 
         axs[index].set_ylim(-0.1, 1.1)
         axs[index].set_ylabel('Frequency', fontsize=14)
@@ -192,7 +210,7 @@ def plot_per_base_sequence_comparison(stats1, stats2, stats_name, result, p_valu
         axs[index].tick_params(axis='y', labelsize=12)
 
         # add text to the plot with the nucleotide name
-        axs[index].text(0.9, 0.85, f'Nucleotide: {nt}', ha='center', va='bottom', fontsize=14, transform=axs[index].transAxes)
+        axs[index].text(0.9, 0.8, f'Nucleotide: {nt}', ha='center', va='bottom', fontsize=14, transform=axs[index].transAxes)
 
         if title and index == 0:
             axs[index].set_title(f'{title}', fontsize=16)
@@ -206,9 +224,28 @@ def plot_per_base_sequence_comparison(stats1, stats2, stats_name, result, p_valu
                     axs[index].axvspan(i-0.45, i+0.45, facecolor='red', alpha=0.2)
                     red_flag = True
 
-    axs[index].set_xlabel(x_label, fontsize=14)
     axs[index].ticklabel_format(axis='both', style='plain')
-    axs[index] = prepare_legend(axs[index], red_flag, p_value_thresh, box_to_anchor=(0.5, -0.3))
+
+    # Plot the number of sequences with length at least that position
+    length_counts = [sum(1 for length in seq_lengths if length >= pos) for pos in range(end_position)]
+    # normalize length_counts to [0, 1]
+    if length_counts:
+        length_counts = [count / max(length_counts) for count in length_counts]
+
+    last_index = len(nucleotides)
+    axs[last_index].fill_between(range(end_position), length_counts, color='lightblue', alpha=0.5)
+    axs[last_index].plot(range(end_position), length_counts, color='lightblue', linewidth=2)
+    axs[last_index].set_xlabel(f"{x_label}", fontsize=14)
+    axs[last_index].set_ylabel('Proportion of\nsequences', fontsize=14)
+    axs[last_index].yaxis.set_label_position("right")
+    axs[last_index].yaxis.tick_right()
+    axs[last_index].set_ylim(0, max(length_counts) * 1.1)  
+    axs[last_index].set_yticks([0, 0.5, 1])
+    axs[last_index].set_yticklabels(['0', '0.5', '1'], fontsize=12)
+    axs[last_index].tick_params(axis='x', labelsize=12)
+    axs[last_index].tick_params(axis='y', labelsize=12)
+
+    axs[last_index] = prepare_legend(axs[index], red_flag, p_value_thresh, box_to_anchor=(0.5, -1), metric='p-value')
 
     return fig
 
@@ -228,7 +265,7 @@ def melt_stats(stats1, stats2, stats_name, var_name='Metric', value_name='Value'
 
     return df
 
-def prepare_legend(ax, red_flag, dist_thresh, box_to_anchor=(0.5, -0.2)):
+def prepare_legend(ax, red_flag, dist_thresh, box_to_anchor=(0.5, -0.2), metric='Distance'):
     """
     Prepare the legend for the plot.
     """
@@ -236,7 +273,7 @@ def prepare_legend(ax, red_flag, dist_thresh, box_to_anchor=(0.5, -0.2)):
     legend_labels = ax.get_legend_handles_labels()[1]
     if red_flag:
         legend_handles += [plt.Rectangle((0, 0), 1, 1, color='red', alpha=0.2)]
-        legend_labels += [f'Distance > {dist_thresh}']
+        legend_labels += [f'{metric} > {dist_thresh}']
     ax.legend(
         handles = legend_handles,
         labels = legend_labels,

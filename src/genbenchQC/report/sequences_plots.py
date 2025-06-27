@@ -1,7 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-import numpy as np
+import logging
 
 def hist_plot_one_stat(stats, stats_name, x_label='', title=''):
     """
@@ -45,7 +45,7 @@ def violin_plot_nucleotides(stats):
     
     fig, ax = plt.subplots(figsize=(10, 4), dpi=300)
     
-    sns.violinplot(data=df, ax=ax, inner='quartile')
+    sns.violinplot(data=df, ax=ax, inner='quartile', cut=0)
     
     ax.set_title('Nucleotide Content Distribution', fontsize=16)
     ax.set_ylabel('Frequency', fontsize=14)
@@ -65,7 +65,7 @@ def violin_plot_dinucleotides(stats, nucleotides):
     for index, nt in enumerate(nucleotides):
         dinucleotides = [nt + nt2 for nt2 in nucleotides]
         df_nt = df[dinucleotides]
-        sns.violinplot(data=df_nt, ax=axs[index], inner='quartile')
+        sns.violinplot(data=df_nt, ax=axs[index], inner='quartile', cut=0)
         
         if index == 0:
             axs[index].set_title('Dinucleotide content', fontsize=16)
@@ -98,7 +98,7 @@ def plot_per_position_nucleotide_content(stats, stat_name, nucleotides, end_posi
         # Ensure end_position is not greater than the maximum sequence length
         seq_lengths = stats['Sequence lengths'].values()
         if end_position > max(seq_lengths):
-            print(f"Warning: end_position {end_position} is greater than the maximum sequence length {max(seq_lengths)}. Setting end_position to {max(seq_lengths)}.")
+            logging.warning(f"end_position {end_position} is greater than the maximum sequence length {max(seq_lengths)}. Setting end_position to {max(seq_lengths)}.")
             end_position = max(seq_lengths)
 
     nucleotides = sorted(nucleotides)  # Ensure nucleotides are sorted for consistent plotting
