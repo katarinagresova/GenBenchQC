@@ -17,7 +17,7 @@ evaluate_sequences --input INPUT_PATH --format FASTA/CSV/TSV [--out_folder OUT_F
 ### Dataset evaluator
 
 ```bash
-evaluate_dataset --input INPUT_PATHS --format FASTA/CSV/TSV [--out_folder OUT_FOLDER, --sequence_column SEQUENCE_COLUMN, --label_column LABEL_COLUMN, --label_list LABEL1 LABEL2 ...]
+evaluate_dataset --input INPUT_PATHS --format FASTA/CSV/TSV [--out_folder OUT_FOLDER, --sequence_column SEQUENCE_COLUMN, --label_column LABEL_COLUMN, --labels LABEL1 LABEL2 ..., --regression]
 ```
 
 ## Running from Python
@@ -35,7 +35,7 @@ evaluate_sequences.run(INPUT_PATH, FILE_FORMAT, OUT_FOLDER, SEQUENCE_COLUMN_LIST
 ```python
 from genbenchQC import evaluate_dataset
 
-evaluate_dataset.run(INPUT_PATHS_LIST, FILE_FORMAT, OUT_FOLDER, SEQUENCE_COLUMN_LIST, LABEL_COLUMN, LABEL_LIST)
+evaluate_dataset.run(INPUT_PATHS_LIST, FILE_FORMAT, OUT_FOLDER, SEQUENCE_COLUMN_LIST, LABEL_COLUMN, LABEL_LIST, REGRESSION)
 ```
 
 ## Description
