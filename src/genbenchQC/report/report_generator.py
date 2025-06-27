@@ -32,6 +32,8 @@ def generate_sequence_plots(stats_dict, output_path):
     Generate a plots from the given statistics dictionary.
     """
 
+    logging.info(f"Generating PNG plots at: {output_path}")
+
     nucleotides = sorted(stats_dict['Unique bases'])
 
     plots_paths = {}
@@ -138,7 +140,7 @@ def generate_simple_report(results, output_path):
 
 def generate_dataset_plots(stats1, stats2, results, output_path, threshold):
 
-    logging.info(f"Generating PDF plots at: {output_path}")
+    logging.info(f"Generating PNG plots at: {output_path}")
 
     plots_paths = {}
 
