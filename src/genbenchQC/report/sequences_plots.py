@@ -130,8 +130,7 @@ def plot_per_position_nucleotide_content(stats, stat_name, nucleotides, end_posi
     axs[0].set_title(f"{stat_name}", fontsize=16)
 
     # Plot the number of sequences with length at least that position
-    sequence_lengths = stats['Sequence lengths']
-    length_counts = [sum(1 for length in sequence_lengths if length >= pos) for pos in range(end_position)]
+    length_counts = [sum(1 for length in seq_lengths if length >= pos) for pos in range(end_position)]
     # normalize length_counts to [0, 1]
     if length_counts:
         length_counts = [count / max(length_counts) for count in length_counts]
