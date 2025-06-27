@@ -1,15 +1,16 @@
 import argparse
 from pathlib import Path
 from typing import Optional
+import logging
 
 from genbenchQC.utils.statistics import SequenceStatistics
 from genbenchQC.report.report_generator import generate_json_report, generate_html_report
-from genbenchQC.utils.input_utils import read_fasta, read_sequences_from_df, read_multisequence_df, read_csv_file
+from genbenchQC.utils.input_utils import read_fasta, read_sequences_from_df, read_multisequence_df, read_csv_file, setup_logger
 
 def run_analysis(seq_stats, out_folder):
 
     if not Path(out_folder).exists():
-        print(f"Output folder {out_folder} does not exist. Creating it.")
+        logging.info(f"Output folder {out_folder} does not exist. Creating it.")
         Path(out_folder).mkdir(parents=True, exist_ok=True)
 
     stats = seq_stats.compute()
@@ -27,11 +28,13 @@ def run_analysis(seq_stats, out_folder):
     generate_html_report(stats, html_report_path)
 
 def run(input_file, input_format, out_folder='.', sequence_column: Optional[list[str]] = ['sequences'], label_column=None, label: Optional[str] = None):
-    
+    logging.info("Starting sequence evaluation.")
+
     if input_format == 'fasta':
         seqs = read_fasta(input_file)
+        logging.debug(f"Read {len(seqs)} sequences from FASTA file.")
         run_analysis(
-            SequenceStatistics(seqs, Path(input_file).name, label=label), 
+            SequenceStatistics(seqs, Path(input_file).name, label=label),
             out_folder
         )
     else:
@@ -39,17 +42,20 @@ def run(input_file, input_format, out_folder='.', sequence_column: Optional[list
 
         for seq_col in sequence_column:
             sequences = read_sequences_from_df(df, seq_col, label_column, label)
+            logging.debug(f"Read {len(sequences)} sequences from CSV/TSV file.")
             run_analysis(
-                SequenceStatistics(sequences, filename=Path(input_file).name, seq_column=seq_col, label=label), 
+                SequenceStatistics(sequences, filename=Path(input_file).name, seq_column=seq_col, label=label),
                 out_folder
             )
 
         if len(sequence_column) > 1:
             sequences = read_multisequence_df(df, sequence_column, label_column, label)
             run_analysis(
-                SequenceStatistics(sequences, filename=Path(input_file).name, seq_column='_'.join(sequence_column), label=label), 
+                SequenceStatistics(sequences, filename=Path(input_file).name, seq_column='_'.join(sequence_column), label=label),
                 out_folder
             )
+
+    logging.info("Sequence evaluation successfully completed.")
 
 def parse_args():
     parser = argparse.ArgumentParser(description='A tools for evaluating sequence data.')
@@ -63,6 +69,9 @@ def parse_args():
     parser.add_argument('--label', type=str,
                         help='Label of the class to select from the whole dataset. If not specified, the whole dataset is taken and analyzed as one piece.', default=None)
     parser.add_argument('--out_folder', type=str, help='Path to the output folder.', default='.')
+    parser.add_argument('--log_level', type=str, help='Logging level, default to INFO.',
+                        choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'], default='INFO')
+    parser.add_argument('--log_file', type=str, help='Path to the log file.', default=None)
 
     args = parser.parse_args()
 
@@ -73,6 +82,7 @@ def parse_args():
 
 def main():
     args = parse_args()
+    setup_logger(args.log_level, args.log_file)
     run(args.input, args.format, args.out_folder, args.sequence_column, args.label_column, args.label)
 
 

@@ -1,3 +1,4 @@
+import logging
 from collections import Counter
 import numpy as np
 
@@ -27,6 +28,12 @@ class SequenceStatistics:
             - Sequence lenghts: dict {sequence_id: int}
             - Sequence duplication levels: dict {sequence: count}
         """
+        message = f"Computing statistics for {self.filename}"
+        if self.label is not None:
+            message += f", label {self.label}"
+        if self.seq_column is not None:
+            message += f", sequence column: {self.seq_column}"
+        logging.info(message)
 
         self._compute_basic_statistics()
         self._compute_per_sequence_statistics()
@@ -117,6 +124,7 @@ class SequenceStatistics:
 
     def _compute_summary_statistics(self):
         if 'Per sequence nucleotide content' not in self.stats or 'Per sequence dinucleotide content' not in self.stats:
+            logging.error("Per sequence (di)nucleotide content not computed. Run _compute_per_sequence_statistics() first.")
             raise ValueError("Per sequence (di)nucleotide content not computed. Run _compute_per_sequence_statistics() first.")
 
         nucleotides = self.stats['Unique bases'] if 'Unique bases' in self.stats else list(set(''.join(self.sequences)))

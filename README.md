@@ -11,13 +11,15 @@ pip install git+https://github.com/katarinagresova/GenBenchQC.git
 ### Sequence evaluator
 
 ```bash
-evaluate_sequences --input INPUT_PATH --format FASTA/CSV/TSV [--out_folder OUT_FOLDER, --sequence_column SEQUENCE_COLUMN, --label_column LABEL_COLUMN, --label LABEL]
+evaluate_sequences --input INPUT_PATH --format FASTA/CSV/TSV \
+[--out_folder OUT_FOLDER, --sequence_column SEQUENCE_COLUMN, --label_column LABEL_COLUMN, --label LABEL, --log_level LOG_LEVEL, --log_file LOG_FILE]
 ```
 
 ### Dataset evaluator
 
 ```bash
-evaluate_dataset --input INPUT_PATHS --format FASTA/CSV/TSV [--out_folder OUT_FOLDER, --sequence_column SEQUENCE_COLUMN, --label_column LABEL_COLUMN, --labels LABEL1 LABEL2 ..., --regression]
+evaluate_dataset --input INPUT_PATHS --format FASTA/CSV/TSV \
+[--out_folder OUT_FOLDER, --sequence_column SEQUENCE_COLUMN, --label_column LABEL_COLUMN, --label_list LABEL1 LABEL2 ..., --regression, --log_level LOG_LEVEL, --log_file LOG_FILE]
 ```
 
 ## Running from Python
