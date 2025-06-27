@@ -118,7 +118,7 @@ HTML_TEMPLATE = """
             <a href="#general-descriptive-statistics">General Descriptive Statistics</a>
             <div style="margin-left: 15px;">
                 <a href="#sequence-lengths">Sequence lengths</a>
-                <a href="#sequence-duplication-levels">Sequence duplication levels</a>
+                <a href="#sequence-duplication-levels">Duplicate sequences</a>
             </div>
             <a href="#per-sequence-descriptive-stats">Per Sequence Descriptive Stats</a>
             <div style="margin-left: 15px;">
@@ -174,14 +174,13 @@ HTML_TEMPLATE = """
 
                 <h3>Sequence lengths</h3>
                 <!-- This will be populated with png plot --->
-                <img src={{sequence_length_plot}} alt="Sequence Lengths Plot" style="max-width: 100%; height: auto;">
+                <img src={{sequence_length_plot}} alt="Sequence Lengths Plot" style="max-width: 50%; height: auto; display: block; margin: 0 auto;">
 
                 <div id="sequence-duplication-levels">
-                    <h3>Sequence duplication levels</h3>
+                    <h3>Duplicate sequences</h3>
                     <table>
                         <thead>
                             <tr>
-                                <th class="count_column">Count</th>
                                 <th class="sequence_column">Sequence</th>
                             </tr>
                         </thead>
@@ -211,7 +210,7 @@ HTML_TEMPLATE = """
                 <img src={{per-position-reversed-nucleotide-content}} alt="Per Position Reversed Nucleotide Content" style="max-width: 100%; height: auto;">
 
                 <h3>Per Sequence GC Content</h3>
-                <img src={{per-sequence-gc-content}} alt="Per Sequence GC Content" style="max-width: 100%; height: auto;">
+                <img src={{per-sequence-gc-content}} alt="Per Sequence GC Content" style="max-width: 50%; height: auto; display: block; margin: 0 auto;">
 
             </section>
         </div>
@@ -222,17 +221,15 @@ HTML_TEMPLATE = """
 
         // Populate table for sequence duplication levels
         var tableBody = document.querySelector("#sequence-duplication-levels tbody");
-        for (var sequence in sequenceDuplicationLevels) {
+        for (var i = 0; i < sequenceDuplicationLevels.length; i++) {
+            var sequence = sequenceDuplicationLevels[i];
+
             var row = document.createElement("tr");
-            var countCell = document.createElement("td");
             var sequenceCell = document.createElement("td");
 
-            countCell.textContent = sequenceDuplicationLevels[sequence];
-            countCell.className = "count_column";
             sequenceCell.textContent = sequence;
             sequenceCell.className = "sequence_column";
 
-            row.appendChild(countCell);
             row.appendChild(sequenceCell);
             tableBody.appendChild(row);
         }
@@ -315,24 +312,16 @@ def get_dataset_html_template(stats1, stats2, plots_path, results):
     html_template = put_data(html_template, "{{per-position-reversed-nucleotide-content}}", str(plots_path['Per position reversed nucleotide content']))
     html_template = put_data(html_template, "{{per-sequence-gc-content}}", str(plots_path['Per sequence GC content']))
 
-    # # take max 10 sequences for sequence duplication levels - stats['Sequence duplication levels'] is a dictionary
-    # # with sequence as key and count as value, we convert it to a list of tuples
-    # sequence_duplication_levels = list(stats['Sequence duplication levels'].items())
-    # # Sort by count in descending order and take the top 10
-    # sequence_duplication_levels.sort(key=lambda x: x[1], reverse=True)
-    # # Limit to the first 10 sequences if there are more than 10
-    # if len(sequence_duplication_levels) > 10:
-    #     # Take the top 10 sequences
-    #     sequence_duplication_levels = sequence_duplication_levels[:10]
-    #     html_template = put_data(html_template, "{{sequence_duplication_levels_rest}}", str(len(stats['Sequence duplication levels']) - 10))
-    # else:
-    #     # If there are 10 or fewer sequences, set the rest to 0
-    #     html_template = put_data(html_template, "{{sequence_duplication_levels_rest}}", "0")
-    # # Convert sequence duplication levels back to a dictionary-like structure for JSON-like string with sequence and count
-    # sequence_duplication_levels_dict = {str(seq): count for seq, count in sequence_duplication_levels}
-    # # Convert to JSON-like string for JavaScript
-    # sequence_duplication_levels_str = str(sequence_duplication_levels_dict).replace("'", '"').replace(", ", ",\n")
-    # # Replace the placeholder with the JSON-like string
-    # html_template = put_data(html_template, "{{sequence_duplication_levels}}", sequence_duplication_levels_str)
-    
+    # take max 10 sequences for sequence duplication levels, results['Sequence duplication levels'][0] is a list of sequences
+    sequence_duplication_levels = results['Duplication between labels'][0][:10]
+    html_template = put_data(html_template, "{{sequence_duplication_levels}}",
+                             '[' + ', '.join(escape_str(seq) for seq in sequence_duplication_levels) + ']')
+    if len(results['Duplication between labels'][0]) > 10:
+        # If there are more than 10 sequences, we show how many more there are
+        # and set the rest to a placeholder
+        html_template = put_data(html_template, "{{sequence_duplication_levels_rest}}", str(len(results['Duplication between labels'][0]) - 10))
+    else:
+        # If there are 10 or fewer sequences, we set the rest to 0
+        html_template = put_data(html_template, "{{sequence_duplication_levels_rest}}", "0")
+
     return html_template

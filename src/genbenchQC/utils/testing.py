@@ -100,8 +100,8 @@ def flag_per_sequence_one_stat(stats1, stats2, column, threshold):
     return (distance, passed)
     
 def flag_duplication_between_datasets(sequences1, sequences2):
-    duplicates = set(sequences1).intersection(sequences2)
+    duplicates = list(set(sequences1).intersection(sequences2))
     if len(duplicates) > 0:
         return (duplicates, False)
     else:
-        return (None, True)
+        return ([], True)
