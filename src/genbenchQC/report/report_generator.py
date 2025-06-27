@@ -11,13 +11,11 @@ from genbenchQC.report.sequence_html_report import get_sequence_html_template
 from genbenchQC.report.dataset_html_report import get_dataset_html_template
 from genbenchQC.utils.input_utils import write_stats_json
 from genbenchQC.report.dataset_plots import (
-    plot_plot_basic_descriptive_stats,
     plot_nucleotides, 
     plot_dinucleotides, 
     plot_per_base_sequence_comparison, 
     plot_lengths,
     plot_gc_content,
-    plot_duplicates
 )
 
 from genbenchQC.report.sequences_plots import (
@@ -120,6 +118,16 @@ def generate_dataset_html_report(stats1, stats2, results, output_path, plots_pat
 
     with open(output_path, 'w') as file:
         file.write(template)
+
+    if results['Duplication between labels'][0]:
+        # save duplicate sequences to a file
+        duplicate_seqs = results['Duplication between labels'][0]
+        # remove extension from output path, add '_duplicates.txt'
+        duplicate_seqs_path = os.path.splitext(output_path)[0] + '_duplicates.txt'
+        with open(duplicate_seqs_path, 'w') as f:
+            for seq in duplicate_seqs:
+                f.write(f"{seq}\n")
+        logging.info(f"Duplicate sequences saved to {duplicate_seqs_path}")
 
 def generate_json_report(stats_dict, output_path):
     write_stats_json(stats_dict, output_path)
@@ -227,21 +235,3 @@ def generate_dataset_plots(stats1, stats2, results, output_path, threshold):
     plt.close(fig)
 
     return plots_paths
-
-    # fig = plot_duplicates(result=results['Duplication between labels'])
-    # if fig:
-    #     plots.append(fig)
-    #     plt.close(fig)
-
-    #     # save duplicate sequences to a file
-    #     duplicate_seqs = results['Duplication between labels'][0]
-    #     # remove extension from output path, add '_duplicates.txt'
-    #     duplicate_seqs_path = os.path.splitext(output_path)[0] + '_duplicates.txt'
-    #     with open(duplicate_seqs_path, 'w') as f:
-    #         for seq in duplicate_seqs:
-    #             f.write(f"{seq}\n")
-    #     logging.info(f"Duplicate sequences saved to {duplicate_seqs_path}")
-
-    # with PdfPages(output_path) as pdf:
-    #     for fig in plots:
-    #         pdf.savefig(fig, bbox_inches='tight')
