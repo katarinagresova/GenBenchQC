@@ -56,7 +56,7 @@ def run(inputs, input_format, out_folder='.', sequence_column: Optional[list[str
     logging.info("Starting dataset evaluation.")
 
     if not Path(out_folder).exists():
-        print(f"Output folder {out_folder} does not exist. Creating it.")
+        logging.info(f"Output folder {out_folder} does not exist. Creating it.")
         Path(out_folder).mkdir(parents=True, exist_ok=True)
 
     # we have multiple fasta files with one label each

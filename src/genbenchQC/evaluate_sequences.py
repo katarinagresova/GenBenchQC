@@ -10,7 +10,7 @@ from genbenchQC.utils.input_utils import read_fasta, read_sequences_from_df, rea
 def run_analysis(seq_stats, out_folder):
 
     if not Path(out_folder).exists():
-        print(f"Output folder {out_folder} does not exist. Creating it.")
+        logging.info(f"Output folder {out_folder} does not exist. Creating it.")
         Path(out_folder).mkdir(parents=True, exist_ok=True)
 
     stats = seq_stats.compute()

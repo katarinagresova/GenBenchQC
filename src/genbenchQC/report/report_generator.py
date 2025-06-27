@@ -164,7 +164,7 @@ def generate_pdf_report(stats1, stats2, results, output_path, threshold):
         with open(duplicate_seqs_path, 'w') as f:
             for seq in duplicate_seqs:
                 f.write(f"{seq}\n")
-        print(f"Duplicate sequences saved to {duplicate_seqs_path}")
+        logging.info(f"Duplicate sequences saved to {duplicate_seqs_path}")
 
     with PdfPages(output_path) as pdf:
         for fig in plots:
