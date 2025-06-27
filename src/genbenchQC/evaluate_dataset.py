@@ -1,4 +1,5 @@
 import argparse
+import logging
 from pathlib import Path
 from itertools import combinations
 from typing import Optional
@@ -6,8 +7,7 @@ from typing import Optional
 from genbenchQC.utils.statistics import SequenceStatistics
 from genbenchQC.utils.testing import flag_significant_differences
 from genbenchQC.report.report_generator import generate_json_report, generate_sequence_html_report, generate_simple_report, generate_dataset_html_report
-from genbenchQC.utils.input_utils import read_fasta, read_sequences_from_df, read_multisequence_df, read_csv_file
-
+from genbenchQC.utils.input_utils import read_fasta, read_sequences_from_df, read_multisequence_df, read_csv_file, setup_logger
 def run_analysis(input_statistics, out_folder, report_types, threshold=0.015):
     out_folder = Path(out_folder)
 
@@ -40,9 +40,12 @@ def run_analysis(input_statistics, out_folder, report_types, threshold=0.015):
             filename += f'_{stat1.seq_column}'
         if stat1.label is not None and stat2.label is not None:
             filename += f'_label_{stat1.label}_vs_{stat2.label}'
+            logging.debug(f"Comparing datasets label: {stat1.label} vs {stat2.label}")
         else:
             filename += f'_{Path(stat1.filename).stem}_{Path(stat2.filename).stem}'
-    
+            logging.debug(
+                f"Comparing datasets: {stat1.filename} vs {stat2.filename}")
+
         results = flag_significant_differences(stat1.sequences, stat1.stats, stat2.sequences, stat2.stats, threshold=threshold)
         
         if 'simple' in report_types:
@@ -63,15 +66,18 @@ def run(inputs,
         regression: Optional[bool] = False,
         report_types: Optional[list[str]] = ['html', 'simple']):
 
+    logging.info("Starting dataset evaluation.")
+
     if not Path(out_folder).exists():
-        print(f"Output folder {out_folder} does not exist. Creating it.")
+        logging.info(f"Output folder {out_folder} does not exist. Creating it.")
         Path(out_folder).mkdir(parents=True, exist_ok=True)
-    
+
     # we have multiple fasta files with one label each
     if input_format == 'fasta':
         seq_stats = []
         for input_file in inputs:
             sequences = read_fasta(input_file)
+            logging.debug(f"Read {len(sequences)} sequences from FASTA file {input_file}.")
             seq_stats += [SequenceStatistics(sequences, filename=Path(input_file).name, label=Path(input_file).stem)]
         run_analysis(seq_stats, out_folder, report_types)
 
@@ -85,12 +91,14 @@ def run(inputs,
             if regression:
                 # infer the threshold as the median of the label column
                 threshold = df[label_column].median()
+                logging.debug(f"Inferred threshold for regression: {threshold}")
                 df[label_column] = df[label_column].apply(lambda x: 'high' if x >= threshold else 'low')
                 labels = ['high', 'low']
 
             # get the list of labels to consider
             elif len(label_list) == 1 and label_list[0] == 'infer':
                 labels = df[label_column].unique().tolist()
+                logging.debug(f"Inferred labels: {labels}")
             else:
                 labels = label_list
 
@@ -99,6 +107,7 @@ def run(inputs,
                 seq_stats = []
                 for label in labels:
                     sequences = read_sequences_from_df(df, seq_col, label_column, label)
+                    logging.debug(f"Read {len(sequences)} sequences for label '{label}' from column '{seq_col}'.")
                     seq_stats += [
                         SequenceStatistics(sequences, filename=Path(inputs[0]).name, label=label, seq_column=seq_col)]
                 run_analysis(seq_stats, out_folder, report_types)
@@ -119,6 +128,7 @@ def run(inputs,
                 seq_stats = []
                 for input_file in inputs:
                     sequences = read_sequences_from_df(read_csv_file(input_file, input_format, seq_col), seq_col)
+                    logging.debug(f"Read {len(sequences)} sequences from file {input_file} in column '{seq_col}'.")
                     seq_stats += [SequenceStatistics(sequences, filename=Path(input_file).name, label=Path(input_file).stem, seq_column=seq_col)]
                 run_analysis(seq_stats, out_folder, report_types)
 
@@ -130,6 +140,8 @@ def run(inputs,
                     seq_stats += [SequenceStatistics(sequences, filename=Path(input_file).name, label=Path(input_file).stem,
                                                      seq_column='_'.join(sequence_column))]
                 run_analysis(seq_stats, out_folder, report_types)
+
+    logging.info("Dataset evaluation successfully completed.")
 
 
 def parse_args():
@@ -146,6 +158,8 @@ def parse_args():
     parser.add_argument('--out_folder', type=str, help='Path to the output folder.', default='.')
     parser.add_argument('--report_types', type=str, nargs='+',  default=['html', 'simple'],
                         help='Types of reports to generate. Options: json, html, simple. Default: [html, simple].')
+    parser.add_argument('--log_level', type=str, help='Logging level, default to INFO.', choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'], default='INFO')
+    parser.add_argument('--log_file', type=str, help='Path to the log file.', default=None)
     args = parser.parse_args()
 
     if args.format == 'fasta' and len(args.input) < 2:
@@ -155,7 +169,7 @@ def parse_args():
 
 def main():
     args = parse_args()
-
+    setup_logger(args.log_level, args.log_file)
     run(args.input, 
         args.format, 
         args.out_folder, 
@@ -163,7 +177,7 @@ def main():
         args.label_column, 
         args.label_list,
         args.regression,
-        args.report_types
+        args.report_types,
     )
 
 if __name__ == '__main__':

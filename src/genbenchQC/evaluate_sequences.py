@@ -1,15 +1,16 @@
 import argparse
 from pathlib import Path
 from typing import Optional
+import logging
 
 from genbenchQC.utils.statistics import SequenceStatistics
 from genbenchQC.report.report_generator import generate_json_report, generate_sequence_html_report
-from genbenchQC.utils.input_utils import read_fasta, read_sequences_from_df, read_multisequence_df, read_csv_file
+from genbenchQC.utils.input_utils import read_fasta, read_sequences_from_df, read_multisequence_df, read_csv_file, setup_logger
 
 def run_analysis(seq_stats, out_folder, report_types):
 
     if not Path(out_folder).exists():
-        print(f"Output folder {out_folder} does not exist. Creating it.")
+        logging.info(f"Output folder {out_folder} does not exist. Creating it.")
         Path(out_folder).mkdir(parents=True, exist_ok=True)
 
     stats = seq_stats.compute()
@@ -36,10 +37,13 @@ def run(input_file,
         label: Optional[str] = None,
         report_types: Optional[list[str]] = ['html']):
     
+    logging.info("Starting sequence evaluation.")
+
     if input_format == 'fasta':
         seqs = read_fasta(input_file)
+        logging.debug(f"Read {len(seqs)} sequences from FASTA file.")
         run_analysis(
-            SequenceStatistics(seqs, Path(input_file).name, label=label), 
+            SequenceStatistics(seqs, Path(input_file).name, label=label),
             out_folder
         )
     else:
@@ -47,6 +51,7 @@ def run(input_file,
 
         for seq_col in sequence_column:
             sequences = read_sequences_from_df(df, seq_col, label_column, label)
+            logging.debug(f"Read {len(sequences)} sequences from CSV/TSV file.")
             run_analysis(
                 SequenceStatistics(sequences, filename=Path(input_file).name, seq_column=seq_col, label=label), 
                 out_folder,
@@ -60,6 +65,8 @@ def run(input_file,
                 out_folder,
                 report_types
             )
+
+    logging.info("Sequence evaluation successfully completed.")
 
 def parse_args():
     parser = argparse.ArgumentParser(description='A tools for evaluating sequence data.')
@@ -75,6 +82,9 @@ def parse_args():
     parser.add_argument('--out_folder', type=str, help='Path to the output folder.', default='.')
     parser.add_argument('--report_types', type=str, nargs='+',
                         help='Types of reports to generate. Options: json, html. Default: [html]', default=['html'])
+    parser.add_argument('--log_level', type=str, help='Logging level, default to INFO.',
+                        choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'], default='INFO')
+    parser.add_argument('--log_file', type=str, help='Path to the log file.', default=None)
 
     args = parser.parse_args()
 
@@ -85,15 +95,15 @@ def parse_args():
 
 def main():
     args = parse_args()
+    setup_logger(args.log_level, args.log_file)
     run(args.input, 
         args.format, 
         args.out_folder, 
         args.sequence_column, 
         args.label_column, 
         args.label, 
-        args.report_types
+        args.report_types,
     )
-
 
 if __name__ == '__main__':
     main()

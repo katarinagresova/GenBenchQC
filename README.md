@@ -19,8 +19,9 @@ evaluate_sequences \
   [--out_folder OUT_FOLDER] \
   [--sequence_column SEQUENCE_COLUMN] \ 
   [--label_column LABEL_COLUMN] \
-  [--label LABEL]
-```
+  [--label LABEL] \
+  [--log_level LOG_LEVEL] \
+  [--log_file LOG_FILE]
 
 ### Dataset evaluator
 
@@ -32,8 +33,10 @@ evaluate_dataset \
   [--sequence_column SEQUENCE_COLUMN] \
   [--label_column LABEL_COLUMN] \
   [--label_list LABEL1 LABEL2 ...] \
-  [--regression]
-```
+  [--regression] \
+  [--report_types REPORT_TYPES]
+  [--log_level LOG_LEVEL] \
+  [--log_file LOG_FILE]
 
 ## Running from Python
 
@@ -48,7 +51,10 @@ evaluate_sequences.run(
   OUT_FOLDER, 
   SEQUENCE_COLUMN_LIST, 
   LABEL_COLUMN, 
-  LABEL)
+  LABEL,
+  REPORT_TYPES,
+  LOG_LEVEL,
+  LOG_FILE)
 ```
 
 ### Dataset evaluator
@@ -63,7 +69,10 @@ evaluate_dataset.run(
   SEQUENCE_COLUMN_LIST, 
   LABEL_COLUMN, 
   LABEL_LIST,
-  REGRESSION)
+  REGRESSION,
+  REPORT_TYPES,
+  LOG_LEVEL,
+  LOG_FILE)
 ```
 
 ## Description

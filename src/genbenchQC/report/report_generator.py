@@ -5,6 +5,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 import pandas as pd
 import os
 from pathlib import Path
+import logging
 
 from genbenchQC.report.sequence_html_report import get_sequence_html_template
 from genbenchQC.report.dataset_html_report import get_dataset_html_template
@@ -90,6 +91,7 @@ def generate_sequence_html_report(stats_dict, output_path, plots_path):
     Generate an HTML report from the given statistics dictionary.
     Plots are generated using the Plotly library.
     """
+    logging.info(f"Generating HTML report: {output_path}")
 
     plots_path.mkdir(parents=True, exist_ok=True)
 
@@ -122,6 +124,8 @@ def generate_json_report(stats_dict, output_path):
 
 def generate_simple_report(results, output_path):
 
+    logging.info(f"Generating simple report: {output_path}")
+
     # construct table from results - Name and Passed/Failed status
     df = pd.DataFrame({
         'Name': [key for key in results.keys()],
@@ -133,6 +137,8 @@ def generate_simple_report(results, output_path):
     df.to_csv(output_path, index=False, header=False)
 
 def generate_dataset_plots(stats1, stats2, results, output_path, threshold):
+
+    logging.info(f"Generating PDF plots at: {output_path}")
 
     plots_paths = {}
 
@@ -232,7 +238,7 @@ def generate_dataset_plots(stats1, stats2, results, output_path, threshold):
     #     with open(duplicate_seqs_path, 'w') as f:
     #         for seq in duplicate_seqs:
     #             f.write(f"{seq}\n")
-    #     print(f"Duplicate sequences saved to {duplicate_seqs_path}")
+    #     logging.info(f"Duplicate sequences saved to {duplicate_seqs_path}")
 
     # with PdfPages(output_path) as pdf:
     #     for fig in plots:
