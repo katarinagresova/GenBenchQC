@@ -78,6 +78,7 @@ def run(inputs, input_format, out_folder='.', sequence_column: Optional[list[str
             if regression:
                 # infer the threshold as the median of the label column
                 threshold = df[label_column].median()
+                logging.debug(f"Inferred threshold for regression: {threshold}")
                 df[label_column] = df[label_column].apply(lambda x: 'high' if x >= threshold else 'low')
                 labels = ['high', 'low']
 
