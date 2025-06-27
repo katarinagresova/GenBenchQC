@@ -136,6 +136,8 @@ HTML_TEMPLATE = """
             <a href="#basic-descriptive-statistics">Basic Descriptive Statistics</a>
             <div style="margin-left: 15px;">
                 <a href="#filename">Filename</a>
+                <a href="#label">Label</a>
+                <a href="#seq_column">Sequence column</a>
                 <a href="#num-sequences">Number of sequences</a>
                 <a href="#dedup-sequences">Unique sequences</a>
                 <a href="#num-bases">Number of bases</a>
@@ -167,6 +169,16 @@ HTML_TEMPLATE = """
                         <td><span>Filename</span></td>
                         <td style="text-align: center;">{{filename1}}</td>
                         <td style="text-align: center;">{{filename2}}</td>
+                    </tr>
+                    <tr id="label">
+                        <td><span>Label</span></td>
+                        <td style="text-align: center;">{{label1}}</td>
+                        <td style="text-align: center;">{{label2}}</td>
+                    </tr>
+                    <tr id="seq_column">
+                        <td><span>Sequence column</span></td>
+                        <td style="text-align: center;">{{seq_col1}}</td>
+                        <td style="text-align: center;">{{seq_col2}}</td>
                     </tr>
                     <tr id="num-sequences">
                         <td><span>Number of sequences</span></td>
@@ -321,6 +333,10 @@ def get_dataset_html_template(stats1, stats2, plots_path, results):
 
     html_template = put_data(html_template, "{{filename1}}", stats1.filename)
     html_template = put_data(html_template, "{{filename2}}", stats2.filename)
+    html_template = put_data(html_template, "{{label1}}", str(stats1.label) if stats1.label is not None else "N/A")
+    html_template = put_data(html_template, "{{label2}}", str(stats2.label) if stats2.label is not None else "N/A")
+    html_template = put_data(html_template, "{{seq_col1}}", str(stats1.seq_column) if stats1.seq_column is not None else "N/A")
+    html_template = put_data(html_template, "{{seq_col2}}", str(stats2.seq_column) if stats2.seq_column is not None else "N/A")
     html_template = put_data(html_template, "{{number_of_sequences1}}", str(stats1.stats['Number of sequences']))
     html_template = put_data(html_template, "{{number_of_sequences2}}", str(stats2.stats['Number of sequences']))
     html_template = put_data(html_template, "{{dedup_sequences1}}", str(stats1.stats['Number of sequences left after deduplication']))
