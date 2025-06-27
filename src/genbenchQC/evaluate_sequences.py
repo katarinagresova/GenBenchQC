@@ -36,7 +36,6 @@ def run(input_file,
         label: Optional[str] = None,
         report_types: Optional[list[str]] = ['html']):
     
-    label = label if label else None
     if input_format == 'fasta':
         seqs = read_fasta(input_file)
         run_analysis(

@@ -31,7 +31,8 @@ evaluate_dataset \
   [--out_folder OUT_FOLDER] \
   [--sequence_column SEQUENCE_COLUMN] \
   [--label_column LABEL_COLUMN] \
-  [--label_list LABEL1 LABEL2 ...]
+  [--label_list LABEL1 LABEL2 ...] \
+  [--regression]
 ```
 
 ## Running from Python
@@ -61,7 +62,8 @@ evaluate_dataset.run(
   OUT_FOLDER, 
   SEQUENCE_COLUMN_LIST, 
   LABEL_COLUMN, 
-  LABEL_LIST)
+  LABEL_LIST,
+  REGRESSION)
 ```
 
 ## Description

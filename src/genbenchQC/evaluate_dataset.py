@@ -60,8 +60,9 @@ def run(inputs,
         sequence_column: Optional[list[str]] = ['sequences'], 
         label_column='label', 
         label_list: Optional[list[str]] = ['infer'],
+        regression: Optional[bool] = False,
         report_types: Optional[list[str]] = ['html', 'simple']):
-    
+
     if not Path(out_folder).exists():
         print(f"Output folder {out_folder} does not exist. Creating it.")
         Path(out_folder).mkdir(parents=True, exist_ok=True)
@@ -76,12 +77,19 @@ def run(inputs,
 
     # we have CSV/TSV
     else:
-        # we have one file with multiple labels
+        # we have one file with multiple labels or regression target
         if len(inputs) == 1:
             df = read_csv_file(inputs[0], input_format, sequence_column, label_column)
 
+            # if regression is True, we split the label column into two classes
+            if regression:
+                # infer the threshold as the median of the label column
+                threshold = df[label_column].median()
+                df[label_column] = df[label_column].apply(lambda x: 'high' if x >= threshold else 'low')
+                labels = ['high', 'low']
+
             # get the list of labels to consider
-            if len(label_list) == 1 and label_list[0] == 'infer':
+            elif len(label_list) == 1 and label_list[0] == 'infer':
                 labels = df[label_column].unique().tolist()
             else:
                 labels = label_list
@@ -134,6 +142,7 @@ def parse_args():
     parser.add_argument('--label_column', type=str, help='Name with the label column for datasets in CSV/TSV format.', default='label')
     parser.add_argument('--label_list', type=str, nargs='+', help='List of label classes to consider or "infer" to parse different labels automatically from label column.'
                                                        ' For datasets in CSV/TSV format.', default=['infer'])
+    parser.add_argument('--regression', action='store_true', help='If True, label column is considered as a regression target and values are split into 2 classes')
     parser.add_argument('--out_folder', type=str, help='Path to the output folder.', default='.')
     parser.add_argument('--report_types', type=str, nargs='+',  default=['html', 'simple'],
                         help='Types of reports to generate. Options: json, html, simple. Default: [html, simple].')
@@ -146,12 +155,14 @@ def parse_args():
 
 def main():
     args = parse_args()
+
     run(args.input, 
         args.format, 
         args.out_folder, 
         args.sequence_column, 
         args.label_column, 
         args.label_list,
+        args.regression,
         args.report_types
     )
 
