@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Optional
 
 from genbenchQC.utils.statistics import SequenceStatistics
-from genbenchQC.report.report_generator import generate_json_report, generate_html_report
+from genbenchQC.report.report_generator import generate_json_report, generate_sequence_html_report
 from genbenchQC.utils.input_utils import read_fasta, read_sequences_from_df, read_multisequence_df, read_csv_file
 
 def run_analysis(seq_stats, out_folder, report_types):
@@ -26,7 +26,7 @@ def run_analysis(seq_stats, out_folder, report_types):
     if 'html' in report_types:
         html_report_path = Path(out_folder, filename + '_report.html')
         plots_path = out_folder / Path(filename + '_plots')
-        generate_html_report(stats, html_report_path, plots_path)
+        generate_sequence_html_report(stats, html_report_path, plots_path)
 
 def run(input_file, 
         input_format, 

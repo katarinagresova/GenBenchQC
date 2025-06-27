@@ -5,7 +5,7 @@ from typing import Optional
 
 from genbenchQC.utils.statistics import SequenceStatistics
 from genbenchQC.utils.testing import flag_significant_differences
-from genbenchQC.report.report_generator import generate_json_report, generate_html_report, generate_simple_report, generate_dataset_html_report
+from genbenchQC.report.report_generator import generate_json_report, generate_sequence_html_report, generate_simple_report, generate_dataset_html_report
 from genbenchQC.utils.input_utils import read_fasta, read_sequences_from_df, read_multisequence_df, read_csv_file
 
 def run_analysis(input_statistics, out_folder, report_types, threshold=0.015):
@@ -28,7 +28,7 @@ def run_analysis(input_statistics, out_folder, report_types, threshold=0.015):
         if 'html' in report_types:
             html_report_path = out_folder / Path(filename + '_report.html')
             plots_path = out_folder / Path(filename + '_plots')
-            generate_html_report(stats, html_report_path, plots_path)
+            generate_sequence_html_report(stats, html_report_path, plots_path)
 
     if len(input_statistics) < 2:
         return
@@ -51,7 +51,8 @@ def run_analysis(input_statistics, out_folder, report_types, threshold=0.015):
 
         if 'html' in report_types:
             html_report_path = out_folder / Path(f'{filename}.html')
-            generate_dataset_html_report(stat1, stat2, results, html_report_path, threshold=threshold)
+            plots_path = out_folder / Path(f'{filename}_plots')
+            generate_dataset_html_report(stat1, stat2, results, html_report_path, plots_path=plots_path, threshold=threshold)
 
 def run(inputs, 
         input_format, 

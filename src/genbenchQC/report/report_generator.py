@@ -6,7 +6,8 @@ import pandas as pd
 import os
 from pathlib import Path
 
-from genbenchQC.report.sequence_html_report import get_html_template
+from genbenchQC.report.sequence_html_report import get_sequence_html_template
+from genbenchQC.report.dataset_html_report import get_dataset_html_template
 from genbenchQC.utils.input_utils import write_stats_json
 from genbenchQC.report.dataset_plots import (
     plot_plot_basic_descriptive_stats,
@@ -25,7 +26,7 @@ from genbenchQC.report.sequences_plots import (
     plot_per_position_nucleotide_content
 )
 
-def generate_plots(stats_dict, output_path):
+def generate_sequence_plots(stats_dict, output_path):
     """
     Generate a plots from the given statistics dictionary.
     """
@@ -84,7 +85,7 @@ def generate_plots(stats_dict, output_path):
 
     return plots_paths
 
-def generate_html_report(stats_dict, output_path, plots_path):
+def generate_sequence_html_report(stats_dict, output_path, plots_path):
     """
     Generate an HTML report from the given statistics dictionary.
     Plots are generated using the Plotly library.
@@ -93,26 +94,28 @@ def generate_html_report(stats_dict, output_path, plots_path):
     plots_path.mkdir(parents=True, exist_ok=True)
 
     # generate 
-    plots_paths = generate_plots(stats_dict, plots_path)
+    plots_paths = generate_sequence_plots(stats_dict, plots_path)
 
     # Load the HTML template
-    template = get_html_template(stats_dict, plots_paths)
+    template = get_sequence_html_template(stats_dict, plots_paths)
 
     with open(output_path, 'w') as file:
         file.write(template)
 
-def generate_dataset_html_report(stats1, stats2, results, output_path, threshold):
+def generate_dataset_html_report(stats1, stats2, results, output_path, plots_path, threshold):
     """
     Generate an HTML report comparing the statistics of two datasets.
-    Plots are generated using the Plotly library.
     """
+    plots_path.mkdir(parents=True, exist_ok=True)
+
+    # generate 
+    plots_paths = generate_dataset_plots(stats1, stats2, results, plots_path, threshold)
+
+    # Load the HTML template
+    template = get_dataset_html_template(stats1, stats2, plots_paths, results)
+
     with open(output_path, 'w') as file:
-        file.write("Not implemented yet. Producing a PDF report instead.")
-
-    # get the output path without the extension
-    output_path = os.path.splitext(output_path)[0] + '.pdf'
-
-    generate_dataset_pdf_report(stats1, stats2, results, output_path, threshold=threshold)
+        file.write(template)
 
 def generate_json_report(stats_dict, output_path):
     write_stats_json(stats_dict, output_path)
@@ -129,15 +132,11 @@ def generate_simple_report(results, output_path):
     # save to csv
     df.to_csv(output_path, index=False, header=False)
 
-def generate_dataset_pdf_report(stats1, stats2, results, output_path, threshold):
+def generate_dataset_plots(stats1, stats2, results, output_path, threshold):
 
-    plots = []
+    plots_paths = {}
+
     bases_overlap = list(set(stats1.stats['Unique bases']) & set(stats2.stats['Unique bases']))
-
-    # Plot basic descriptive statistics
-    fig = plot_plot_basic_descriptive_stats(stats1, stats2)
-    plots.append(fig)
-    plt.close(fig)
 
     # Plot per sequence nucleotide content
     fig = plot_nucleotides(
@@ -148,7 +147,8 @@ def generate_dataset_pdf_report(stats1, stats2, results, output_path, threshold)
         dist_thresh=threshold,
         plot_type='violin'
     )
-    plots.append(fig)
+    plots_paths['Per sequence nucleotide content'] = Path(output_path.name) / 'per_sequence_nucleotide_content.png'
+    fig.savefig(output_path / 'per_sequence_nucleotide_content.png', bbox_inches='tight')
     plt.close(fig)
 
     # Plot per sequence dinucleotide content
@@ -160,7 +160,8 @@ def generate_dataset_pdf_report(stats1, stats2, results, output_path, threshold)
         dist_thresh=threshold,
         plot_type='violin'
     )
-    plots.append(fig)
+    plots_paths['Per sequence dinucleotide content'] = Path(output_path.name) / 'per_sequence_dinucleotide_content.png'
+    fig.savefig(output_path / 'per_sequence_dinucleotide_content.png', bbox_inches='tight')
     plt.close(fig)
     
     # Plot per position nucleotide content
@@ -175,7 +176,8 @@ def generate_dataset_pdf_report(stats1, stats2, results, output_path, threshold)
         x_label='Position in read (bp)',
         title='Nucleotide composition per position',
     )
-    plots.append(fig)
+    plots_paths['Per position nucleotide content'] = Path(output_path.name) / 'per_position_nucleotide_content.png'
+    fig.savefig(output_path / 'per_position_nucleotide_content.png', bbox_inches='tight')   
     plt.close(fig)
 
     # Plot per reversed position nucleotide content
@@ -190,7 +192,8 @@ def generate_dataset_pdf_report(stats1, stats2, results, output_path, threshold)
         x_label='Position in read reversed (bp)',
         title='Reversed nucleotide composition per position',
     )
-    plots.append(fig)
+    plots_paths['Per position reversed nucleotide content'] = Path(output_path.name) / 'per_position_reversed_nucleotide_content.png'
+    fig.savefig(output_path / 'per_position_reversed_nucleotide_content.png', bbox_inches='tight')
     plt.close(fig)
 
     # Plot length distribution
@@ -200,7 +203,8 @@ def generate_dataset_pdf_report(stats1, stats2, results, output_path, threshold)
         result=results['Sequence lengths'],
         dist_thresh=threshold,
     )
-    plots.append(fig)
+    plots_paths['Sequence lengths'] = Path(output_path.name) / 'sequence_lengths.png'
+    fig.savefig(output_path / 'sequence_lengths.png', bbox_inches='tight')
     plt.close(fig)
 
     # Plot per sequence GC content
@@ -210,23 +214,26 @@ def generate_dataset_pdf_report(stats1, stats2, results, output_path, threshold)
         result=results['Per sequence GC content'],
         dist_thresh=threshold,
     )
-    plots.append(fig)
+    plots_paths['Per sequence GC content'] = Path(output_path.name) / 'per_sequence_gc_content.png'
+    fig.savefig(output_path / 'per_sequence_gc_content.png', bbox_inches='tight')
     plt.close(fig)
 
-    fig = plot_duplicates(result=results['Duplication between labels'])
-    if fig:
-        plots.append(fig)
-        plt.close(fig)
+    return plots_paths
 
-        # save duplicate sequences to a file
-        duplicate_seqs = results['Duplication between labels'][0]
-        # remove extension from output path, add '_duplicates.txt'
-        duplicate_seqs_path = os.path.splitext(output_path)[0] + '_duplicates.txt'
-        with open(duplicate_seqs_path, 'w') as f:
-            for seq in duplicate_seqs:
-                f.write(f"{seq}\n")
-        print(f"Duplicate sequences saved to {duplicate_seqs_path}")
+    # fig = plot_duplicates(result=results['Duplication between labels'])
+    # if fig:
+    #     plots.append(fig)
+    #     plt.close(fig)
 
-    with PdfPages(output_path) as pdf:
-        for fig in plots:
-            pdf.savefig(fig, bbox_inches='tight')
+    #     # save duplicate sequences to a file
+    #     duplicate_seqs = results['Duplication between labels'][0]
+    #     # remove extension from output path, add '_duplicates.txt'
+    #     duplicate_seqs_path = os.path.splitext(output_path)[0] + '_duplicates.txt'
+    #     with open(duplicate_seqs_path, 'w') as f:
+    #         for seq in duplicate_seqs:
+    #             f.write(f"{seq}\n")
+    #     print(f"Duplicate sequences saved to {duplicate_seqs_path}")
+
+    # with PdfPages(output_path) as pdf:
+    #     for fig in plots:
+    #         pdf.savefig(fig, bbox_inches='tight')

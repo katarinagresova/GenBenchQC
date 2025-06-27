@@ -135,24 +135,38 @@ HTML_TEMPLATE = """
 
             <section id="basic-descriptive-statistics">
                 <h2>Basic Descriptive Statistics</h2>
-                <div class="data-item" id="filename">
-                    <span>Filename:</span> {{filename}} <!-- Filename will be displayed here -->
-                </div>
-                <div class="data-item" id="num-sequences">
-                    <span>Number of sequences:</span> {{number_of_sequences}} <!-- Number of sequences will be displayed here -->
-                </div>
-                <div class="data-item" id="dedup-sequences">
-                    <span>Unique sequences:</span> {{dedup_sequences}} <!-- Number of sequences left after deduplication will be displayed here -->
-                </div>
-                <div class="data-item" id="num-bases">
-                    <span>Number of bases:</span> {{number_of_bases}} <!-- Number of bases will be displayed here -->
-                </div>
-                <div class="data-item" id="unique-bases">
-                    <span>Unique bases:</span> {{unique_bases}} <!-- Unique bases will be displayed here -->
-                </div>
-                <div class="data-item" id="gc-content">
-                    <span>%GC content:</span> {{gc_content}} <!-- %GC content will be displayed here -->
-                </div>
+                <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                    <tr>
+                        <td><span>Filename</span></td>
+                        <td style="text-align: center;">{{filename1}}</td>
+                        <td style="text-align: center;">{{filename2}}</td>
+                    </tr>
+                    <tr>
+                        <td><span>Number of sequences</span></td>
+                        <td style="text-align: center;">{{number_of_sequences1}}</td>
+                        <td style="text-align: center;">{{number_of_sequences2}}</td>
+                    </tr>
+                    <tr>
+                        <td><span>Unique seqquences</span></td>
+                        <td style="text-align: center;">{{dedup_sequences1}}</td>
+                        <td style="text-align: center;">{{dedup_sequences2}}</td>
+                    </tr>
+                    <tr>
+                        <td><span>Number of bases</span></td>
+                        <td style="text-align: center;">{{number_of_bases1}}</td>
+                        <td style="text-align: center;">{{number_of_bases2}}</td>
+                    </tr>
+                    <tr>
+                        <td><span>Unique bases</span></td>
+                        <td style="text-align: center;">{{unique_bases1}}</td>
+                        <td style="text-align: center;">{{unique_bases2}}</td>
+                    </tr>
+                    <tr>
+                        <td><span>%GC content</span></td>
+                        <td style="text-align: center;">{{gc_content1}}</td>
+                        <td style="text-align: center;">{{gc_content2}}</td>
+                    </tr>
+                </table>
             </section>
 
             <section id="general-descriptive-statistics">
@@ -275,18 +289,24 @@ def escape_str(s):
     """
     return '"' + s + '"'
 
-def get_sequence_html_template(stats, plots_path):
+def get_dataset_html_template(stats1, stats2, plots_path, results):
     """
     Returns the HTML template for the report.
     """
     html_template = HTML_TEMPLATE
 
-    html_template = put_file_details(html_template, stats['Filename'])
-    html_template = put_data(html_template, "{{number_of_sequences}}", str(stats['Number of sequences']))
-    html_template = put_data(html_template, "{{number_of_bases}}", str(stats['Number of bases']))
-    html_template = put_data(html_template, "{{unique_bases}}", '[' + ', '.join(escape_str(x) for x in stats['Unique bases']) + ']')
-    html_template = put_data(html_template, "{{gc_content}}", f"{(stats['%GC content']*100):.2f}")  
-    html_template = put_data(html_template, "{{dedup_sequences}}", str(stats['Number of sequences left after deduplication']))  
+    html_template = put_data(html_template, "{{filename1}}", escape_str(stats1.filename))
+    html_template = put_data(html_template, "{{filename2}}", escape_str(stats2.filename))
+    html_template = put_data(html_template, "{{number_of_sequences1}}", str(stats1.stats['Number of sequences']))
+    html_template = put_data(html_template, "{{number_of_sequences2}}", str(stats2.stats['Number of sequences']))
+    html_template = put_data(html_template, "{{dedup_sequences1}}", str(stats1.stats['Number of sequences left after deduplication']))
+    html_template = put_data(html_template, "{{dedup_sequences2}}", str(stats2.stats['Number of sequences left after deduplication']))
+    html_template = put_data(html_template, "{{number_of_bases1}}", str(stats1.stats['Number of bases']))
+    html_template = put_data(html_template, "{{number_of_bases2}}", str(stats2.stats['Number of bases']))
+    html_template = put_data(html_template, "{{unique_bases1}}", '[' + ', '.join(escape_str(x) for x in stats1.stats['Unique bases']) + ']')
+    html_template = put_data(html_template, "{{unique_bases2}}", '[' + ', '.join(escape_str(x) for x in stats2.stats['Unique bases']) + ']')
+    html_template = put_data(html_template, "{{gc_content1}}", f"{(stats1.stats['%GC content']*100):.2f}")  
+    html_template = put_data(html_template, "{{gc_content2}}", f"{(stats2.stats['%GC content']*100):.2f}")
 
     html_template = put_data(html_template, "{{sequence_length_plot}}", str(plots_path['Sequence lengths']))
     html_template = put_data(html_template, "{{per-sequence-nucleotide-content}}", str(plots_path['Per sequence nucleotide content']))
@@ -295,24 +315,24 @@ def get_sequence_html_template(stats, plots_path):
     html_template = put_data(html_template, "{{per-position-reversed-nucleotide-content}}", str(plots_path['Per position reversed nucleotide content']))
     html_template = put_data(html_template, "{{per-sequence-gc-content}}", str(plots_path['Per sequence GC content']))
 
-    # take max 10 sequences for sequence duplication levels - stats['Sequence duplication levels'] is a dictionary
-    # with sequence as key and count as value, we convert it to a list of tuples
-    sequence_duplication_levels = list(stats['Sequence duplication levels'].items())
-    # Sort by count in descending order and take the top 10
-    sequence_duplication_levels.sort(key=lambda x: x[1], reverse=True)
-    # Limit to the first 10 sequences if there are more than 10
-    if len(sequence_duplication_levels) > 10:
-        # Take the top 10 sequences
-        sequence_duplication_levels = sequence_duplication_levels[:10]
-        html_template = put_data(html_template, "{{sequence_duplication_levels_rest}}", str(len(stats['Sequence duplication levels']) - 10))
-    else:
-        # If there are 10 or fewer sequences, set the rest to 0
-        html_template = put_data(html_template, "{{sequence_duplication_levels_rest}}", "0")
-    # Convert sequence duplication levels back to a dictionary-like structure for JSON-like string with sequence and count
-    sequence_duplication_levels_dict = {str(seq): count for seq, count in sequence_duplication_levels}
-    # Convert to JSON-like string for JavaScript
-    sequence_duplication_levels_str = str(sequence_duplication_levels_dict).replace("'", '"').replace(", ", ",\n")
-    # Replace the placeholder with the JSON-like string
-    html_template = put_data(html_template, "{{sequence_duplication_levels}}", sequence_duplication_levels_str)
+    # # take max 10 sequences for sequence duplication levels - stats['Sequence duplication levels'] is a dictionary
+    # # with sequence as key and count as value, we convert it to a list of tuples
+    # sequence_duplication_levels = list(stats['Sequence duplication levels'].items())
+    # # Sort by count in descending order and take the top 10
+    # sequence_duplication_levels.sort(key=lambda x: x[1], reverse=True)
+    # # Limit to the first 10 sequences if there are more than 10
+    # if len(sequence_duplication_levels) > 10:
+    #     # Take the top 10 sequences
+    #     sequence_duplication_levels = sequence_duplication_levels[:10]
+    #     html_template = put_data(html_template, "{{sequence_duplication_levels_rest}}", str(len(stats['Sequence duplication levels']) - 10))
+    # else:
+    #     # If there are 10 or fewer sequences, set the rest to 0
+    #     html_template = put_data(html_template, "{{sequence_duplication_levels_rest}}", "0")
+    # # Convert sequence duplication levels back to a dictionary-like structure for JSON-like string with sequence and count
+    # sequence_duplication_levels_dict = {str(seq): count for seq, count in sequence_duplication_levels}
+    # # Convert to JSON-like string for JavaScript
+    # sequence_duplication_levels_str = str(sequence_duplication_levels_dict).replace("'", '"').replace(", ", ",\n")
+    # # Replace the placeholder with the JSON-like string
+    # html_template = put_data(html_template, "{{sequence_duplication_levels}}", sequence_duplication_levels_str)
     
     return html_template
