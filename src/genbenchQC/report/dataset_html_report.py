@@ -199,7 +199,7 @@ HTML_TEMPLATE = """
             <section id="general-descriptive-statistics">
                 <h2>General Descriptive Statistics</h2>
 
-                <h3>Sequence lengths</h3>
+                <h3 id="sequence-lengths">Sequence lengths</h3>
                 <!-- This will be populated with png plot --->
                 <img src={{sequence_length_plot}} alt="Sequence Lengths Plot" style="max-width: 50%; height: auto; display: block; margin: 0 auto;">
 
@@ -224,19 +224,19 @@ HTML_TEMPLATE = """
             <section id="per-sequence-descriptive-stats">
                 <h2>Per Sequence Descriptive Stats</h2>
 
-                <h3>Per Sequence Nucleotide Content</h3>
+                <h3 id="per-sequence-nucleotide-content">Per Sequence Nucleotide Content</h3>
                 <img src={{per-sequence-nucleotide-content}} alt="Per Sequence Nucleotide Content" style="max-width: 100%; height: auto;">
 
-                <h3>Per Sequence Dinucleotide Content</h3>
+                <h3 id="per-sequence-dinucleotide-content">Per Sequence Dinucleotide Content</h3>
                 <img src={{per-sequence-dinucleotide-content}} alt="Per Sequence Dinucleotide Content" style="max-width: 100%; height: auto;">
 
-                <h3>Per Position Nucleotide Content</h3>
+                <h3 id="per-position-nucleotide-content">Per Position Nucleotide Content</h3>
                 <img src={{per-position-nucleotide-content}} alt="Per Position Nucleotide Content" style="max-width: 100%; height: auto;">
 
-                <h3>Per Position Reversed Nucleotide Content</h3>
+                <h3 id="per-position-reversed-nucleotide-content">Per Position Reversed Nucleotide Content</h3>
                 <img src={{per-position-reversed-nucleotide-content}} alt="Per Position Reversed Nucleotide Content" style="max-width: 100%; height: auto;">
 
-                <h3>Per Sequence GC Content</h3>
+                <h3 id="per-sequence-gc-content">Per Sequence GC Content</h3>
                 <img src={{per-sequence-gc-content}} alt="Per Sequence GC Content" style="max-width: 50%; height: auto; display: block; margin: 0 auto;">
 
             </section>
