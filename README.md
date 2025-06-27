@@ -39,8 +39,8 @@ options:
                         If not specified, the whole dataset is taken and analyzed as one piece.
   --out_folder OUT_FOLDER
                         Path to the output folder.
-  --report_types REPORT_TYPES [REPORT_TYPES ...]
-                        Types of reports to generate. Options: json, html. Default: [html]
+  --report_types {json,html} [{json,html} ...]
+                        Types of reports to generate. Default: [html]
   --log_level {DEBUG,INFO,WARNING,ERROR,CRITICAL}
                         Logging level, default to INFO.
   --log_file LOG_FILE   Path to the log file.
@@ -79,9 +79,8 @@ options:
                         are split into 2 classes
   --out_folder OUT_FOLDER
                         Path to the output folder.
-  --report_types REPORT_TYPES [REPORT_TYPES ...]
-                        Types of reports to generate. Options: json, html, simple. 
-                        Default: [html, simple].
+  --report_types {json,html,simple} [{json,html,simple} ...]
+                        Types of reports to generate. Default: [html, simple].
   --log_level {DEBUG,INFO,WARNING,ERROR,CRITICAL}
                         Logging level, default to INFO.
   --log_file LOG_FILE   Path to the log file.

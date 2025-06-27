@@ -80,8 +80,8 @@ def parse_args():
     parser.add_argument('--label', type=str,
                         help='Label of the class to select from the whole dataset. If not specified, the whole dataset is taken and analyzed as one piece.', default=None)
     parser.add_argument('--out_folder', type=str, help='Path to the output folder.', default='.')
-    parser.add_argument('--report_types', type=str, nargs='+',
-                        help='Types of reports to generate. Options: json, html. Default: [html]', default=['html'])
+    parser.add_argument('--report_types', type=str, nargs='+', choices=['json', 'html'],
+                        help='Types of reports to generate. Default: [html]', default=['html'])
     parser.add_argument('--log_level', type=str, help='Logging level, default to INFO.',
                         choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'], default='INFO')
     parser.add_argument('--log_file', type=str, help='Path to the log file.', default=None)

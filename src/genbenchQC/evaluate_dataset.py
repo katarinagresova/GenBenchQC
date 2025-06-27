@@ -156,8 +156,8 @@ def parse_args():
                                                        ' For datasets in CSV/TSV format.', default=['infer'])
     parser.add_argument('--regression', action='store_true', help='If True, label column is considered as a regression target and values are split into 2 classes')
     parser.add_argument('--out_folder', type=str, help='Path to the output folder.', default='.')
-    parser.add_argument('--report_types', type=str, nargs='+',  default=['html', 'simple'],
-                        help='Types of reports to generate. Options: json, html, simple. Default: [html, simple].')
+    parser.add_argument('--report_types', type=str, nargs='+', choices=['json', 'html', 'simple'], default=['html', 'simple'],
+                        help='Types of reports to generate. Default: [html, simple].')
     parser.add_argument('--log_level', type=str, help='Logging level, default to INFO.', choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'], default='INFO')
     parser.add_argument('--log_file', type=str, help='Path to the log file.', default=None)
     args = parser.parse_args()
