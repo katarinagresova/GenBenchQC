@@ -284,7 +284,7 @@ def get_sequence_html_template(stats, plots_path):
     html_template = put_file_details(html_template, stats['Filename'])
     html_template = put_data(html_template, "{{number_of_sequences}}", str(stats['Number of sequences']))
     html_template = put_data(html_template, "{{number_of_bases}}", str(stats['Number of bases']))
-    html_template = put_data(html_template, "{{unique_bases}}", '[' + ', '.join(escape_str(x) for x in stats['Unique bases']) + ']')
+    html_template = put_data(html_template, "{{unique_bases}}", ', '.join(x for x in stats['Unique bases']))
     html_template = put_data(html_template, "{{gc_content}}", f"{(stats['%GC content']*100):.2f}")  
     html_template = put_data(html_template, "{{dedup_sequences}}", str(stats['Number of sequences left after deduplication']))  
 
