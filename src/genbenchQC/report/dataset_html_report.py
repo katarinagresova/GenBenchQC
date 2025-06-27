@@ -100,6 +100,33 @@ HTML_TEMPLATE = """
             font-weight: bold;
             font-size: 1em;
         }
+
+        /* Style basic descriptive statistics table */
+        #basic-descriptive-statistics table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        #basic-descriptive-statistics table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        #basic-descriptive-statistics table td:first-child {
+            text-align: left;
+            width: 200px;
+        }
+        #basic-descriptive-statistics table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        #basic-descriptive-statistics table tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        #basic-descriptive-statistics table span {
+            font-weight: bold;
+        }
+
     </style>
 </head>
 <body>
@@ -136,32 +163,32 @@ HTML_TEMPLATE = """
             <section id="basic-descriptive-statistics">
                 <h2>Basic Descriptive Statistics</h2>
                 <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
-                    <tr>
+                    <tr id="filename">
                         <td><span>Filename</span></td>
                         <td style="text-align: center;">{{filename1}}</td>
                         <td style="text-align: center;">{{filename2}}</td>
                     </tr>
-                    <tr>
+                    <tr id="num-sequences">
                         <td><span>Number of sequences</span></td>
                         <td style="text-align: center;">{{number_of_sequences1}}</td>
                         <td style="text-align: center;">{{number_of_sequences2}}</td>
                     </tr>
-                    <tr>
-                        <td><span>Unique seqquences</span></td>
+                    <tr id="dedup-sequences">
+                        <td><span>Unique sequences</span></td>
                         <td style="text-align: center;">{{dedup_sequences1}}</td>
                         <td style="text-align: center;">{{dedup_sequences2}}</td>
                     </tr>
-                    <tr>
+                    <tr id="num-bases">
                         <td><span>Number of bases</span></td>
                         <td style="text-align: center;">{{number_of_bases1}}</td>
                         <td style="text-align: center;">{{number_of_bases2}}</td>
                     </tr>
-                    <tr>
+                    <tr id="unique-bases">
                         <td><span>Unique bases</span></td>
                         <td style="text-align: center;">{{unique_bases1}}</td>
                         <td style="text-align: center;">{{unique_bases2}}</td>
                     </tr>
-                    <tr>
+                    <tr id="gc-content">
                         <td><span>%GC content</span></td>
                         <td style="text-align: center;">{{gc_content1}}</td>
                         <td style="text-align: center;">{{gc_content2}}</td>
@@ -292,16 +319,16 @@ def get_dataset_html_template(stats1, stats2, plots_path, results):
     """
     html_template = HTML_TEMPLATE
 
-    html_template = put_data(html_template, "{{filename1}}", escape_str(stats1.filename))
-    html_template = put_data(html_template, "{{filename2}}", escape_str(stats2.filename))
+    html_template = put_data(html_template, "{{filename1}}", stats1.filename)
+    html_template = put_data(html_template, "{{filename2}}", stats2.filename)
     html_template = put_data(html_template, "{{number_of_sequences1}}", str(stats1.stats['Number of sequences']))
     html_template = put_data(html_template, "{{number_of_sequences2}}", str(stats2.stats['Number of sequences']))
     html_template = put_data(html_template, "{{dedup_sequences1}}", str(stats1.stats['Number of sequences left after deduplication']))
     html_template = put_data(html_template, "{{dedup_sequences2}}", str(stats2.stats['Number of sequences left after deduplication']))
     html_template = put_data(html_template, "{{number_of_bases1}}", str(stats1.stats['Number of bases']))
     html_template = put_data(html_template, "{{number_of_bases2}}", str(stats2.stats['Number of bases']))
-    html_template = put_data(html_template, "{{unique_bases1}}", '[' + ', '.join(escape_str(x) for x in stats1.stats['Unique bases']) + ']')
-    html_template = put_data(html_template, "{{unique_bases2}}", '[' + ', '.join(escape_str(x) for x in stats2.stats['Unique bases']) + ']')
+    html_template = put_data(html_template, "{{unique_bases1}}", ', '.join(x for x in stats1.stats['Unique bases']))
+    html_template = put_data(html_template, "{{unique_bases2}}", ', '.join(x for x in stats2.stats['Unique bases']))
     html_template = put_data(html_template, "{{gc_content1}}", f"{(stats1.stats['%GC content']*100):.2f}")  
     html_template = put_data(html_template, "{{gc_content2}}", f"{(stats2.stats['%GC content']*100):.2f}")
 
