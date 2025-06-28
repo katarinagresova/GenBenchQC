@@ -39,7 +39,6 @@ class SequenceStatistics:
         self._compute_basic_statistics()
         self._compute_per_sequence_statistics()
         self._compute_sequence_duplication_levels()
-        self._compute_summary_statistics()
 
         self._adjust_end_position()
 
@@ -148,34 +147,3 @@ class SequenceStatistics:
         sequence_counts = dict(sorted(sequence_counts.items(), key=lambda item: item[1], reverse=True))
         
         self.stats['Sequence duplication levels'] = sequence_counts
-
-    def _compute_summary_statistics(self):
-        if 'Per sequence nucleotide content' not in self.stats or 'Per sequence dinucleotide content' not in self.stats:
-            logging.error("Per sequence (di)nucleotide content not computed. Run _compute_per_sequence_statistics() first.")
-            raise ValueError("Per sequence (di)nucleotide content not computed. Run _compute_per_sequence_statistics() first.")
-
-        nucleotides = self.stats['Unique bases'] if 'Unique bases' in self.stats else list(set(''.join(self.sequences)))
-        self.stats['Nucleotide content summary'] = self._compute_content_summary(
-            self.stats['Per sequence nucleotide content'], 
-            nucleotides
-        )
-        
-        dinucleotides = [n1 + n2 for n1 in nucleotides for n2 in nucleotides]
-        self.stats['Dinucleotide content summary'] = self._compute_content_summary(
-            self.stats['Per sequence dinucleotide content'], 
-            dinucleotides
-        )
-
-    def _compute_content_summary(self, content_dict, unique_bases):
-        """Helper function to compute summary statistics for (di)nucleotide content"""
-        summary = {}
-        for nucleotide in unique_bases:
-            values = [seq_dict.get(nucleotide, 0) for seq_dict in content_dict.values()]
-            summary[nucleotide] = {
-                'min': min(values),
-                'q1': float(np.percentile(values, 25)),
-                'median': float(np.median(values)),
-                'q3': float(np.percentile(values, 75)),
-                'max': max(values)
-            }
-        return summary
