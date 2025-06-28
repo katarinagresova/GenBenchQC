@@ -20,6 +20,7 @@ usage: evaluate_sequences [-h] --input INPUT --format {fasta,csv,tsv}
                           [--label_column LABEL_COLUMN] [--label LABEL] 
                           [--report_types REPORT_TYPES [REPORT_TYPES ...]] 
                           [--end_position END_POSITION]
+                          [--plot_type PLOT_TYPE]
                           [--log_level {DEBUG,INFO,WARNING,ERROR,CRITICAL}] 
                           [--log_file LOG_FILE]
 
@@ -44,6 +45,9 @@ options:
                         Types of reports to generate. Default: [html]
   --end_position END_POSITION
                         End position of the sequences to plot in the per position plots.
+  --plot_type {violin,boxen}
+                        Type of the plot to generate for per sequence nucleotide content.
+                        For bigger datasets, "boxen" is recommended. Default: boxen.
   --log_level {DEBUG,INFO,WARNING,ERROR,CRITICAL}
                         Logging level, default to INFO.
   --log_file LOG_FILE   Path to the log file.
@@ -61,9 +65,10 @@ usage: evaluate_dataset [-h] --input INPUT [INPUT ...] --format {fasta,csv,tsv}
                         [--report_types REPORT_TYPES [REPORT_TYPES ...]]
                         [--seq_report_types SEQ_REPORT_TYPES [SEQ_REPORT_TYPES]]
                         [--end_position END_POSITION]
+                        [--plot_type PLOT_TYPE]
                         [--log_level {DEBUG,INFO,WARNING,ERROR,CRITICAL}] [--log_file LOG_FILE]
 
-Evaluate positive and negative sequence datasets.
+A tool for evaluating sequence datasets.
 
 options:
   -h, --help            show this help message and exit
@@ -90,6 +95,9 @@ options:
                         Types of reports to generate for individual groups of sequences. Default: [].
   --end_position END_POSITION
                         End position of the sequences to consider in per position statistics.
+  --plot_type {violin,boxen}
+                        Type of plot to use for visualizations. For bigger datasets, "boxen" in recommended.
+                        Default: boxen.
   --log_level {DEBUG,INFO,WARNING,ERROR,CRITICAL}
                         Logging level, default to INFO.
   --log_file LOG_FILE   Path to the log file.
@@ -110,7 +118,8 @@ evaluate_sequences.run(
   LABEL_COLUMN, 
   LABEL,
   REPORT_TYPES,
-  END_POSITION
+  END_POSITION,
+  PLOT_TYPE,
   LOG_LEVEL,
   LOG_FILE)
 ```
@@ -131,6 +140,7 @@ evaluate_dataset.run(
   REPORT_TYPES,
   SEQ_REPORT_TYPES,
   END_POSITION,
+  PLOT_TYPE,
   LOG_LEVEL,
   LOG_FILE)
 ```

@@ -3,62 +3,117 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import logging
 
-def plot_nucleotides(stats1, stats2, result, dist_thresh, nucleotides, plot_type='violin'):
+def plot_nucleotides(stats1, stats2, result, dist_thresh, nucleotides, plot_type='boxen'):
     """
     Plot the nucleotide content of two sequences.
     """
     if plot_type == 'violin':
-        return violin_plot_nucleotides(stats1, stats2, result, dist_thresh, nucleotides)
+        return violin_boxen_plot_nucleotides(stats1, stats2, result, dist_thresh, nucleotides, plot_type='violin')
+    elif plot_type == 'boxen':
+        return violin_boxen_plot_nucleotides(stats1, stats2, result, dist_thresh, nucleotides, plot_type='boxen')
     else:
         raise ValueError(f"Unknown plot type: {plot_type}")
     
-def plot_dinucleotides(stats1, stats2, result, dist_thresh, nucleotides, plot_type='violin'):
+def plot_dinucleotides(stats1, stats2, result, dist_thresh, nucleotides, plot_type='boxen'):
     """
     Plot the dinucleotide content of two sequences.
     """
     if plot_type == 'violin':
-        return violin_plot_dinucleotides(stats1, stats2, result, dist_thresh, nucleotides)
+        return violin_boxen_plot_dinucleotides(stats1, stats2, result, dist_thresh, nucleotides, plot_type='violin')
+    if plot_type == 'boxen':
+        return violin_boxen_plot_dinucleotides(stats1, stats2, result, dist_thresh, nucleotides , plot_type='boxen')
     else:
         raise ValueError(f"Unknown plot type: {plot_type}")
 
-def plot_lengths(stats1, stats2, result, dist_thresh, plot_type='violin'):
+def plot_lengths(stats1, stats2, result, dist_thresh, plot_type='boxen'):
     """
     Plot the sequence lengths of two sequences.
     """
     if plot_type == 'violin':
-        return violin_plot_one_stat(stats1, stats2, 'Sequence lengths', result, dist_thresh, x_label='Sequence length', title='Sequence Length Distribution')
+        return violin_boxen_plot_one_stat(
+            stats1, stats2, 
+            'Sequence lengths', 
+            result, 
+            dist_thresh, 
+            x_label='Sequence length', 
+            title='Sequence Length Distribution', 
+            plot_type='violin'
+        )
+    elif plot_type == 'boxen':
+        return violin_boxen_plot_one_stat(
+            stats1, stats2, 
+            'Sequence lengths', 
+            result, 
+            dist_thresh, 
+            x_label='Sequence length',
+            title='Sequence Length Distribution', 
+            plot_type='boxen'
+        )
     else:
         raise ValueError(f"Unknown plot type: {plot_type}")
     
-def plot_gc_content(stats1, stats2, result, dist_thresh, plot_type='violin'):
+def plot_gc_content(stats1, stats2, result, dist_thresh, plot_type='boxen'):
     """
     Plot the GC content of two sequences.
     """
     if plot_type == 'violin':
-        return violin_plot_one_stat(stats1, stats2, 'Per sequence GC content', result, dist_thresh, x_label='GC content', title='GC Content Distribution')
+        return violin_boxen_plot_one_stat(
+            stats1, stats2, 
+            'Per sequence GC content', 
+            result, 
+            dist_thresh, 
+            x_label='GC content', 
+            title='GC Content Distribution',
+            plot_type='violin'
+        )
+    elif plot_type == 'boxen':
+        return violin_boxen_plot_one_stat(
+            stats1, stats2, 
+            'Per sequence GC content', 
+            result, 
+            dist_thresh, 
+            x_label='GC content', 
+            title='GC Content Distribution',
+            plot_type='boxen'
+        )
     else:
         raise ValueError(f"Unknown plot type: {plot_type}")
 
-def violin_plot_nucleotides(stats1, stats2, result, dist_thresh, nucleotides):
+def violin_boxen_plot_nucleotides(stats1, stats2, result, dist_thresh, nucleotides, plot_type):
 
     df = melt_stats(stats1, stats2, 'Per sequence nucleotide content', var_name='Nucleotide', value_name='Frequency')
     min_y = df['Frequency'].min()
     max_y = df['Frequency'].max()
 
     fig, ax = plt.subplots(1, 1, figsize=(10, 4), dpi=300)
-    sns.violinplot(
-        x='Nucleotide', 
-        y='Frequency', 
-        hue="label", 
-        split=True, 
-        data=df[df['Nucleotide'].isin(nucleotides)],
-        gap=.1,
-        order=nucleotides,
-        hue_order=[stats1.label, stats2.label],
-        density_norm='width',
-        palette=HuePalette(),
-        cut=0
-    )
+    if plot_type == 'violin':
+        sns.violinplot(
+            x='Nucleotide', 
+            y='Frequency', 
+            hue="label", 
+            split=True, 
+            data=df[df['Nucleotide'].isin(nucleotides)],
+            gap=.1,
+            order=nucleotides,
+            hue_order=[stats1.label, stats2.label],
+            density_norm='width',
+            palette=HuePalette(),
+            cut=0
+        )
+    elif plot_type == 'boxen':
+        sns.boxenplot(
+            data=df[df['Nucleotide'].isin(nucleotides)],
+            x='Nucleotide', 
+            y='Frequency', 
+            hue="label", 
+            order=nucleotides,
+            hue_order=[stats1.label, stats2.label],
+            ax=ax,
+            palette=HuePalette(),
+            width=0.8
+        )
+    else:
+        raise ValueError(f"Unknown plot type: {plot_type}")
 
     red_flag = False
     for index, nt in enumerate(nucleotides):
@@ -76,8 +131,7 @@ def violin_plot_nucleotides(stats1, stats2, result, dist_thresh, nucleotides):
 
     return fig
 
-
-def violin_plot_dinucleotides(stats1, stats2, result, dist_thresh, nucleotides):
+def violin_boxen_plot_dinucleotides(stats1, stats2, result, dist_thresh, nucleotides, plot_type):
 
     df = melt_stats(stats1, stats2, 'Per sequence dinucleotide content', var_name='Dinucleotide', value_name='Frequency')
     min_y = df['Frequency'].min()
@@ -89,20 +143,35 @@ def violin_plot_dinucleotides(stats1, stats2, result, dist_thresh, nucleotides):
         dinucleotides = [nt + nt2 for nt2 in nucleotides]
         row = df[df['Dinucleotide'].isin(dinucleotides)]
 
-        sns.violinplot(
-            x='Dinucleotide', 
-            y='Frequency', 
-            hue="label", 
-            split=True, 
-            data=row,
-            gap=.1,
-            order=dinucleotides,
-            hue_order=[stats1.label, stats2.label],
-            ax=axs[index],
-            density_norm='width',
-            palette=HuePalette(),
-            cut=0
-        )
+        if plot_type == 'violin':
+            sns.violinplot(
+                x='Dinucleotide', 
+                y='Frequency', 
+                hue="label", 
+                split=True, 
+                data=row,
+                gap=.1,
+                order=dinucleotides,
+                hue_order=[stats1.label, stats2.label],
+                ax=axs[index],
+                density_norm='width',
+                palette=HuePalette(),
+                cut=0
+            )
+        elif plot_type == 'boxen':
+            sns.boxenplot(
+                x='Dinucleotide', 
+                y='Frequency', 
+                hue="label", 
+                data=row,
+                order=dinucleotides,
+                hue_order=[stats1.label, stats2.label],
+                ax=axs[index],
+                palette=HuePalette(),
+                width=0.8
+            )
+        else:
+            raise ValueError(f"Unknown plot type: {plot_type}")
         
         if index == 0:
             axs[index].set_title('Dinucleotide content', fontsize=16)
@@ -124,7 +193,7 @@ def violin_plot_dinucleotides(stats1, stats2, result, dist_thresh, nucleotides):
 
     return fig
 
-def violin_plot_one_stat(stats1, stats2, stats_name, result, dist_thresh, x_label='', title=''):
+def violin_boxen_plot_one_stat(stats1, stats2, stats_name, result, dist_thresh, plot_type, x_label='', title=''):
     """
     Plot a single statistic from two stats objects.
     """
@@ -140,18 +209,31 @@ def violin_plot_one_stat(stats1, stats2, stats_name, result, dist_thresh, x_labe
     max_y = df[stats_name].max()
 
     fig, ax = plt.subplots(1, 1, figsize=(4, 4), dpi=300)
-    sns.violinplot(
-        y=stats_name, 
-        hue="label", 
-        split=True, 
-        data=df,
-        gap=.1,
-        hue_order=[str(stats1.label), str(stats2.label)],
-        ax=ax,
-        density_norm='width',
-        palette=HuePalette(),
-        cut=0
-    )
+    if plot_type == 'violin':
+        sns.violinplot(
+            y=stats_name, 
+            hue="label", 
+            split=True, 
+            data=df,
+            gap=.1,
+            hue_order=[str(stats1.label), str(stats2.label)],
+            ax=ax,
+            density_norm='width',
+            palette=HuePalette(),
+            cut=0
+        )
+    elif plot_type == 'boxen':
+        sns.boxenplot(
+            y=stats_name, 
+            hue="label", 
+            data=df,
+            hue_order=[str(stats1.label), str(stats2.label)],
+            ax=ax,
+            palette=HuePalette(),
+            width=0.8
+        )
+    else:
+        raise ValueError(f"Unknown plot type: {plot_type}")
     
     # result is a tuple of (distances, passed)
     red_flag = False

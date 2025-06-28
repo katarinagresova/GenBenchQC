@@ -35,17 +35,22 @@ def hist_plot_one_stat(stats, stats_name, x_label='', title=''):
 
     return fig
 
-def violin_plot_nucleotides(stats):
+def plot_nucleotides(stats, nucleotides, plot_type):
 
     """
-    Plot a violin plot for nucleotide content.
+    Plot a violin or boxen plot for nucleotide content.
     """
     df = pd.DataFrame(stats['Per sequence nucleotide content']).T
     df = df.fillna(0)
     
     fig, ax = plt.subplots(figsize=(10, 4), dpi=300)
     
-    sns.violinplot(data=df, ax=ax, inner='quartile', cut=0)
+    if plot_type == 'violin':
+        sns.violinplot(data=df, ax=ax, inner='quartile', cut=0, order=nucleotides)
+    elif plot_type == 'boxen':
+        sns.boxenplot(data=df, ax=ax, showfliers=False)
+    else:
+        logging.error(f"Unsupported plot type: {plot_type}. Supported types are 'violin' and 'boxen'.")
     
     ax.set_title('Nucleotide Content Distribution', fontsize=16)
     ax.set_ylabel('Frequency', fontsize=14)
@@ -53,9 +58,9 @@ def violin_plot_nucleotides(stats):
 
     return fig
 
-def violin_plot_dinucleotides(stats, nucleotides):
+def plot_dinucleotides(stats, nucleotides, plot_type):
     """
-    Plot a violin plot for dinucleotide content.
+    Plot a violin or boxen plot for dinucleotide content.
     """
     df = pd.DataFrame(stats['Per sequence dinucleotide content']).T
     df = df.fillna(0)
@@ -65,7 +70,12 @@ def violin_plot_dinucleotides(stats, nucleotides):
     for index, nt in enumerate(nucleotides):
         dinucleotides = [nt + nt2 for nt2 in nucleotides]
         df_nt = df[dinucleotides]
-        sns.violinplot(data=df_nt, ax=axs[index], inner='quartile', cut=0)
+        if plot_type == 'violin':
+            sns.violinplot(data=df_nt, ax=axs[index], inner='quartile', cut=0, order=dinucleotides)
+        elif plot_type == 'boxen':
+            sns.boxenplot(data=df_nt, ax=axs[index], showfliers=False, order=dinucleotides)
+        else:
+            logging.error(f"Unsupported plot type: {plot_type}. Supported types are 'violin' and 'boxen'.")
         
         if index == 0:
             axs[index].set_title('Dinucleotide content', fontsize=16)

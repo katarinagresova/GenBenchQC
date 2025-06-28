@@ -82,6 +82,8 @@ def parse_args():
     parser.add_argument('--report_types', type=str, nargs='+', choices=['json', 'html'],
                         help='Types of reports to generate. Default: [html]', default=['html'])
     parser.add_argument('--end_position', type=int, help='End position of the sequences to plot in the per position plots.', default=None)
+    parser.add_argument('--plot_type', type=str, help='Type of the plot to generate for per sequence nucleotide content. For bigger datasets, "boxen" is recommended. Default: boxen.',
+                        choices=['boxen', 'violin'], default='boxen')
     parser.add_argument('--log_level', type=str, help='Logging level, default to INFO.',
                         choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'], default='INFO')
     parser.add_argument('--log_file', type=str, help='Path to the log file.', default=None)
