@@ -79,18 +79,18 @@ def violin_plot_dinucleotides(stats, nucleotides):
 
     return fig
 
-def plot_per_position_nucleotide_content(stats, stat_name, nucleotides, end_position=-1):
+def plot_per_position_nucleotide_content(stats, stat_name, nucleotides, end_position=None):
     """
     Plot per position nucleotide content.
     Plot is constructed from 2 subplots:
     1. Nucleotide content per position.
     2. Number of sequences with length at least that position.
     The second plot is a line plot (with fill under it) showing how many sequences have length at least that position.
-    If end_position is -1, it will be set to the maximum sequence length.
+    If end_position is None, it will be set to the maximum sequence length.
     If end_position is specified, it will be used to limit the x-axis.
     """
 
-    if end_position == -1:
+    if not end_position:
         # Find the maximum sequence length from the stats
         seq_lengths = stats['Sequence lengths'].values()
         end_position = max(seq_lengths)

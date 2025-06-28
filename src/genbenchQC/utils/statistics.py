@@ -3,11 +3,12 @@ from collections import Counter
 import numpy as np
 
 class SequenceStatistics:
-    def __init__(self, sequences, filename, label, seq_column=None):
+    def __init__(self, sequences, filename, label, seq_column=None, end_position=None):
         self.filename = filename
         self.label = label
         self.seq_column = seq_column
         self.sequences = sequences
+        self.end_position = end_position
         self.stats = {}
 
     def compute(self):
@@ -40,7 +41,31 @@ class SequenceStatistics:
         self._compute_sequence_duplication_levels()
         self._compute_summary_statistics()
 
-        return self.stats
+        self._adjust_end_position()
+
+        return self.stats, self.end_position
+
+    def _adjust_end_position(self):
+        if self.end_position is None:
+
+            # get second end position - where one of the stats contains less then 50% values
+            lengths = np.array(list(self.stats['Sequence lengths'].values()))
+            lengths_75th = np.percentile(lengths, 75)
+            # round to nearest integer
+            self.end_position = int(np.round(lengths_75th))
+
+            logging.debug(
+                f"End position not provided. Using end position: {self.end_position} for {self.seq_column} comparison. \
+                This is the 75th percentile of sequence lengths."
+            )
+        else:
+            # Ensure end_position is not greater than the maximum sequence length
+            lengths = np.array(list(self.stats['Sequence lengths'].values()))
+            if self.end_position > max(lengths):
+                logging.warning(f"end_position {self.end_position} is greater than the maximum sequence length {max(lengths)}. Setting end_position to {max(lengths)}.")
+                self.end_position = max(lengths)
+
+            logging.debug(f"Using end position: {self.end_position} for {self.seq_column} comparison.")
 
     def _compute_basic_statistics(self):
         self.stats['Filename'] = self.filename

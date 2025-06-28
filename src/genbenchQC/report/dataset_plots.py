@@ -173,20 +173,10 @@ def violin_plot_one_stat(stats1, stats2, stats_name, result, dist_thresh, x_labe
 
     return fig
 
-def plot_per_base_sequence_comparison(stats1, stats2, stats_name, result, p_value_thresh, nucleotides, end_position=-1, x_label='', title=''):
+def plot_per_base_sequence_comparison(stats1, stats2, stats_name, result, p_value_thresh, nucleotides, end_position, x_label='', title=''):
 
     df1 = pd.DataFrame(stats1.stats[stats_name]).T
     df2 = pd.DataFrame(stats2.stats[stats_name]).T
-
-    seq_lengths = list(stats1.stats['Sequence lengths'].values()) + list(stats2.stats['Sequence lengths'].values())
-    if end_position == -1:
-        # Find the maximum sequence length from the stats    
-        end_position = max(seq_lengths)
-    else:
-        # Ensure end_position is not greater than the maximum sequence length
-        if end_position > max(seq_lengths):
-            logging.warning(f"end_position {end_position} is greater than the maximum sequence length {max(seq_lengths)}. Setting end_position to {max(seq_lengths)}.")
-            end_position = max(seq_lengths)
 
     fig, axs = plt.subplots(
         len(nucleotides) + 1, 1, 
@@ -226,6 +216,7 @@ def plot_per_base_sequence_comparison(stats1, stats2, stats_name, result, p_valu
 
     axs[index].ticklabel_format(axis='both', style='plain')
 
+    seq_lengths = list(stats1.stats['Sequence lengths'].values()) + list(stats2.stats['Sequence lengths'].values())
     # Plot the number of sequences with length at least that position
     length_counts = [sum(1 for length in seq_lengths if length >= pos) for pos in range(end_position)]
     # normalize length_counts to [0, 1]

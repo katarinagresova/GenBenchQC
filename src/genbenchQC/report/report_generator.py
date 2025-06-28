@@ -25,7 +25,7 @@ from genbenchQC.report.sequences_plots import (
     plot_per_position_nucleotide_content
 )
 
-def generate_sequence_plots(stats_dict, output_path):
+def generate_sequence_plots(stats_dict, output_path, end_position):
     """
     Generate a plots from the given statistics dictionary.
     """
@@ -70,6 +70,7 @@ def generate_sequence_plots(stats_dict, output_path):
         stats_dict,
         stat_name='Per position nucleotide content',
         nucleotides=nucleotides,
+        end_position=end_position,
     )
     plots_paths['Per position nucleotide content'] = Path(output_path.name) / 'per_position_nucleotide_content.png'
     fig.savefig(output_path / 'per_position_nucleotide_content.png', bbox_inches='tight')
@@ -79,6 +80,7 @@ def generate_sequence_plots(stats_dict, output_path):
         stats_dict,
         stat_name='Per position reversed nucleotide content',
         nucleotides=nucleotides,
+        end_position=end_position,
     )
     plots_paths['Per position reversed nucleotide content'] = Path(output_path.name) / 'per_position_reversed_nucleotide_content.png'
     fig.savefig(output_path / 'per_position_reversed_nucleotide_content.png', bbox_inches='tight')
@@ -86,7 +88,7 @@ def generate_sequence_plots(stats_dict, output_path):
 
     return plots_paths
 
-def generate_sequence_html_report(stats_dict, output_path, plots_path):
+def generate_sequence_html_report(stats_dict, output_path, plots_path, end_position):
     """
     Generate an HTML report from the given statistics dictionary.
     Plots are generated using the Plotly library.
@@ -96,7 +98,7 @@ def generate_sequence_html_report(stats_dict, output_path, plots_path):
     plots_path.mkdir(parents=True, exist_ok=True)
 
     # generate 
-    plots_paths = generate_sequence_plots(stats_dict, plots_path)
+    plots_paths = generate_sequence_plots(stats_dict, plots_path, end_position=end_position)
 
     # Load the HTML template
     template = get_sequence_html_template(stats_dict, plots_paths)
@@ -104,14 +106,14 @@ def generate_sequence_html_report(stats_dict, output_path, plots_path):
     with open(output_path, 'w') as file:
         file.write(template)
 
-def generate_dataset_html_report(stats1, stats2, results, output_path, plots_path, threshold):
+def generate_dataset_html_report(stats1, stats2, results, output_path, plots_path, threshold, end_position):
     """
     Generate an HTML report comparing the statistics of two datasets.
     """
     plots_path.mkdir(parents=True, exist_ok=True)
 
     # generate 
-    plots_paths = generate_dataset_plots(stats1, stats2, results, plots_path, threshold)
+    plots_paths = generate_dataset_plots(stats1, stats2, results, plots_path, threshold, end_position)
 
     # Load the HTML template
     template = get_dataset_html_template(stats1, stats2, plots_paths, results)
@@ -146,7 +148,7 @@ def generate_simple_report(results, output_path):
     # save to csv
     df.to_csv(output_path, index=False, header=False)
 
-def generate_dataset_plots(stats1, stats2, results, output_path, threshold):
+def generate_dataset_plots(stats1, stats2, results, output_path, threshold, end_position):
 
     logging.info(f"Generating PNG plots at: {output_path}")
 
@@ -188,6 +190,7 @@ def generate_dataset_plots(stats1, stats2, results, output_path, threshold):
         result=results['Per position nucleotide content'],
         p_value_thresh=threshold,
         nucleotides = bases_overlap,
+        end_position=end_position,
         x_label='Position in sequence',
         title='Nucleotide composition per position',
     )
@@ -203,6 +206,7 @@ def generate_dataset_plots(stats1, stats2, results, output_path, threshold):
         result=results['Per position reversed nucleotide content'],
         p_value_thresh=threshold,
         nucleotides = bases_overlap,
+        end_position=end_position,
         x_label='Position in reversed sequence',
         title='Reversed nucleotide composition per position',
     )
