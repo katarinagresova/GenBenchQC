@@ -114,7 +114,19 @@ def flag_per_position_nucleotide_content(stats1, stats2, column, threshold, end_
     
 def flag_per_sequence_one_stat(stats1, stats2, column, threshold):
 
-    distance = wasserstein_distance(list(stats1[column].values()), list(stats2[column].values()))
+    # normalize stats to [0, 1] range before comparison, save to temporary variable
+    stats1_min = min(stats1[column].values())
+    stats1_max = max(stats1[column].values())
+    if stats1_max == stats1_min:
+        stats1_max += 1
+    stats1_norm = (np.array(list(stats1[column].values())) - stats1_min) / (stats1_max - stats1_min)
+    stats2_min = min(stats2[column].values())
+    stats2_max = max(stats2[column].values())
+    if stats2_max == stats2_min:
+        stats2_max += 1
+    stats2_norm = (np.array(list(stats2[column].values())) - stats2_min) / (stats2_max - stats2_min)
+
+    distance = wasserstein_distance(stats1_norm, stats2_norm)
     passed = distance < threshold
 
     return (distance, passed)
