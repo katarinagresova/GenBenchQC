@@ -109,6 +109,8 @@ HTML_TEMPLATE = """
             <a href="#basic-descriptive-statistics">Basic Descriptive Statistics</a>
             <div style="margin-left: 15px;">
                 <a href="#filename">Filename</a>
+                <a href="#label">Label</a>
+                <a href="#seq_column">Sequence column</a>
                 <a href="#num-sequences">Number of sequences</a>
                 <a href="#dedup-sequences">Unique sequences</a>
                 <a href="#num-bases">Number of bases</a>
@@ -137,6 +139,12 @@ HTML_TEMPLATE = """
                 <h2>Basic Descriptive Statistics</h2>
                 <div class="data-item" id="filename">
                     <span>Filename:</span> {{filename}} <!-- Filename will be displayed here -->
+                </div>
+                <div class="data-item" id="label">
+                    <span>Label:</span> {{label}} <!-- Label will be displayed here -->
+                </div>
+                <div class="data-item" id="seq_column">
+                    <span>Sequence column:</span> {{seq_column}} <!-- Sequence column will be displayed here -->
                 </div>
                 <div class="data-item" id="num-sequences">
                     <span>Number of sequences:</span> {{number_of_sequences}} <!-- Number of sequences will be displayed here -->
@@ -282,6 +290,8 @@ def get_sequence_html_template(stats, plots_path):
     html_template = HTML_TEMPLATE
 
     html_template = put_file_details(html_template, stats['Filename'])
+    html_template = put_data(html_template, "{{label}}", stats['Label'] if stats['Label'] else "N/A")
+    html_template = put_data(html_template, "{{seq_column}}", stats['Sequence column'] if stats['Sequence column'] else "N/A")
     html_template = put_data(html_template, "{{number_of_sequences}}", str(stats['Number of sequences']))
     html_template = put_data(html_template, "{{number_of_bases}}", str(stats['Number of bases']))
     html_template = put_data(html_template, "{{unique_bases}}", ', '.join(x for x in stats['Unique bases']))
