@@ -32,6 +32,7 @@ def hist_plot_one_stat(stats, stats_name, x_label='', title=''):
     ax.set_xlabel(x_label, fontsize=14)
     ax.set_ylabel('Count', fontsize=14)
     ax.set_title(title, fontsize=16)
+    ax.ticklabel_format(axis='y', style='plain')
 
     return fig
 
