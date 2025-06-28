@@ -19,6 +19,7 @@ usage: evaluate_sequences [-h] --input INPUT --format {fasta,csv,tsv}
                           [--sequence_column SEQUENCE_COLUMN [SEQUENCE_COLUMN ...]]
                           [--label_column LABEL_COLUMN] [--label LABEL] 
                           [--report_types REPORT_TYPES [REPORT_TYPES ...]] 
+                          [--end_position END_POSITION]
                           [--log_level {DEBUG,INFO,WARNING,ERROR,CRITICAL}] 
                           [--log_file LOG_FILE]
 
@@ -41,6 +42,8 @@ options:
                         Path to the output folder.
   --report_types {json,html} [{json,html} ...]
                         Types of reports to generate. Default: [html]
+  --end_position END_POSITION
+                        End position of the sequences to plot in the per position plots.
   --log_level {DEBUG,INFO,WARNING,ERROR,CRITICAL}
                         Logging level, default to INFO.
   --log_file LOG_FILE   Path to the log file.
@@ -56,6 +59,8 @@ usage: evaluate_dataset [-h] --input INPUT [INPUT ...] --format {fasta,csv,tsv}
                         [--label_column LABEL_COLUMN] [--label_list LABEL_LIST [LABEL_LIST ...]]
                         [--regression]
                         [--report_types REPORT_TYPES [REPORT_TYPES ...]]
+                        [--seq_report_types SEQ_REPORT_TYPES [SEQ_REPORT_TYPES]]
+                        [--end_position END_POSITION]
                         [--log_level {DEBUG,INFO,WARNING,ERROR,CRITICAL}] [--log_file LOG_FILE]
 
 Evaluate positive and negative sequence datasets.
@@ -81,6 +86,10 @@ options:
                         Path to the output folder.
   --report_types {json,html,simple} [{json,html,simple} ...]
                         Types of reports to generate. Default: [html, simple].
+  --seq_report_types {json,html} [{json,html} ...]
+                        Types of reports to generate for individual groups of sequences. Default: [].
+  --end_position END_POSITION
+                        End position of the sequences to consider in per position statistics.
   --log_level {DEBUG,INFO,WARNING,ERROR,CRITICAL}
                         Logging level, default to INFO.
   --log_file LOG_FILE   Path to the log file.
@@ -101,6 +110,7 @@ evaluate_sequences.run(
   LABEL_COLUMN, 
   LABEL,
   REPORT_TYPES,
+  END_POSITION
   LOG_LEVEL,
   LOG_FILE)
 ```
@@ -119,6 +129,8 @@ evaluate_dataset.run(
   LABEL_LIST,
   REGRESSION,
   REPORT_TYPES,
+  SEQ_REPORT_TYPES,
+  END_POSITION,
   LOG_LEVEL,
   LOG_FILE)
 ```
