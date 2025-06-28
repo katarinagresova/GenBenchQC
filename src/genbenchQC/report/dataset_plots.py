@@ -236,7 +236,7 @@ def plot_per_base_sequence_comparison(stats1, stats2, stats_name, result, p_valu
     axs[last_index].tick_params(axis='x', labelsize=12)
     axs[last_index].tick_params(axis='y', labelsize=12)
 
-    axs[last_index] = prepare_legend(axs[index], red_flag, p_value_thresh, box_to_anchor=(0.5, -1), metric='p-value')
+    axs[last_index] = prepare_legend(axs[index], red_flag, p_value_thresh, box_to_anchor=(0.5, -1), metric='p-value <')
 
     return fig
 
@@ -256,7 +256,7 @@ def melt_stats(stats1, stats2, stats_name, var_name='Metric', value_name='Value'
 
     return df
 
-def prepare_legend(ax, red_flag, dist_thresh, box_to_anchor=(0.5, -0.2), metric='Distance'):
+def prepare_legend(ax, red_flag, dist_thresh, box_to_anchor=(0.5, -0.2), metric='Distance >'):
     """
     Prepare the legend for the plot.
     """
@@ -264,7 +264,7 @@ def prepare_legend(ax, red_flag, dist_thresh, box_to_anchor=(0.5, -0.2), metric=
     legend_labels = ax.get_legend_handles_labels()[1]
     if red_flag:
         legend_handles += [plt.Rectangle((0, 0), 1, 1, color='red', alpha=0.2)]
-        legend_labels += [f'{metric} > {dist_thresh}']
+        legend_labels += [f'{metric} {dist_thresh}']
     ax.legend(
         handles = legend_handles,
         labels = legend_labels,
