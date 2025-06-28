@@ -55,8 +55,8 @@ class SequenceStatistics:
             self.end_position = int(np.round(lengths_75th))
 
             logging.debug(
-                f"End position not provided. Using end position: {self.end_position} for {self.seq_column} comparison. \
-                This is the 75th percentile of sequence lengths."
+                f"End position not provided. Using end position: {self.end_position} for {self.seq_column} comparison. "
+                 "This is the 75th percentile of sequence lengths."
             )
         else:
             # Ensure end_position is not greater than the maximum sequence length
