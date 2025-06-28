@@ -55,13 +55,10 @@ def flag_unique_bases(stats1, stats2):
     else:
         return (None, False)
 
-def flag_per_sequence_content(stats1, stats2, column, threshold, end_position=None):
+def flag_per_sequence_content(stats1, stats2, column, threshold):
     
-    df1 = pd.DataFrame(stats1[column]).T
-    df2 = pd.DataFrame(stats2[column]).T
-
-    if end_position is None:
-        end_position = min(len(df1), len(df2))
+    df1 = stats1[column]
+    df2 = stats2[column]
     
     # get columns names
     bases = list(set(list(df1.columns.values) + list(df2.columns.values)))
@@ -71,13 +68,11 @@ def flag_per_sequence_content(stats1, stats2, column, threshold, end_position=No
         if base not in df1 or base not in df2:
             distances[base] = np.inf
         else:
-            df1_base = df1[base][:end_position]
-            df2_base = df2[base][:end_position]
-            distances[base] = wasserstein_distance(df1_base, df2_base)
+            distances[base] = wasserstein_distance(df1[base], df2[base])
             logging.debug(f"Distance for {base}: {distances[base]} (threshold: {threshold})")
             max_value = max(
-                max(df1_base),
-                max(df2_base)
+                max(df1[base]),
+                max(df2[base])
             )
             if max_value > 0:
                 distances[base] /= max_value
@@ -90,8 +85,8 @@ def flag_per_sequence_content(stats1, stats2, column, threshold, end_position=No
 
 def flag_per_position_nucleotide_content(stats1, stats2, column, threshold, end_position):
     
-    df1 = pd.DataFrame(stats1[column]).T
-    df2 = pd.DataFrame(stats2[column]).T
+    df1 = stats1[column]
+    df2 = stats2[column]
 
     # get columns names
     bases = list(set(list(df1.columns.values) + list(df2.columns.values)))
@@ -124,13 +119,13 @@ def flag_per_position_nucleotide_content(stats1, stats2, column, threshold, end_
 def flag_per_sequence_one_stat(stats1, stats2, column, threshold):
 
     distance = wasserstein_distance(
-        np.array(list(stats1[column].values())),
-        np.array(list(stats2[column].values()))
+        stats1[column].values.flatten(),
+        stats2[column].values.flatten()
     )
     logging.debug(f"Distance for {column}: {distance} (threshold: {threshold})")
     max_value = max(
-        max(stats1[column].values()), 
-        max(stats2[column].values())
+        max(stats1[column].values.flatten()), 
+        max(stats2[column].values.flatten())
     )
     if max_value > 0:
         distance /= max_value

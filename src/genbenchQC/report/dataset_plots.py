@@ -199,8 +199,8 @@ def violin_boxen_plot_one_stat(stats1, stats2, stats_name, result, dist_thresh, 
     """
 
     # make dataframe with two columns: label and values
-    df1 = pd.DataFrame(stats1.stats[stats_name].values(), columns=[stats_name])
-    df2 = pd.DataFrame(stats2.stats[stats_name].values(), columns=[stats_name])
+    df1 = stats1.stats[stats_name]
+    df2 = stats2.stats[stats_name]
     df1['label'] = str(stats1.label)
     df2['label'] = str(stats2.label)
     df = pd.concat([df1, df2], ignore_index=True)
@@ -257,8 +257,8 @@ def violin_boxen_plot_one_stat(stats1, stats2, stats_name, result, dist_thresh, 
 
 def plot_per_base_sequence_comparison(stats1, stats2, stats_name, result, p_value_thresh, nucleotides, end_position, x_label='', title=''):
 
-    df1 = pd.DataFrame(stats1.stats[stats_name]).T
-    df2 = pd.DataFrame(stats2.stats[stats_name]).T
+    df1 = stats1.stats[stats_name]
+    df2 = stats2.stats[stats_name]
 
     fig, axs = plt.subplots(
         len(nucleotides) + 1, 1, 
@@ -298,7 +298,7 @@ def plot_per_base_sequence_comparison(stats1, stats2, stats_name, result, p_valu
 
     axs[index].ticklabel_format(axis='both', style='plain')
 
-    seq_lengths = list(stats1.stats['Sequence lengths'].values()) + list(stats2.stats['Sequence lengths'].values())
+    seq_lengths = list(stats1.stats['Sequence lengths'].values.flatten()) + list(stats2.stats['Sequence lengths'].values.flatten())
     # Plot the number of sequences with length at least that position
     length_counts = [sum(1 for length in seq_lengths if length >= pos) for pos in range(end_position)]
     # normalize length_counts to [0, 1]
@@ -326,11 +326,11 @@ def melt_stats(stats1, stats2, stats_name, var_name='Metric', value_name='Value'
     """
     Melt the stats DataFrame to long format and add a label column.
     """
-    df1 = pd.DataFrame(stats1.stats[stats_name]).T
+    df1 = stats1.stats[stats_name]
     df1 = df1.melt(value_vars=df1.columns, var_name=var_name, value_name=value_name)
     df1['label'] = stats1.label
 
-    df2 = pd.DataFrame(stats2.stats[stats_name]).T
+    df2 = stats2.stats[stats_name]
     df2 = df2.melt(value_vars=df2.columns, var_name=var_name, value_name=value_name)
     df2['label'] = stats2.label
 

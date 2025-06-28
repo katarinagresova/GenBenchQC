@@ -1,6 +1,7 @@
 import logging
 from collections import Counter
 import numpy as np
+import pandas as pd
 
 class SequenceStatistics:
     def __init__(self, sequences, filename, label, seq_column=None, end_position=None):
@@ -21,12 +22,18 @@ class SequenceStatistics:
             - Unique bases: list of str
             - %GC content: float
             - number of sequences left after deduplication: int
-            - Per sequence nucleotide content: dict {sequence_id: dict {nucleotide: count}}
-            - Per sequence dinucleotide content: dict {sequence_id: dict {dinucleotide: count}}
-            - Per position nucleotide content: dict {position: dict {nucleotide: count}}
-            - Per position reversed nucleotide content: dict {position: dict {nucleotide: count}}
-            - Per sequence GC content: dict {sequence_id: float}
-            - Sequence lengths: dict {sequence_id: int}
+            - Per sequence nucleotide content: pd.DataFrame
+              (index: sequence_id, columns: nucleotides, values: frequency)
+            - Per sequence dinucleotide content: pd.DataFrame
+              (index: sequence_id, columns: dinucleotides, values: frequency)
+            - Per position nucleotide content: pd.DataFrame
+              (index: position, columns: nucleotides, values: frequency)
+            - Per position reversed nucleotide content: pd.DataFrame
+              (index: position, columns: nucleotides, values: frequency)
+            - Per sequence GC content: dict pd.DataFrame
+              (index: sequence_id, columns: GC content (%), values: GC content)
+            - Sequence lengths: pd.DataFrame
+              (index: sequence_id, columns: Length, values: length of the sequence)
             - Sequence duplication levels: dict {sequence: count}
         """
         message = f"Computing statistics for {self.filename}"
@@ -48,7 +55,7 @@ class SequenceStatistics:
         if self.end_position is None:
 
             # get second end position - where one of the stats contains less then 50% values
-            lengths = np.array(list(self.stats['Sequence lengths'].values()))
+            lengths = self.stats['Sequence lengths']
             lengths_75th = np.percentile(lengths, 75)
             # round to nearest integer
             self.end_position = int(np.round(lengths_75th))
@@ -59,7 +66,7 @@ class SequenceStatistics:
             )
         else:
             # Ensure end_position is not greater than the maximum sequence length
-            lengths = np.array(list(self.stats['Sequence lengths'].values()))
+            lengths = self.stats['Sequence lengths']
             if self.end_position > max(lengths):
                 logging.warning(f"end_position {self.end_position} is greater than the maximum sequence length {max(lengths)}. Setting end_position to {max(lengths)}.")
                 self.end_position = max(lengths)
@@ -85,8 +92,8 @@ class SequenceStatistics:
         dinucleotides_per_sequence = {}
         nucleotides_per_position = {}
         nucleotides_per_position_reversed = {}
-        gc_content_per_sequence = {}
-        lengths_per_sequence = {}
+        gc_content_per_sequence = np.zeros(len(self.sequences))
+        lengths_per_sequence = np.zeros(len(self.sequences))
 
         for id, sequence in enumerate(self.sequences):
             nucleotides_per_sequence[id] = self._compute_nucleotide_content(sequence, nucleotides)
@@ -96,12 +103,14 @@ class SequenceStatistics:
             gc_content_per_sequence[id] = (sequence.count('G') + sequence.count('C')) / len(sequence) * 100
             lengths_per_sequence[id] = len(sequence)
 
-        self.stats['Per sequence nucleotide content'] = nucleotides_per_sequence
-        self.stats['Per sequence dinucleotide content'] = dinucleotides_per_sequence
-        self.stats['Per position nucleotide content'] = self._normalize_per_position(nucleotides_per_position, nucleotides)
-        self.stats['Per position reversed nucleotide content'] = self._normalize_per_position(nucleotides_per_position_reversed, nucleotides)
-        self.stats['Per sequence GC content'] = gc_content_per_sequence
-        self.stats['Sequence lengths'] = lengths_per_sequence
+        self.stats['Per sequence nucleotide content'] = pd.DataFrame(nucleotides_per_sequence).T
+        self.stats['Per sequence dinucleotide content'] = pd.DataFrame(dinucleotides_per_sequence).T
+        self.stats['Per position nucleotide content']= pd.DataFrame(
+            self._normalize_per_position(nucleotides_per_position, nucleotides)).T
+        self.stats['Per position reversed nucleotide content'] = pd.DataFrame(
+            self._normalize_per_position(nucleotides_per_position_reversed, nucleotides)).T
+        self.stats['Per sequence GC content'] = pd.DataFrame(gc_content_per_sequence, columns=['Per sequence GC content'])
+        self.stats['Sequence lengths'] = pd.DataFrame(lengths_per_sequence, columns=['Sequence lengths'])
 
     def _compute_nucleotide_content(self, sequence, nucleotides):
         return {nucleotide: sequence.count(nucleotide) / len(sequence) for nucleotide in nucleotides}

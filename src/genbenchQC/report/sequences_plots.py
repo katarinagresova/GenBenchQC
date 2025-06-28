@@ -8,7 +8,7 @@ def hist_plot_one_stat(stats, stats_name, x_label='', title=''):
     Plot a single statistic from two stats objects.
     """
 
-    df = pd.DataFrame(stats[stats_name].values(), columns=[stats_name])
+    df = stats[stats_name]
     
     min_y = df[stats_name].min()
     max_y = df[stats_name].max()
@@ -41,7 +41,7 @@ def plot_nucleotides(stats, nucleotides, plot_type):
     """
     Plot a violin or boxen plot for nucleotide content.
     """
-    df = pd.DataFrame(stats['Per sequence nucleotide content']).T
+    df = stats['Per sequence nucleotide content']
     df = df.fillna(0)
     
     fig, ax = plt.subplots(figsize=(10, 4), dpi=300)
@@ -63,7 +63,7 @@ def plot_dinucleotides(stats, nucleotides, plot_type):
     """
     Plot a violin or boxen plot for dinucleotide content.
     """
-    df = pd.DataFrame(stats['Per sequence dinucleotide content']).T
+    df = stats['Per sequence dinucleotide content']
     df = df.fillna(0)
     
     fig, axs = plt.subplots(len(nucleotides), 1, figsize=(10, len(nucleotides) * 3 + 2), sharey=True, dpi=300)
@@ -103,11 +103,11 @@ def plot_per_position_nucleotide_content(stats, stat_name, nucleotides, end_posi
 
     if not end_position:
         # Find the maximum sequence length from the stats
-        seq_lengths = stats['Sequence lengths'].values()
+        seq_lengths = stats['Sequence lengths'].values.flatten()
         end_position = max(seq_lengths)
     else:
         # Ensure end_position is not greater than the maximum sequence length
-        seq_lengths = stats['Sequence lengths'].values()
+        seq_lengths = stats['Sequence lengths'].values.flatten()
         if end_position > max(seq_lengths):
             logging.warning(f"end_position {end_position} is greater than the maximum sequence length {max(seq_lengths)}. Setting end_position to {max(seq_lengths)}.")
             end_position = max(seq_lengths)
@@ -116,7 +116,7 @@ def plot_per_position_nucleotide_content(stats, stat_name, nucleotides, end_posi
 
     # Prepare the data for plotting
     # Create a DataFrame from the stats for the specified stat_name
-    df = pd.DataFrame(stats[stat_name]).T
+    df = stats[stat_name]
     df = df.fillna(0)  # Fill NaN values with 0 for plotting
 
     # Ensure the DataFrame has the correct number of rows
