@@ -17,7 +17,7 @@ def read_csv_file(file_path, input_format, seq_columns, label_columns=None):
     columns = seq_columns.copy()
     if label_columns is not None:
         columns += [label_columns]
-    df = pd.read_csv(file_path, delimiter=delim, usecols=columns)
+    df = pd.read_csv(file_path, delimiter=delim, usecols=columns, dtype=str)
     df[seq_columns] = df[seq_columns].apply(lambda col: col.str.upper())
 
     logging.debug(f"Read CSV/TSV file: {file_path}, shape: {df.shape}, columns: {columns}")
