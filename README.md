@@ -160,17 +160,17 @@ When having CSV/TSV input, you can also decide to provide multiple sequence colu
 ### Examples of running:
 
 ```bash
-evaluate_dataset --input positives.fasta negatives.fasta --format fasta
+evaluate_dataset --input example_datasets/G4_positives.fasta example_datasets/G4_negatives.fasta --format fasta --out_folder example_outputs
 ```
 
 ```bash
-evaluate_dataset --input dataset.csv --format csv --sequence_column seq --label_column label --labels 0 1 2
+evaluate_dataset --input example_datasets/miRNA_mRNA_pairs_dataset.tsv --format tsv --sequence_column gene --label_column label --out_folder example_outputs --log_level DEBUG
 ```
 
 ```python
 from genbenchQC import evaluate_dataset
 
-evaluate_dataset.run(['positives.tsv', 'negatives.tsv'], 'tsv', 'output_folder', ['seq1', 'seq2'])
+evaluate_dataset.run(['example_datasets/miRNA_mRNA_pairs_dataset.tsv'], 'tsv', 'example_outputs', ['gene', 'noncodingRNA'], 'label', ['0', '1'])
 ```
 
 ## Development
