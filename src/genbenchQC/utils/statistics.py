@@ -54,8 +54,8 @@ class SequenceStatistics:
     def _adjust_end_position(self):
         if self.end_position is None:
 
-            # get second end position - where one of the stats contains less then 50% values
-            lengths = self.stats['Sequence lengths']
+            # get second end position - where one of the stats contains less then 75% values
+            lengths = self.stats['Sequence lengths'].values.flatten()
             lengths_75th = np.percentile(lengths, 75)
             # round to nearest integer
             self.end_position = int(np.round(lengths_75th))
@@ -66,7 +66,7 @@ class SequenceStatistics:
             )
         else:
             # Ensure end_position is not greater than the maximum sequence length
-            lengths = self.stats['Sequence lengths']
+            lengths = self.stats['Sequence lengths'].values.flatten()
             if self.end_position > max(lengths):
                 logging.warning(f"end_position {self.end_position} is greater than the maximum sequence length {max(lengths)}. Setting end_position to {max(lengths)}.")
                 self.end_position = max(lengths)
