@@ -3,83 +3,35 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import logging
 
-def plot_nucleotides(stats1, stats2, result, dist_thresh, nucleotides, plot_type='boxen'):
-    """
-    Plot the nucleotide content of two sequences.
-    """
-    if plot_type == 'violin':
-        return violin_boxen_plot_nucleotides(stats1, stats2, result, dist_thresh, nucleotides, plot_type='violin')
-    elif plot_type == 'boxen':
-        return violin_boxen_plot_nucleotides(stats1, stats2, result, dist_thresh, nucleotides, plot_type='boxen')
-    else:
-        raise ValueError(f"Unknown plot type: {plot_type}")
-    
-def plot_dinucleotides(stats1, stats2, result, dist_thresh, nucleotides, plot_type='boxen'):
-    """
-    Plot the dinucleotide content of two sequences.
-    """
-    if plot_type == 'violin':
-        return violin_boxen_plot_dinucleotides(stats1, stats2, result, dist_thresh, nucleotides, plot_type='violin')
-    if plot_type == 'boxen':
-        return violin_boxen_plot_dinucleotides(stats1, stats2, result, dist_thresh, nucleotides , plot_type='boxen')
-    else:
-        raise ValueError(f"Unknown plot type: {plot_type}")
-
 def plot_lengths(stats1, stats2, result, dist_thresh, plot_type='boxen'):
     """
     Plot the sequence lengths of two sequences.
     """
-    if plot_type == 'violin':
-        return violin_boxen_plot_one_stat(
-            stats1, stats2, 
-            'Sequence lengths', 
-            result, 
-            dist_thresh, 
-            x_label='Sequence length', 
-            title='Sequence Length Distribution', 
-            plot_type='violin'
-        )
-    elif plot_type == 'boxen':
-        return violin_boxen_plot_one_stat(
-            stats1, stats2, 
-            'Sequence lengths', 
-            result, 
-            dist_thresh, 
-            x_label='Sequence length',
-            title='Sequence Length Distribution', 
-            plot_type='boxen'
-        )
-    else:
-        raise ValueError(f"Unknown plot type: {plot_type}")
+    return plot_one_stat(
+        stats1, stats2, 
+        'Sequence lengths', 
+        result, 
+        dist_thresh, 
+        x_label='Sequence length', 
+        title='Sequence Length Distribution', 
+        plot_type=plot_type
+    )
     
 def plot_gc_content(stats1, stats2, result, dist_thresh, plot_type='boxen'):
     """
     Plot the GC content of two sequences.
     """
-    if plot_type == 'violin':
-        return violin_boxen_plot_one_stat(
-            stats1, stats2, 
-            'Per sequence GC content', 
-            result, 
-            dist_thresh, 
-            x_label='GC content', 
-            title='GC Content Distribution',
-            plot_type='violin'
-        )
-    elif plot_type == 'boxen':
-        return violin_boxen_plot_one_stat(
-            stats1, stats2, 
-            'Per sequence GC content', 
-            result, 
-            dist_thresh, 
-            x_label='GC content', 
-            title='GC Content Distribution',
-            plot_type='boxen'
-        )
-    else:
-        raise ValueError(f"Unknown plot type: {plot_type}")
+    return plot_one_stat(
+        stats1, stats2, 
+        'Per sequence GC content', 
+        result, 
+        dist_thresh, 
+        x_label='GC content', 
+        title='GC Content Distribution',
+        plot_type=plot_type
+    )
 
-def violin_boxen_plot_nucleotides(stats1, stats2, result, dist_thresh, nucleotides, plot_type):
+def plot_nucleotides(stats1, stats2, result, dist_thresh, nucleotides, plot_type):
 
     df = melt_stats(stats1, stats2, 'Per sequence nucleotide content', var_name='Nucleotide', value_name='Frequency')
     min_y = df['Frequency'].min()
@@ -113,7 +65,7 @@ def violin_boxen_plot_nucleotides(stats1, stats2, result, dist_thresh, nucleotid
             width=0.8
         )
     else:
-        raise ValueError(f"Unknown plot type: {plot_type}")
+        logging.error(f"Unknown plot type: {plot_type}")
 
     red_flag = False
     for index, nt in enumerate(nucleotides):
@@ -131,7 +83,7 @@ def violin_boxen_plot_nucleotides(stats1, stats2, result, dist_thresh, nucleotid
 
     return fig
 
-def violin_boxen_plot_dinucleotides(stats1, stats2, result, dist_thresh, nucleotides, plot_type):
+def plot_dinucleotides(stats1, stats2, result, dist_thresh, nucleotides, plot_type):
 
     df = melt_stats(stats1, stats2, 'Per sequence dinucleotide content', var_name='Dinucleotide', value_name='Frequency')
     min_y = df['Frequency'].min()
@@ -171,7 +123,7 @@ def violin_boxen_plot_dinucleotides(stats1, stats2, result, dist_thresh, nucleot
                 width=0.8
             )
         else:
-            raise ValueError(f"Unknown plot type: {plot_type}")
+            logging.error(f"Unknown plot type: {plot_type}")
         
         if index == 0:
             axs[index].set_title('Dinucleotide content', fontsize=16)
@@ -193,7 +145,7 @@ def violin_boxen_plot_dinucleotides(stats1, stats2, result, dist_thresh, nucleot
 
     return fig
 
-def violin_boxen_plot_one_stat(stats1, stats2, stats_name, result, dist_thresh, plot_type, x_label='', title=''):
+def plot_one_stat(stats1, stats2, stats_name, result, dist_thresh, plot_type, x_label='', title=''):
     """
     Plot a single statistic from two stats objects.
     """
@@ -233,7 +185,7 @@ def violin_boxen_plot_one_stat(stats1, stats2, stats_name, result, dist_thresh, 
             width=0.8
         )
     else:
-        raise ValueError(f"Unknown plot type: {plot_type}")
+        logging.error(f"Unknown plot type: {plot_type}")
     
     # result is a tuple of (distances, passed)
     red_flag = False
