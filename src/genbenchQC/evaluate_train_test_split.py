@@ -1,0 +1,44 @@
+import argparse
+import logging
+from pathlib import Path
+
+from genbenchQC.utils.input_utils import setup_logger, read_files_to_sequence_list
+
+def run(train_files, test_files, input_format, out_folder, sequence_column):
+
+    logging.info("Starting train-test split evaluation.")
+
+    if not Path(out_folder).exists():
+        logging.info(f"Output folder {out_folder} does not exist. Creating it.")
+        Path(out_folder).mkdir(parents=True, exist_ok=True)
+
+    train_sequences = read_files_to_sequence_list(train_files, input_format, sequence_column)
+    test_sequences = read_files_to_sequence_list(test_files, input_format, sequence_column)
+
+    logging.info("Train-test split evaluation successfully completed.")
+
+def parse_args():
+    parser = argparse.ArgumentParser(description='Check data leakage in dataset train-test split.')
+    parser.add_argument('--train_input', type=str, help='Path to the dataset file with training data. Can be multiple files that will be evaluated as one dataset part.', nargs='+', required=True)
+    parser.add_argument('--test_input', type=str, help='Path to the dataset file with testing data. Can be multiple files that will be evaluated as one dataset part.', nargs='+',
+                        required=True)
+    parser.add_argument('--format', help="Format of the input files.", choices=['fasta', 'csv', 'tsv'], required=True)
+    parser.add_argument('--sequence_column', type=str, help='Name of the columns with sequences to analyze for datasets in CSV/TSV format. '
+                                                            'Either one column or list of columns.', nargs='+', default=['sequence'])
+    parser.add_argument('--out_folder', type=str, help='Path to the output folder.', default='.')
+    parser.add_argument('--log_level', type=str, help='Logging level, default to INFO.', choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'], default='INFO')
+    parser.add_argument('--log_file', type=str, help='Path to the log file.', default=None)
+    args = parser.parse_args()
+
+    if args.format == 'fasta' and len(args.input) < 2:
+        parser.error("When format is 'fasta', the input must contain individual files for each class.")
+
+    return args
+
+def main():
+    args = parse_args()
+    setup_logger(args.log_level, args.log_file)
+    run(args.train_input, args.test_input, args.format, args.out_folder, args.sequence_column)
+
+if __name__ == '__main__':
+    main()
