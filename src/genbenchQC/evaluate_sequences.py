@@ -44,8 +44,8 @@ def run(input_file,
         seqs = read_fasta(input_file)
         logging.debug(f"Read {len(seqs)} sequences from FASTA file.")
         run_analysis(
-            SequenceStatistics(seqs, Path(input_file).name, label=label),
-            out_folder, report_types=report_types, end_position=end_position
+            SequenceStatistics(seqs, Path(input_file).name, label=label, end_position=end_position),
+            out_folder, report_types=report_types
         )
     else:
         df = read_csv_file(input_file, input_format, sequence_column, label_column)
@@ -54,15 +54,17 @@ def run(input_file,
             sequences = read_sequences_from_df(df, seq_col, label_column, label)
             logging.debug(f"Read {len(sequences)} sequences from CSV/TSV file.")
             run_analysis(
-                SequenceStatistics(sequences, filename=Path(input_file).name, seq_column=seq_col, label=label), 
-                out_folder, report_types=report_types, end_position=end_position
+                SequenceStatistics(sequences, filename=Path(input_file).name, 
+                                   seq_column=seq_col, label=label, end_position=end_position), 
+                out_folder, report_types=report_types
             )
 
         if len(sequence_column) > 1:
             sequences = read_multisequence_df(df, sequence_column, label_column, label)
             run_analysis(
-                SequenceStatistics(sequences, filename=Path(input_file).name, seq_column='_'.join(sequence_column), label=label), 
-                out_folder, report_types=report_types, end_position=end_position
+                SequenceStatistics(sequences, filename=Path(input_file).name, seq_column='_'.join(sequence_column), 
+                                   label=label, end_position=end_position), 
+                out_folder, report_types=report_types
             )
 
     logging.info("Sequence evaluation successfully completed.")
