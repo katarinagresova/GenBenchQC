@@ -69,7 +69,7 @@ def setup_logger(level=logging.INFO, file=None):
 
 
 def write_stats_json(stats, stats_json_file):
-    
+
     stats_dict = {}
     for key, value in stats.items():
         if isinstance(value, pd.DataFrame):
@@ -79,3 +79,16 @@ def write_stats_json(stats, stats_json_file):
 
     with open(stats_json_file, 'w') as file:
         json.dump(stats_dict, file, indent=4)
+
+def read_files_to_sequence_list(files, input_format, sequence_column):
+    sequences = []
+    for file in files:
+        if input_format == 'fasta':
+            sequences += read_fasta(file)
+        elif input_format in ['csv', 'tsv']:
+            df = read_csv_file(file, input_format, sequence_column)
+            sequences += read_multisequence_df(df, sequence_column)
+        else:
+            logging.error(f"Unsupported input format: {input_format}")
+            raise ValueError(f"Unsupported input format: {input_format}")
+    return sequences
