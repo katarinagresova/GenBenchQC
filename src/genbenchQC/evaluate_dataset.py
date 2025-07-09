@@ -3,6 +3,7 @@ import logging
 from pathlib import Path
 from itertools import combinations
 from typing import Optional
+import pandas as pd
 
 from genbenchQC.utils.statistics import SequenceStatistics
 from genbenchQC.utils.testing import flag_significant_differences
@@ -110,6 +111,10 @@ def run(inputs,
 
             # if regression is True, we split the label column into two classes
             if regression:
+                # convert the label column to numeric if it is not already
+                if not pd.api.types.is_numeric_dtype(df[label_column]):
+                    logging.debug(f"Converting label column '{label_column}' to numeric type for regression.")
+                    df[label_column] = pd.to_numeric(df[label_column], errors='coerce')
                 # infer the threshold as the median of the label column
                 threshold = df[label_column].median()
                 logging.debug(f"Inferred threshold for regression: {threshold}")
