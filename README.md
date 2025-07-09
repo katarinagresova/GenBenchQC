@@ -159,19 +159,42 @@ When having CSV/TSV input, you can also decide to provide multiple sequence colu
 
 ### Examples of running:
 
+If you want to run the tool on example datasets, please clone the repository first:
+
 ```bash
-evaluate_dataset --input example_datasets/G4_positives.fasta example_datasets/G4_negatives.fasta --format fasta --out_folder example_outputs
+git clone https://github.com/katarinagresova/GenBenchQC.git
+cd GenBenchQC
+```
+
+Then you can run the following commands to evaluate example datasets.
+
+```bash
+evaluate_dataset --input example_datasets/G4_positives.fasta example_datasets/G4_negatives.fasta --format fasta --out_folder example_outputs/G4_dataset
 ```
 
 ```bash
-evaluate_dataset --input example_datasets/miRNA_mRNA_pairs_dataset.tsv --format tsv --sequence_column gene --label_column label --out_folder example_outputs --log_level DEBUG
+evaluate_dataset --input example_datasets/miRNA_mRNA_pairs_dataset.tsv --format tsv --sequence_column gene --label_column label --out_folder example_outputs/miRNA_mRNA_dataset --log_level DEBUG
 ```
 
 ```python
 from genbenchQC import evaluate_dataset
 
-evaluate_dataset.run(['example_datasets/miRNA_mRNA_pairs_dataset.tsv'], 'tsv', 'example_outputs', ['gene', 'noncodingRNA'], 'label', ['0', '1'])
+evaluate_dataset.run(['example_datasets/miRNA_mRNA_pairs_dataset.tsv'], 'tsv', 'example_outputs/miRNA_mRNA_dataset', ['gene', 'noncodingRNA'], 'label', ['0', '1'])
 ```
+
+#### Outputs
+
+Running the above commands will create an output folder `example_outputs` containing the results of the evaluation.
+The output will contain:
+- *dataset_report_\*.csv* - a CSV file with the results of the evaluation between two classes of the dataset. 
+It contains information if the two dataset classes are similar enough and thus the test passed or failed for each feature.
+- *dataset_report_\*.html* - a report with the results of the evaluation between two classes of the dataset.
+It contains basic information about the dataset and plots visualizing individual features of the dataset.
+Each plot can be toned with red color, meaning the specific feature was too different between the two dataset classes and should be examined.
+- *folder* - containing all plots from the report in *.png* format
+- *dataset_report_\*_duplicates.txt* - present only if the dataset contains duplicate sequences between classes. It contains a list of all the duplicate sequences.
+
+If you trigger also reports for individual classes of the dataset (by providing format for the `seq_report_types` parameter or by running directly our `evaluate_sequences` tool), the output folder will contain descriptive report of the selected dataset part.  
 
 ## Development
 
