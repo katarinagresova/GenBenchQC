@@ -67,11 +67,15 @@ def setup_logger(level=logging.INFO, file=None):
     # Suppress matplotlib debug messages
     logging.getLogger("matplotlib").setLevel(logging.WARNING)
 
-def read_stats_json(stats_json_file):
-    with open(stats_json_file, 'r') as file:
-        stats = json.load(file)
-    return stats
 
 def write_stats_json(stats, stats_json_file):
+    
+    stats_dict = {}
+    for key, value in stats.items():
+        if isinstance(value, pd.DataFrame):
+            stats_dict[key] = value.to_dict(orient='list')
+        else:
+            stats_dict[key] = value
+
     with open(stats_json_file, 'w') as file:
-        json.dump(stats, file, indent=4)
+        json.dump(stats_dict, file, indent=4)
