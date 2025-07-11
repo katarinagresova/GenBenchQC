@@ -108,8 +108,9 @@ def plot_per_position_nucleotide_content(stats, stat_name, nucleotides, end_posi
     else:
         # Ensure end_position is not greater than the maximum sequence length
         seq_lengths = stats['Sequence lengths'].values.flatten()
-        if end_position > max(seq_lengths):
-            logging.warning(f"end_position {end_position} is greater than the maximum sequence length {max(seq_lengths)}. Setting end_position to {max(seq_lengths)}.")
+        max_length = int(max(seq_lengths))
+        if end_position > max_length:
+            logging.warning(f"end_position {end_position} is greater than the maximum sequence length {max_length}. Setting end_position to {max_length}.")
             end_position = max(seq_lengths)
 
     nucleotides = sorted(nucleotides)  # Ensure nucleotides are sorted for consistent plotting

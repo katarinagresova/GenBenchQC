@@ -67,9 +67,10 @@ class SequenceStatistics:
         else:
             # Ensure end_position is not greater than the maximum sequence length
             lengths = self.stats['Sequence lengths'].values.flatten()
-            if self.end_position > max(lengths):
-                logging.warning(f"end_position {self.end_position} is greater than the maximum sequence length {max(lengths)}. Setting end_position to {max(lengths)}.")
-                self.end_position = max(lengths)
+            max_length = int(max(lengths))
+            if self.end_position > max_length:
+                logging.warning(f"end_position {self.end_position} is greater than the maximum sequence length {max_length}. Setting end_position to {max_length}.")
+                self.end_position = max_length
 
             logging.debug(f"Using end position: {self.end_position} for {self.seq_column} comparison.")
 
