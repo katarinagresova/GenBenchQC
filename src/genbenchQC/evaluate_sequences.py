@@ -7,7 +7,7 @@ from genbenchQC.utils.statistics import SequenceStatistics
 from genbenchQC.report.report_generator import generate_json_report, generate_sequence_html_report
 from genbenchQC.utils.input_utils import read_fasta, read_sequences_from_df, read_multisequence_df, read_csv_file, setup_logger
 
-def run_analysis(seq_stats, out_folder, report_types):
+def run_analysis(seq_stats, out_folder, report_types, plot_type):
 
     if not Path(out_folder).exists():
         logging.info(f"Output folder {out_folder} does not exist. Creating it.")
@@ -27,7 +27,13 @@ def run_analysis(seq_stats, out_folder, report_types):
     if 'html' in report_types:
         html_report_path = Path(out_folder, filename + '_report.html')
         plots_path = out_folder / Path(filename + '_plots')
-        generate_sequence_html_report(stats, html_report_path, plots_path, end_position=end_position)
+        generate_sequence_html_report(
+            stats, 
+            html_report_path, 
+            plots_path, 
+            end_position=end_position, 
+            plot_type=plot_type
+        )
 
 def run(input_file, 
         input_format, 
@@ -36,7 +42,8 @@ def run(input_file,
         label_column=None, 
         label: Optional[str] = None,
         report_types: Optional[list[str]] = ['html'],
-        end_position: Optional[int] = None):
+        end_position: Optional[int] = None,
+        plot_type: str = 'boxen'):
     
     logging.info("Starting sequence evaluation.")
 
@@ -45,7 +52,7 @@ def run(input_file,
         logging.debug(f"Read {len(seqs)} sequences from FASTA file.")
         run_analysis(
             SequenceStatistics(seqs, Path(input_file).name, label=label, end_position=end_position),
-            out_folder, report_types=report_types
+            out_folder, report_types=report_types, plot_type=plot_type
         )
     else:
         df = read_csv_file(input_file, input_format, sequence_column, label_column)
@@ -56,7 +63,7 @@ def run(input_file,
             run_analysis(
                 SequenceStatistics(sequences, filename=Path(input_file).name, 
                                    seq_column=seq_col, label=label, end_position=end_position), 
-                out_folder, report_types=report_types
+                out_folder, report_types=report_types, plot_type=plot_type
             )
 
         if len(sequence_column) > 1:
@@ -64,7 +71,7 @@ def run(input_file,
             run_analysis(
                 SequenceStatistics(sequences, filename=Path(input_file).name, seq_column='_'.join(sequence_column), 
                                    label=label, end_position=end_position), 
-                out_folder, report_types=report_types
+                out_folder, report_types=report_types, plot_type=plot_type
             )
 
     logging.info("Sequence evaluation successfully completed.")
@@ -107,7 +114,8 @@ def main():
         args.label_column, 
         args.label, 
         args.report_types,
-        args.end_position
+        args.end_position,
+        args.plot_type
     )
 
 if __name__ == '__main__':
