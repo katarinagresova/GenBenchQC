@@ -1,13 +1,15 @@
 import logging
 from collections import Counter
 import numpy as np
+import pandas as pd
 
 class SequenceStatistics:
-    def __init__(self, sequences, filename, label, seq_column=None):
+    def __init__(self, sequences, filename, label, seq_column=None, end_position=None):
         self.filename = filename
         self.label = label
         self.seq_column = seq_column
         self.sequences = sequences
+        self.end_position = end_position
         self.stats = {}
 
     def compute(self):
@@ -20,12 +22,18 @@ class SequenceStatistics:
             - Unique bases: list of str
             - %GC content: float
             - number of sequences left after deduplication: int
-            - Per sequence nucleotide content: dict {sequence_id: dict {nucleotide: count}}
-            - Per sequence dinucleotide content: dict {sequence_id: dict {dinucleotide: count}}
-            - Per position nucleotide content: dict {position: dict {nucleotide: count}}
-            - Per position reversed nucleotide content: dict {position: dict {nucleotide: count}}
-            - Per sequence GC content: dict {sequence_id: float}
-            - Sequence lenghts: dict {sequence_id: int}
+            - Per sequence nucleotide content: pd.DataFrame
+              (index: sequence_id, columns: nucleotides, values: frequency)
+            - Per sequence dinucleotide content: pd.DataFrame
+              (index: sequence_id, columns: dinucleotides, values: frequency)
+            - Per position nucleotide content: pd.DataFrame
+              (index: position, columns: nucleotides, values: frequency)
+            - Per position reversed nucleotide content: pd.DataFrame
+              (index: position, columns: nucleotides, values: frequency)
+            - Per sequence GC content: dict pd.DataFrame
+              (index: sequence_id, columns: GC content (%), values: GC content)
+            - Sequence lengths: pd.DataFrame
+              (index: sequence_id, columns: Length, values: length of the sequence)
             - Sequence duplication levels: dict {sequence: count}
         """
         message = f"Computing statistics for {self.filename}"
@@ -38,12 +46,38 @@ class SequenceStatistics:
         self._compute_basic_statistics()
         self._compute_per_sequence_statistics()
         self._compute_sequence_duplication_levels()
-        self._compute_summary_statistics()
 
-        return self.stats
+        self._adjust_end_position()
+
+        return self.stats, self.end_position
+
+    def _adjust_end_position(self):
+        if self.end_position is None:
+
+            # get second end position - where one of the stats contains less then 75% values
+            lengths = self.stats['Sequence lengths'].values.flatten()
+            lengths_75th = np.percentile(lengths, 75)
+            # round to nearest integer
+            self.end_position = int(np.round(lengths_75th))
+
+            logging.debug(
+                f"End position not provided. Using end position: {self.end_position} for {self.seq_column} comparison. "
+                 "This is the 75th percentile of sequence lengths."
+            )
+        else:
+            # Ensure end_position is not greater than the maximum sequence length
+            lengths = self.stats['Sequence lengths'].values.flatten()
+            max_length = int(max(lengths))
+            if self.end_position > max_length:
+                logging.warning(f"end_position {self.end_position} is greater than the maximum sequence length {max_length}. Setting end_position to {max_length}.")
+                self.end_position = max_length
+
+            logging.debug(f"Using end position: {self.end_position} for {self.seq_column} comparison.")
 
     def _compute_basic_statistics(self):
         self.stats['Filename'] = self.filename
+        self.stats['Label'] = self.label if self.label is not None else 'N/A'
+        self.stats['Sequence column'] = self.seq_column if self.seq_column is not None else 'N/A'
         self.stats['Number of sequences'] = len(self.sequences)
         self.stats['Number of bases'] = sum(len(sequence) for sequence in self.sequences)
         self.stats['Unique bases'] = list(set(''.join(self.sequences)))
@@ -59,23 +93,25 @@ class SequenceStatistics:
         dinucleotides_per_sequence = {}
         nucleotides_per_position = {}
         nucleotides_per_position_reversed = {}
-        gc_content_per_sequence = {}
-        lengths_per_sequence = {}
+        gc_content_per_sequence = np.zeros(len(self.sequences))
+        lengths_per_sequence = np.zeros(len(self.sequences))
 
         for id, sequence in enumerate(self.sequences):
             nucleotides_per_sequence[id] = self._compute_nucleotide_content(sequence, nucleotides)
             dinucleotides_per_sequence[id] = self._compute_dinucleotide_content(sequence, dinucleotides)
             self._compute_per_position_nucleotide_content(nucleotides_per_position, sequence)
             self._compute_per_position_nucleotide_content(nucleotides_per_position_reversed, sequence[::-1])
-            gc_content_per_sequence[id] = (sequence.count('G') + sequence.count('C')) / len(sequence)
+            gc_content_per_sequence[id] = (sequence.count('G') + sequence.count('C')) / len(sequence) * 100
             lengths_per_sequence[id] = len(sequence)
 
-        self.stats['Per sequence nucleotide content'] = nucleotides_per_sequence
-        self.stats['Per sequence dinucleotide content'] = dinucleotides_per_sequence
-        self.stats['Per position nucleotide content'] = self._normalize_per_position(nucleotides_per_position, nucleotides)
-        self.stats['Per position reversed nucleotide content'] = self._normalize_per_position(nucleotides_per_position_reversed, nucleotides)
-        self.stats['Per sequence GC content'] = gc_content_per_sequence
-        self.stats['Sequence lengths'] = lengths_per_sequence
+        self.stats['Per sequence nucleotide content'] = pd.DataFrame(nucleotides_per_sequence).T
+        self.stats['Per sequence dinucleotide content'] = pd.DataFrame(dinucleotides_per_sequence).T
+        self.stats['Per position nucleotide content']= pd.DataFrame(
+            self._normalize_per_position(nucleotides_per_position, nucleotides)).T
+        self.stats['Per position reversed nucleotide content'] = pd.DataFrame(
+            self._normalize_per_position(nucleotides_per_position_reversed, nucleotides)).T
+        self.stats['Per sequence GC content'] = pd.DataFrame(gc_content_per_sequence, columns=['Per sequence GC content'])
+        self.stats['Sequence lengths'] = pd.DataFrame(lengths_per_sequence, columns=['Sequence lengths'])
 
     def _compute_nucleotide_content(self, sequence, nucleotides):
         return {nucleotide: sequence.count(nucleotide) / len(sequence) for nucleotide in nucleotides}
@@ -121,34 +157,3 @@ class SequenceStatistics:
         sequence_counts = dict(sorted(sequence_counts.items(), key=lambda item: item[1], reverse=True))
         
         self.stats['Sequence duplication levels'] = sequence_counts
-
-    def _compute_summary_statistics(self):
-        if 'Per sequence nucleotide content' not in self.stats or 'Per sequence dinucleotide content' not in self.stats:
-            logging.error("Per sequence (di)nucleotide content not computed. Run _compute_per_sequence_statistics() first.")
-            raise ValueError("Per sequence (di)nucleotide content not computed. Run _compute_per_sequence_statistics() first.")
-
-        nucleotides = self.stats['Unique bases'] if 'Unique bases' in self.stats else list(set(''.join(self.sequences)))
-        self.stats['Nucleotide content summary'] = self._compute_content_summary(
-            self.stats['Per sequence nucleotide content'], 
-            nucleotides
-        )
-        
-        dinucleotides = [n1 + n2 for n1 in nucleotides for n2 in nucleotides]
-        self.stats['Dinucleotide content summary'] = self._compute_content_summary(
-            self.stats['Per sequence dinucleotide content'], 
-            dinucleotides
-        )
-
-    def _compute_content_summary(self, content_dict, unique_bases):
-        """Helper function to compute summary statistics for (di)nucleotide content"""
-        summary = {}
-        for nucleotide in unique_bases:
-            values = [seq_dict.get(nucleotide, 0) for seq_dict in content_dict.values()]
-            summary[nucleotide] = {
-                'min': min(values),
-                'q1': float(np.percentile(values, 25)),
-                'median': float(np.median(values)),
-                'q3': float(np.percentile(values, 75)),
-                'max': max(values)
-            }
-        return summary
