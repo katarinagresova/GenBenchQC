@@ -2,7 +2,8 @@ import argparse
 import logging
 from pathlib import Path
 
-from genbenchQC.utils.input_utils import setup_logger, read_files_to_sequence_list
+from genbenchQC.utils.input_utils import setup_logger, read_files_to_sequence_list, write_fasta
+
 
 def run(train_files, test_files, input_format, out_folder, sequence_column):
 
@@ -13,7 +14,17 @@ def run(train_files, test_files, input_format, out_folder, sequence_column):
         Path(out_folder).mkdir(parents=True, exist_ok=True)
 
     train_sequences = read_files_to_sequence_list(train_files, input_format, sequence_column)
+    train_index = [f"{i}_train" for i in range(len(train_sequences))]
+    logging.info(f"Read {len(train_sequences)} sequences from training files.")
+
     test_sequences = read_files_to_sequence_list(test_files, input_format, sequence_column)
+    test_index = [f"{i}_test" for i in range(len(test_sequences))]
+    logging.info(f"Read {len(test_sequences)} sequences from testing files.")
+
+    sequences = train_sequences + test_sequences
+    index = train_index + test_index
+    output_fasta_path = Path(out_folder) / 'train_test_sequences.fasta'
+    write_fasta(sequences, output_fasta_path, index)
 
     logging.info("Train-test split evaluation successfully completed.")
 
@@ -29,9 +40,6 @@ def parse_args():
     parser.add_argument('--log_level', type=str, help='Logging level, default to INFO.', choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'], default='INFO')
     parser.add_argument('--log_file', type=str, help='Path to the log file.', default=None)
     args = parser.parse_args()
-
-    if args.format == 'fasta' and len(args.input) < 2:
-        parser.error("When format is 'fasta', the input must contain individual files for each class.")
 
     return args
 
