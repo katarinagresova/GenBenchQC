@@ -100,6 +100,33 @@ HTML_TEMPLATE = """
             font-weight: bold;
             font-size: 1em;
         }
+
+        /* Style basic descriptive statistics table */
+        #basic-descriptive-statistics table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        #basic-descriptive-statistics table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        #basic-descriptive-statistics table td:first-child {
+            text-align: left;
+            width: 200px;
+        }
+        #basic-descriptive-statistics table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        #basic-descriptive-statistics table tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        #basic-descriptive-statistics table span {
+            font-weight: bold;
+        }
+
     </style>
 </head>
 <body>
@@ -120,7 +147,7 @@ HTML_TEMPLATE = """
             <a href="#general-descriptive-statistics">General Descriptive Statistics</a>
             <div style="margin-left: 15px;">
                 <a href="#sequence-lengths">Sequence lengths</a>
-                <a href="#sequence-duplication-levels">Sequence duplication levels</a>
+                <a href="#sequence-duplication-levels">Duplicate sequences</a>
             </div>
             <a href="#per-sequence-descriptive-stats">Per Sequence Descriptive Stats</a>
             <div style="margin-left: 15px;">
@@ -137,30 +164,48 @@ HTML_TEMPLATE = """
 
             <section id="basic-descriptive-statistics">
                 <h2>Basic Descriptive Statistics</h2>
-                <div class="data-item" id="filename">
-                    <span>Filename:</span> {{filename}} <!-- Filename will be displayed here -->
-                </div>
-                <div class="data-item" id="label">
-                    <span>Label:</span> {{label}} <!-- Label will be displayed here -->
-                </div>
-                <div class="data-item" id="seq_column">
-                    <span>Sequence column:</span> {{seq_column}} <!-- Sequence column will be displayed here -->
-                </div>
-                <div class="data-item" id="num-sequences">
-                    <span>Number of sequences:</span> {{number_of_sequences}} <!-- Number of sequences will be displayed here -->
-                </div>
-                <div class="data-item" id="dedup-sequences">
-                    <span>Unique sequences:</span> {{dedup_sequences}} <!-- Number of sequences left after deduplication will be displayed here -->
-                </div>
-                <div class="data-item" id="num-bases">
-                    <span>Number of bases:</span> {{number_of_bases}} <!-- Number of bases will be displayed here -->
-                </div>
-                <div class="data-item" id="unique-bases">
-                    <span>Unique bases:</span> {{unique_bases}} <!-- Unique bases will be displayed here -->
-                </div>
-                <div class="data-item" id="gc-content">
-                    <span>%GC content:</span> {{gc_content}} <!-- %GC content will be displayed here -->
-                </div>
+                <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                    <tr id="filename">
+                        <td><span>Filename</span></td>
+                        <td style="text-align: center;">{{filename1}}</td>
+                        <td style="text-align: center;">{{filename2}}</td>
+                    </tr>
+                    <tr id="label">
+                        <td><span>Label</span></td>
+                        <td style="text-align: center;">{{label1}}</td>
+                        <td style="text-align: center;">{{label2}}</td>
+                    </tr>
+                    <tr id="seq_column">
+                        <td><span>Sequence column</span></td>
+                        <td style="text-align: center;">{{seq_col1}}</td>
+                        <td style="text-align: center;">{{seq_col2}}</td>
+                    </tr>
+                    <tr id="num-sequences">
+                        <td><span>Number of sequences</span></td>
+                        <td style="text-align: center;">{{number_of_sequences1}}</td>
+                        <td style="text-align: center;">{{number_of_sequences2}}</td>
+                    </tr>
+                    <tr id="dedup-sequences">
+                        <td><span>Unique sequences</span></td>
+                        <td style="text-align: center;">{{dedup_sequences1}}</td>
+                        <td style="text-align: center;">{{dedup_sequences2}}</td>
+                    </tr>
+                    <tr id="num-bases">
+                        <td><span>Number of bases</span></td>
+                        <td style="text-align: center;">{{number_of_bases1}}</td>
+                        <td style="text-align: center;">{{number_of_bases2}}</td>
+                    </tr>
+                    <tr id="unique-bases">
+                        <td><span>Unique bases</span></td>
+                        <td style="text-align: center;">{{unique_bases1}}</td>
+                        <td style="text-align: center;">{{unique_bases2}}</td>
+                    </tr>
+                    <tr id="gc-content">
+                        <td><span>%GC content</span></td>
+                        <td style="text-align: center;">{{gc_content1}}</td>
+                        <td style="text-align: center;">{{gc_content2}}</td>
+                    </tr>
+                </table>
             </section>
 
             <section id="general-descriptive-statistics">
@@ -168,14 +213,13 @@ HTML_TEMPLATE = """
 
                 <h3 id="sequence-lengths">Sequence lengths</h3>
                 <!-- This will be populated with png plot --->
-                <img src={{sequence_length_plot}} alt="Sequence Lengths Plot" style="max-width: 100%; height: auto;">
+                <img src={{sequence_length_plot}} alt="Sequence Lengths Plot" style="max-width: 50%; height: auto; display: block; margin: 0 auto;">
 
                 <div id="sequence-duplication-levels">
-                    <h3>Sequence duplication levels</h3>
+                    <h3>Duplicate sequences</h3>
                     <table>
                         <thead>
                             <tr>
-                                <th class="count_column">Count</th>
                                 <th class="sequence_column">Sequence</th>
                             </tr>
                         </thead>
@@ -205,7 +249,7 @@ HTML_TEMPLATE = """
                 <img src={{per-position-reversed-nucleotide-content}} alt="Per Position Reversed Nucleotide Content" style="max-width: 100%; height: auto;">
 
                 <h3 id="per-sequence-gc-content">Per Sequence GC Content</h3>
-                <img src={{per-sequence-gc-content}} alt="Per Sequence GC Content" style="max-width: 100%; height: auto;">
+                <img src={{per-sequence-gc-content}} alt="Per Sequence GC Content" style="max-width: 50%; height: auto; display: block; margin: 0 auto;">
 
             </section>
         </div>
@@ -216,17 +260,15 @@ HTML_TEMPLATE = """
 
         // Populate table for sequence duplication levels
         var tableBody = document.querySelector("#sequence-duplication-levels tbody");
-        for (var sequence in sequenceDuplicationLevels) {
+        for (var i = 0; i < sequenceDuplicationLevels.length; i++) {
+            var sequence = sequenceDuplicationLevels[i];
+
             var row = document.createElement("tr");
-            var countCell = document.createElement("td");
             var sequenceCell = document.createElement("td");
 
-            countCell.textContent = sequenceDuplicationLevels[sequence];
-            countCell.className = "count_column";
             sequenceCell.textContent = sequence;
             sequenceCell.className = "sequence_column";
 
-            row.appendChild(countCell);
             row.appendChild(sequenceCell);
             tableBody.appendChild(row);
         }
@@ -283,20 +325,28 @@ def escape_str(s):
     """
     return '"' + s + '"'
 
-def get_sequence_html_template(stats, plots_path):
+def get_dataset_html_template(stats1, stats2, plots_path, results):
     """
     Returns the HTML template for the report.
     """
     html_template = HTML_TEMPLATE
 
-    html_template = put_file_details(html_template, stats['Filename'])
-    html_template = put_data(html_template, "{{label}}", stats['Label'] if stats['Label'] else "N/A")
-    html_template = put_data(html_template, "{{seq_column}}", stats['Sequence column'] if stats['Sequence column'] else "N/A")
-    html_template = put_data(html_template, "{{number_of_sequences}}", str(stats['Number of sequences']))
-    html_template = put_data(html_template, "{{number_of_bases}}", str(stats['Number of bases']))
-    html_template = put_data(html_template, "{{unique_bases}}", ', '.join(x for x in stats['Unique bases']))
-    html_template = put_data(html_template, "{{gc_content}}", f"{(stats['%GC content']*100):.2f}")  
-    html_template = put_data(html_template, "{{dedup_sequences}}", str(stats['Number of sequences left after deduplication']))  
+    html_template = put_data(html_template, "{{filename1}}", stats1.filename)
+    html_template = put_data(html_template, "{{filename2}}", stats2.filename)
+    html_template = put_data(html_template, "{{label1}}", str(stats1.label) if stats1.label is not None else "N/A")
+    html_template = put_data(html_template, "{{label2}}", str(stats2.label) if stats2.label is not None else "N/A")
+    html_template = put_data(html_template, "{{seq_col1}}", str(stats1.seq_column) if stats1.seq_column is not None else "N/A")
+    html_template = put_data(html_template, "{{seq_col2}}", str(stats2.seq_column) if stats2.seq_column is not None else "N/A")
+    html_template = put_data(html_template, "{{number_of_sequences1}}", str(stats1.stats['Number of sequences']))
+    html_template = put_data(html_template, "{{number_of_sequences2}}", str(stats2.stats['Number of sequences']))
+    html_template = put_data(html_template, "{{dedup_sequences1}}", str(stats1.stats['Number of sequences left after deduplication']))
+    html_template = put_data(html_template, "{{dedup_sequences2}}", str(stats2.stats['Number of sequences left after deduplication']))
+    html_template = put_data(html_template, "{{number_of_bases1}}", str(stats1.stats['Number of bases']))
+    html_template = put_data(html_template, "{{number_of_bases2}}", str(stats2.stats['Number of bases']))
+    html_template = put_data(html_template, "{{unique_bases1}}", ', '.join(x for x in stats1.stats['Unique bases']))
+    html_template = put_data(html_template, "{{unique_bases2}}", ', '.join(x for x in stats2.stats['Unique bases']))
+    html_template = put_data(html_template, "{{gc_content1}}", f"{(stats1.stats['%GC content']*100):.2f}")  
+    html_template = put_data(html_template, "{{gc_content2}}", f"{(stats2.stats['%GC content']*100):.2f}")
 
     html_template = put_data(html_template, "{{sequence_length_plot}}", str(plots_path['Sequence lengths']))
     html_template = put_data(html_template, "{{per-sequence-nucleotide-content}}", str(plots_path['Per sequence nucleotide content']))
@@ -305,24 +355,16 @@ def get_sequence_html_template(stats, plots_path):
     html_template = put_data(html_template, "{{per-position-reversed-nucleotide-content}}", str(plots_path['Per position reversed nucleotide content']))
     html_template = put_data(html_template, "{{per-sequence-gc-content}}", str(plots_path['Per sequence GC content']))
 
-    # take max 10 sequences for sequence duplication levels - stats['Sequence duplication levels'] is a dictionary
-    # with sequence as key and count as value, we convert it to a list of tuples
-    sequence_duplication_levels = list(stats['Sequence duplication levels'].items())
-    # Sort by count in descending order and take the top 10
-    sequence_duplication_levels.sort(key=lambda x: x[1], reverse=True)
-    # Limit to the first 10 sequences if there are more than 10
-    if len(sequence_duplication_levels) > 10:
-        # Take the top 10 sequences
-        sequence_duplication_levels = sequence_duplication_levels[:10]
-        html_template = put_data(html_template, "{{sequence_duplication_levels_rest}}", str(len(stats['Sequence duplication levels']) - 10))
+    # take max 10 sequences for sequence duplication levels, results['Sequence duplication levels'][0] is a list of sequences
+    sequence_duplication_levels = results['Duplication between labels'][0][:10]
+    html_template = put_data(html_template, "{{sequence_duplication_levels}}",
+                             '[' + ', '.join(escape_str(seq) for seq in sequence_duplication_levels) + ']')
+    if len(results['Duplication between labels'][0]) > 10:
+        # If there are more than 10 sequences, we show how many more there are
+        # and set the rest to a placeholder
+        html_template = put_data(html_template, "{{sequence_duplication_levels_rest}}", str(len(results['Duplication between labels'][0]) - 10))
     else:
-        # If there are 10 or fewer sequences, set the rest to 0
+        # If there are 10 or fewer sequences, we set the rest to 0
         html_template = put_data(html_template, "{{sequence_duplication_levels_rest}}", "0")
-    # Convert sequence duplication levels back to a dictionary-like structure for JSON-like string with sequence and count
-    sequence_duplication_levels_dict = {str(seq): count for seq, count in sequence_duplication_levels}
-    # Convert to JSON-like string for JavaScript
-    sequence_duplication_levels_str = str(sequence_duplication_levels_dict).replace("'", '"').replace(", ", ",\n")
-    # Replace the placeholder with the JSON-like string
-    html_template = put_data(html_template, "{{sequence_duplication_levels}}", sequence_duplication_levels_str)
-    
+
     return html_template
