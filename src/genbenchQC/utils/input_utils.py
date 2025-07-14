@@ -7,8 +7,12 @@ def read_fasta(fasta_file):
     logging.debug(f"Reading FASTA file: {fasta_file}")
     return [str(record.seq).upper() for record in SeqIO.parse(fasta_file, 'fasta')]
 
-def write_fasta(sequences, output_file):
-    records = [SeqRecord.SeqRecord(Seq.Seq(seq), id=f'seq_{i}') for i, seq in enumerate(sequences)]
+def write_fasta(sequences, output_file, indices=None):
+    if indices is None:
+        records = [SeqRecord.SeqRecord(Seq.Seq(seq), id=f'seq_{i}') for i, seq in enumerate(sequences)]
+    else:
+        records = [SeqRecord.SeqRecord(Seq.Seq(sequences[i]), id=f'seq_{indices[i]}') for i in range(len(sequences))]
+    logging.debug(f"Writing FASTA file: {output_file} with {len(sequences)} sequences")
     SeqIO.write(records, output_file, 'fasta')
 
 def read_csv_file(file_path, input_format, seq_columns, label_columns=None):
