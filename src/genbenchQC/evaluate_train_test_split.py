@@ -1,9 +1,30 @@
 import argparse
 import logging
 from pathlib import Path
+import os
+from cdhit_reader import read_cdhit
 
 from genbenchQC.utils.input_utils import setup_logger, read_files_to_sequence_list, write_fasta
 
+def run_clustering(fasta_file, clustered_file):
+    logging.info("Running CD-HIT clustering.")
+    os.system(f"cd-hit-est -i {fasta_file} -o {clustered_file} -c 0.95 -n 10 -aS 0.8 -aL 0.8")
+    clusters = read_cdhit(f"{clustered_file}.clstr").read_items()
+    logging.debug(f"CD-HIT clustering completed. {len(clusters)} clusters found.")
+
+    # Collect clusters with >1 sequence and mixed train/test entries
+    mixed_clusters = []
+
+    for cluster in clusters:
+        if len(cluster.sequences) == 1:
+            continue
+        seq_ids = [seq.name for seq in cluster.sequences]
+        has_train = any("_train" in seq_id for seq_id in seq_ids)
+        has_test = any("_test" in seq_id for seq_id in seq_ids)
+
+        if has_train and has_test:
+            mixed_clusters.append(seq_ids)
+    return mixed_clusters
 
 def run(train_files, test_files, input_format, out_folder, sequence_column):
 
@@ -12,6 +33,8 @@ def run(train_files, test_files, input_format, out_folder, sequence_column):
     if not Path(out_folder).exists():
         logging.info(f"Output folder {out_folder} does not exist. Creating it.")
         Path(out_folder).mkdir(parents=True, exist_ok=True)
+
+    Path(out_folder, "tmp").mkdir(parents=True, exist_ok=True)
 
     train_sequences = read_files_to_sequence_list(train_files, input_format, sequence_column)
     train_index = [f"{i}_train" for i in range(len(train_sequences))]
@@ -23,8 +46,13 @@ def run(train_files, test_files, input_format, out_folder, sequence_column):
 
     sequences = train_sequences + test_sequences
     index = train_index + test_index
-    output_fasta_path = Path(out_folder) / 'train_test_sequences.fasta'
-    write_fasta(sequences, output_fasta_path, index)
+    merged_fasta_path = Path(out_folder, "tmp") / 'train_test_sequences.fasta'
+    write_fasta(sequences, merged_fasta_path, index)
+
+    clusters = run_clustering(merged_fasta_path, Path(out_folder, "tmp/clustered_sequences"))
+    logging.debug(f"Having {len(clusters)} mixed clusters: {clusters}")
+
+    # TODO delete tmp folder
 
     logging.info("Train-test split evaluation successfully completed.")
 

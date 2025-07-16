@@ -9,9 +9,9 @@ def read_fasta(fasta_file):
 
 def write_fasta(sequences, output_file, indices=None):
     if indices is None:
-        records = [SeqRecord.SeqRecord(Seq.Seq(seq), id=f'seq_{i}') for i, seq in enumerate(sequences)]
+        records = [SeqRecord.SeqRecord(Seq.Seq(seq), id=f'seq_{i}', description="") for i, seq in enumerate(sequences)]
     else:
-        records = [SeqRecord.SeqRecord(Seq.Seq(sequences[i]), id=f'seq_{indices[i]}') for i in range(len(sequences))]
+        records = [SeqRecord.SeqRecord(Seq.Seq(sequences[i]), id=f'seq_{indices[i]}', description="") for i in range(len(sequences))]
     logging.debug(f"Writing FASTA file: {output_file} with {len(sequences)} sequences")
     SeqIO.write(records, output_file, 'fasta')
 
