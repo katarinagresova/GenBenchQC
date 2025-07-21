@@ -95,12 +95,12 @@ def generate_sequence_html_report(stats_dict, output_path, plots_path, end_posit
     with open(output_path, 'w') as file:
         file.write(template)
 
-def generate_train_test_html_report(clusters, output_path):
+def generate_train_test_html_report(clusters, train_filename, train_seq, test_filename, test_seq, output_path):
     """
     Generate an HTML report listing mixed clusters.
     """
     # Load the HTML template
-    template = get_train_test_html_template(clusters)
+    template = get_train_test_html_template(clusters, train_filename, train_seq, test_filename, test_seq)
 
     with open(output_path, 'w') as file:
         file.write(template)

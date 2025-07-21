@@ -1,4 +1,4 @@
-HTML_CLUSTER_TEMPLATE = """
+HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,23 +7,58 @@ HTML_CLUSTER_TEMPLATE = """
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            max-width: 100%;
+        }
+        .sidebar {
+            width: 250px;
+            background: #f4f4f4;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            height: 100vh;
+            position: fixed;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+        .sidebar a {
+            display: block;
+            margin: 10px 0;
+            text-decoration: none;
+            color: #333;
+        }
+        .content {
+            margin-left: 300px;
+            padding: 20px;
+            width: calc(100% - 350px);
+            overflow-x: hidden;
+        }
+        section {
+            margin-bottom: 50px;
         }
         h1 {
             text-align: center;
+            margin-bottom: 50px;
+        }
+        h2 {
+            color: #333;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 5px;
+        }
+        .data-item {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+        .data-item span {
+            font-weight: bold;
+            font-size: 1em;
         }
         .cluster {
             border: 1px solid #ccc;
             margin-bottom: 20px;
             padding: 15px;
             border-radius: 5px;
-        }
-        .cluster h2 {
-            margin-top: 0;
-        }
-        .section-title {
-            font-weight: bold;
-            margin-top: 10px;
         }
         pre {
             background: #f9f9f9;
@@ -34,17 +69,46 @@ HTML_CLUSTER_TEMPLATE = """
 </head>
 <body>
 
-<h1>Similar Sequences Found in Train vs Test Dataset</h1>
+    <div class="sidebar">
+        <h2>Navigation</h2>
+        <a href="#basic-descriptive-statistics">Basic Statistics</a>
+        <a href="#clusters-section">Clusters</a>
+    </div>
 
-#clusters
+    <div class="content">
+        <h1>Similar Sequences Found in Train vs Test Dataset</h1>
+
+        <section id="basic-descriptive-statistics">
+            <h2>Basic Descriptive Statistics</h2>
+            <div class="data-item"><span>Train set filename:</span> {{train_filename}}</div>
+            <div class="data-item"><span>Number of sequences in train set:</span> {{number_of_sequences_train}}</div>
+            <div class="data-item"><span>Test set filename:</span> {{test_filename}}</div>
+            <div class="data-item"><span>Number of sequences in test set:</span> {{number_of_sequences_test}}</div>
+        </section>
+
+        <section id="clusters-section">
+            <h2>Clusters of Similar Sequences</h2>
+            {{clusters}}
+        </section>
+
+    </div>
 
 </body>
 </html>
 """
 
-def get_train_test_html_template(clusters):
+def get_train_test_html_template(clusters, filename_train, sequences_train, filename_test, sequences_test):
+
+    html_template = HTML_TEMPLATE
+
+    html_template = html_template.replace("{{train_filename}}", str(filename_train))
+    html_template = html_template.replace("{{test_filename}}", str(filename_test))
+    html_template = html_template.replace("{{number_of_sequences_train}}", str(len(sequences_train)))
+    html_template = html_template.replace("{{number_of_sequences_test}}", str(len(sequences_test)))
+
+
     if not clusters:
-        return HTML_CLUSTER_TEMPLATE.replace("#clusters", "<h2>No similar sequences found.</h2>")
+        return html_template.replace("{{clusters}}", "<h2>No similar sequences found.</h2>")
 
     cluster_blocks = []
 
@@ -60,4 +124,4 @@ def get_train_test_html_template(clusters):
         """
         cluster_blocks.append(cluster_html)
 
-    return HTML_CLUSTER_TEMPLATE.replace("#clusters", "\n".join(cluster_blocks))
+    return html_template.replace("{{clusters}}", "\n".join(cluster_blocks))
