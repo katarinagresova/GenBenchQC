@@ -9,6 +9,7 @@ import logging
 
 from genbenchQC.report.sequence_html_report import get_sequence_html_template
 from genbenchQC.report.dataset_html_report import get_dataset_html_template
+from genbenchQC.report.train_test_html_report import get_train_test_html_template
 from genbenchQC.utils.input_utils import write_stats_json
 from genbenchQC.report import dataset_plots
 from genbenchQC.report import sequences_plots
@@ -90,6 +91,16 @@ def generate_sequence_html_report(stats_dict, output_path, plots_path, end_posit
 
     # Load the HTML template
     template = get_sequence_html_template(stats_dict, plots_paths)
+
+    with open(output_path, 'w') as file:
+        file.write(template)
+
+def generate_train_test_html_report(clusters, output_path):
+    """
+    Generate an HTML report listing mixed clusters.
+    """
+    # Load the HTML template
+    template = get_train_test_html_template(clusters)
 
     with open(output_path, 'w') as file:
         file.write(template)

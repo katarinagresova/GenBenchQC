@@ -4,10 +4,12 @@ from pathlib import Path
 import os
 from cdhit_reader import read_cdhit
 
+from genbenchQC.report.report_generator import generate_json_report, generate_train_test_html_report
 from genbenchQC.utils.input_utils import setup_logger, read_files_to_sequence_list, write_fasta
 
 def run_clustering(fasta_file, clustered_file):
     logging.info("Running CD-HIT clustering.")
+    # clustering at similarity of 95% with 80% alignment coverage
     os.system(f"cd-hit-est -i {fasta_file} -o {clustered_file} -c 0.95 -n 10 -aS 0.8 -aL 0.8")
     clusters = read_cdhit(f"{clustered_file}.clstr").read_items()
     logging.debug(f"CD-HIT clustering completed. {len(clusters)} clusters found.")
@@ -26,7 +28,23 @@ def run_clustering(fasta_file, clustered_file):
             mixed_clusters.append(seq_ids)
     return mixed_clusters
 
-def run(train_files, test_files, input_format, out_folder, sequence_column):
+def process_mixed_clusters(clusters, train_sequences, test_sequences):
+    sequence_clusters = []
+    for i in range(len(clusters)):
+        sequences = {"cluster": i, "train": [], "test": []}
+        for seq_id in clusters[i]:
+            seq_id = seq_id.split("_")
+            if seq_id[2] == "train":
+                sequences["train"].append(train_sequences[int(seq_id[1])])
+            elif seq_id[2] == "test":
+                sequences["test"].append(test_sequences[int(seq_id[1])])
+            else:
+                logging.warning(f"Unexpected sequence ID format: {seq_id}")
+        sequence_clusters.append(sequences)
+
+    return sequence_clusters
+
+def run(train_files, test_files, input_format, out_folder, sequence_column, report_types):
 
     logging.info("Starting train-test split evaluation.")
 
@@ -52,6 +70,17 @@ def run(train_files, test_files, input_format, out_folder, sequence_column):
     clusters = run_clustering(merged_fasta_path, Path(out_folder, "tmp/clustered_sequences"))
     logging.debug(f"Having {len(clusters)} mixed clusters: {clusters}")
 
+    sequence_clusters = process_mixed_clusters(clusters, train_sequences, test_sequences)
+    logging.debug(f"Transformed cluster sequence IDs to sequences: {sequence_clusters}")
+
+    filename = Path(train_files[0]).stem + "_vs_" + Path(test_files[0]).stem + "_train-test_check"
+    if 'json' in report_types:
+        json_report_path = Path(out_folder, filename + '_report.json')
+        generate_json_report({"mixed train-test clusters": sequence_clusters}, json_report_path)
+    if 'html' in report_types:
+        html_report_path = Path(out_folder, filename + '_report.html')
+        generate_train_test_html_report(sequence_clusters, html_report_path)
+
     # TODO delete tmp folder
 
     logging.info("Train-test split evaluation successfully completed.")
@@ -65,6 +94,8 @@ def parse_args():
     parser.add_argument('--sequence_column', type=str, help='Name of the columns with sequences to analyze for datasets in CSV/TSV format. '
                                                             'Either one column or list of columns.', nargs='+', default=['sequence'])
     parser.add_argument('--out_folder', type=str, help='Path to the output folder.', default='.')
+    parser.add_argument('--report_types', type=str, nargs='+', choices=['json', 'html'],
+                        help='Types of reports to generate. Default: [html]', default=['html'])
     parser.add_argument('--log_level', type=str, help='Logging level, default to INFO.', choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'], default='INFO')
     parser.add_argument('--log_file', type=str, help='Path to the log file.', default=None)
     args = parser.parse_args()
@@ -74,7 +105,7 @@ def parse_args():
 def main():
     args = parse_args()
     setup_logger(args.log_level, args.log_file)
-    run(args.train_input, args.test_input, args.format, args.out_folder, args.sequence_column)
+    run(args.train_input, args.test_input, args.format, args.out_folder, args.sequence_column, args.report_types)
 
 if __name__ == '__main__':
     main()
