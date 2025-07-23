@@ -159,7 +159,7 @@ When having CSV/TSV input, you can also decide to provide multiple sequence colu
 
 ### Examples of running:
 
-If you want to run the tool on example datasets, please clone the repository first:
+If you want to run the tool on example datasets, please clone the repository first to be able to access the example data:
 
 ```bash
 git clone https://github.com/katarinagresova/GenBenchQC.git
@@ -184,14 +184,14 @@ evaluate_dataset.run(['example_datasets/miRNA_mRNA_pairs_dataset.tsv'], 'tsv', '
 
 #### Outputs
 
-Running the above commands will create an output folder `example_outputs` containing the results of the evaluation.
-The output will contain:
-- *dataset_report_\*.csv* - a CSV file with the results of the evaluation between two classes of the dataset. 
+Running the above commands will create an output folder `example_outputs` containing the results of the evaluation. 
+The output will contain (in the brackets, you can find the specific names when executing with the G4 example dataset):
+- *dataset_report_\*.csv (dataset_report_label_G4_positives_vs_G4_negatives.csv)* - a CSV file with the results of the evaluation between two classes of the dataset. 
 It contains information if the two dataset classes are similar enough and thus the test passed or failed for each feature.
-- *dataset_report_\*.html* - a report with the results of the evaluation between two classes of the dataset.
+- *dataset_report_\*.html (dataset_report_label_G4_positives_vs_G4_negatives.html)* - a report with the results of the evaluation between two classes of the dataset.
 It contains basic information about the dataset and plots visualizing individual features of the dataset.
 Each plot can be toned with red color, meaning the specific feature was too different between the two dataset classes and should be examined.
-- *folder* - containing all plots from the report in *.png* format
+- *\*_plots (dataset_report_label_G4_positives_vs_G4_negatives_plots)* - folder containing all plots from the report in *.png* format
 - *dataset_report_\*_duplicates.txt* - present only if the dataset contains duplicate sequences between classes. It contains a list of all the duplicate sequences.
 
 If you trigger also reports for individual classes of the dataset (by providing format for the `seq_report_types` parameter or by running directly our `evaluate_sequences` tool), the output folder will contain descriptive report of the selected dataset part.  
