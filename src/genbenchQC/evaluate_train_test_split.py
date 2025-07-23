@@ -74,7 +74,7 @@ def run(train_files, test_files, input_format, out_folder, sequence_column, repo
     sequence_clusters = process_mixed_clusters(clusters, train_sequences, test_sequences)
     logging.debug(f"Transformed cluster sequence IDs to sequences: {sequence_clusters}")
 
-    filename = Path(train_files[0]).stem + "_vs_" + Path(test_files[0]).stem + "_train-test_check"
+    filename =  "train-test_check_" + Path(train_files[0]).stem + "_vs_" + Path(test_files[0]).stem
     if 'json' in report_types:
         json_report_path = Path(out_folder, filename + '_report.json')
         generate_json_report({"mixed train-test clusters": sequence_clusters}, json_report_path)

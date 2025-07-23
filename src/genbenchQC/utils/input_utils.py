@@ -42,7 +42,8 @@ def read_sequences_from_df(df, seq_column, label_column=None, label=None):
     return df_parsed[seq_column].tolist()
 
 def read_multisequence_df(df, seq_columns, label_column=None, label=None):
-    logging.debug(f"Concatenating sequences from multiple columns: {label_column}")
+    if len(seq_columns) > 1:
+        logging.debug(f"Concatenating sequences from multiple columns: {seq_columns}")
     all_sequences = [read_sequences_from_df(df, seq_column, label_column, label) for seq_column in seq_columns]
     concatenated_sequences = [''.join(seqs) for seqs in zip(*all_sequences)]
     return concatenated_sequences
