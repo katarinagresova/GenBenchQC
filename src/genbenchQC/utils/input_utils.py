@@ -7,8 +7,12 @@ def read_fasta(fasta_file):
     logging.debug(f"Reading FASTA file: {fasta_file}")
     return [str(record.seq).upper() for record in SeqIO.parse(fasta_file, 'fasta')]
 
-def write_fasta(sequences, output_file):
-    records = [SeqRecord.SeqRecord(Seq.Seq(seq), id=f'seq_{i}') for i, seq in enumerate(sequences)]
+def write_fasta(sequences, output_file, indices=None):
+    if indices is None:
+        records = [SeqRecord.SeqRecord(Seq.Seq(seq), id=f'seq_{i}', description="") for i, seq in enumerate(sequences)]
+    else:
+        records = [SeqRecord.SeqRecord(Seq.Seq(sequences[i]), id=f'seq_{indices[i]}', description="") for i in range(len(sequences))]
+    logging.debug(f"Writing FASTA file: {output_file} with {len(sequences)} sequences")
     SeqIO.write(records, output_file, 'fasta')
 
 def read_csv_file(file_path, input_format, seq_columns, label_columns=None):
@@ -38,7 +42,8 @@ def read_sequences_from_df(df, seq_column, label_column=None, label=None):
     return df_parsed[seq_column].tolist()
 
 def read_multisequence_df(df, seq_columns, label_column=None, label=None):
-    logging.debug(f"Concatenating sequences from multiple columns: {label_column}")
+    if len(seq_columns) > 1:
+        logging.debug(f"Concatenating sequences from multiple columns: {seq_columns}")
     all_sequences = [read_sequences_from_df(df, seq_column, label_column, label) for seq_column in seq_columns]
     concatenated_sequences = [''.join(seqs) for seqs in zip(*all_sequences)]
     return concatenated_sequences
@@ -69,7 +74,7 @@ def setup_logger(level=logging.INFO, file=None):
 
 
 def write_stats_json(stats, stats_json_file):
-    
+
     stats_dict = {}
     for key, value in stats.items():
         if isinstance(value, pd.DataFrame):
@@ -79,3 +84,16 @@ def write_stats_json(stats, stats_json_file):
 
     with open(stats_json_file, 'w') as file:
         json.dump(stats_dict, file, indent=4)
+
+def read_files_to_sequence_list(files, input_format, sequence_column):
+    sequences = []
+    for file in files:
+        if input_format == 'fasta':
+            sequences += read_fasta(file)
+        elif input_format in ['csv', 'tsv']:
+            df = read_csv_file(file, input_format, sequence_column)
+            sequences += read_multisequence_df(df, sequence_column)
+        else:
+            logging.error(f"Unsupported input format: {input_format}")
+            raise ValueError(f"Unsupported input format: {input_format}")
+    return sequences

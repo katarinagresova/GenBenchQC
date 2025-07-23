@@ -31,6 +31,7 @@ setup(
       [console_scripts]
       evaluate_sequences=genbenchQC.evaluate_sequences:main
       evaluate_dataset=genbenchQC.evaluate_dataset:main
+      evaluate_train_test_split=genbenchQC.evaluate_train_test_split:main
       ''',
     keywords=["genomic benchmarks", "deep learning", "machine learning",
       "computational biology", "bioinformatics", "genomics", "quality control"],
