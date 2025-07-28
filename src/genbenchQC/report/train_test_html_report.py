@@ -106,11 +106,15 @@ def get_train_test_html_template(clusters, filename_train, sequences_train, file
     html_template = html_template.replace("{{number_of_sequences_train}}", str(len(sequences_train)))
     html_template = html_template.replace("{{number_of_sequences_test}}", str(len(sequences_test)))
 
+    cluster_blocks = []
 
     if not clusters:
         return html_template.replace("{{clusters}}", "<h2>No similar sequences found.</h2>")
 
-    cluster_blocks = []
+    if len(clusters) > 50:
+        html_message = f"<b>Note:</b> There are too many clusters to display ({len(clusters)} clusters). Showing only the first 50 clusters. If you want to access all the clusters, toggle 'json' format and refer to the json report.  <br><br/>"
+        cluster_blocks.append(html_message)
+        clusters = clusters[:50]
 
     for cluster in clusters:
         cluster_html = f"""
