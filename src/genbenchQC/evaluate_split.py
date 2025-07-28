@@ -8,25 +8,21 @@ from cdhit_reader import read_cdhit
 from genbenchQC.report.report_generator import generate_json_report, generate_train_test_html_report
 from genbenchQC.utils.input_utils import setup_logger, read_files_to_sequence_list, write_fasta
 
-def run_clustering(fasta_file, clustered_file):
+def run_clustering(train_fasta_file, test_fasta_file, clustered_file):
     logging.info("Running CD-HIT clustering.")
     # clustering at similarity of 95% with 80% alignment coverage
-    os.system(f"cd-hit-est -i {fasta_file} -o {clustered_file} -c 0.95 -n 10 -aS 0.8 -aL 0.8")
+    os.system(f"cd-hit-est-2d -i {train_fasta_file} -i2 {test_fasta_file} -o {clustered_file} -c 0.95 -n 10 -aS 0.8 -aL 0.8")
     clusters = read_cdhit(f"{clustered_file}.clstr").read_items()
     logging.debug(f"CD-HIT clustering completed. {len(clusters)} clusters found.")
 
-    # Collect clusters with >1 sequence and mixed train/test entries
+    # Collect clusters with >1 sequence
     mixed_clusters = []
 
     for cluster in clusters:
         if len(cluster.sequences) == 1:
             continue
         seq_ids = [seq.name for seq in cluster.sequences]
-        has_train = any("_train" in seq_id for seq_id in seq_ids)
-        has_test = any("_test" in seq_id for seq_id in seq_ids)
-
-        if has_train and has_test:
-            mixed_clusters.append(seq_ids)
+        mixed_clusters.append(seq_ids)
     return mixed_clusters
 
 def process_mixed_clusters(clusters, train_sequences, test_sequences):
@@ -63,12 +59,12 @@ def run(train_files, test_files, input_format, out_folder, sequence_column, repo
     test_index = [f"{i}_test" for i in range(len(test_sequences))]
     logging.info(f"Read {len(test_sequences)} sequences from testing files.")
 
-    sequences = train_sequences + test_sequences
-    index = train_index + test_index
-    merged_fasta_path = Path(out_folder, "tmp") / 'train_test_sequences.fasta'
-    write_fasta(sequences, merged_fasta_path, index)
+    train_fasta_path = Path(out_folder, "tmp") / 'train_sequences.fasta'
+    write_fasta(train_sequences, train_fasta_path, train_index)
+    test_fasta_path = Path(out_folder, "tmp") / 'test_sequences.fasta'
+    write_fasta(test_sequences, test_fasta_path, test_index)
 
-    clusters = run_clustering(merged_fasta_path, Path(out_folder, "tmp/clustered_sequences"))
+    clusters = run_clustering(train_fasta_path, test_fasta_path, Path(out_folder, "tmp/clustered_sequences"))
     logging.debug(f"Having {len(clusters)} mixed clusters: {clusters}")
 
     sequence_clusters = process_mixed_clusters(clusters, train_sequences, test_sequences)
