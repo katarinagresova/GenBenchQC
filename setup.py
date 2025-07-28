@@ -6,7 +6,9 @@ requirements = [
     'matplotlib>=3.6',
     'seaborn>=0.12',
     'biopython>=1.8',
-    'scikit-learn>=1.2'
+    'scikit-learn>=1.2',
+    'cd-hit>=4.8',
+    'cdhit-reader=0.2.0'
 ]
 
 test_requirements = [
@@ -31,7 +33,7 @@ setup(
       [console_scripts]
       evaluate_sequences=genbenchQC.evaluate_sequences:main
       evaluate_dataset=genbenchQC.evaluate_dataset:main
-      evaluate_train_test_split=genbenchQC.evaluate_train_test_split:main
+      evaluate_split=genbenchQC.evaluate_split:main
       ''',
     keywords=["genomic benchmarks", "deep learning", "machine learning",
       "computational biology", "bioinformatics", "genomics", "quality control"],

@@ -12,3 +12,5 @@ dependencies:
   - matplotlib>=3.6
   - scikit-learn>=1.2
   - cd-hit>=4.8
+pip:
+  - cdhit-reader=0.2.0

@@ -115,8 +115,8 @@ options:
 ### Train-test split evaluator
 
 ```bash
-evaluate_train_test_split -h
-usage: evaluate_train_test_split [-h] --train_input TRAIN_INPUT [TRAIN_INPUT ...]
+evaluate_split -h
+usage: evaluate_split [-h] --train_input TRAIN_INPUT [TRAIN_INPUT ...]
                                   --test_input TEST_INPUT [TEST_INPUT ...] 
                                   --format {fasta,csv,tsv}
                                  [--sequence_column SEQUENCE_COLUMN [SEQUENCE_COLUMN ...]] 
@@ -185,8 +185,9 @@ evaluate_dataset.run(
 ### Train-test split evaluator
 
 ```python
-from genbenchQC import evaluate_train_test_split
-evaluate_train_test_split.run(
+from genbenchQC import evaluate_split
+
+evaluate_split.run(
   TRAIN_INPUT_PATHS_LIST, 
   TEST_INPUT_PATHS_LIST, 
   FILE_FORMAT, 
@@ -201,7 +202,7 @@ evaluate_train_test_split.run(
 
 The tool proved three modes of running while checking for different things in the datasets. **evaluate_sequences** is used for generating report for a dataset (or its part) as one part and it counts some basic statistics with plots.
 **evaluate_dataset** is used for evaluating datasets containing multiple classes and comparing, if different features of the sequences are similar across the different classes.
-Finally, **evaluate_train_test_split** is used for checking data leakage between train-test splits.
+Finally, **evaluate_split** is used for checking data leakage between train-test splits.
 
 You can choose to run the tool while having different dataset formats:
 - **FASTA**: The input is a FASTA file / list of FASTA files. One file needs to contain sequences of one class if running *evaluate_sequences* mode.
@@ -210,7 +211,7 @@ You can choose to run the tool while having different dataset formats:
   - **one file** containing sequences from multiple classes. In this case, when running *evaluate_sequences* mode, you need to provide the name of the column containing class labels so the tool can split the dataset into parts. The label classes can then be inferred, or you can specify their list by yourself. The dataset will then be split into pieces containing sequences with corresponding labels and analysis will be performed similarly as with multiple files.
 
 When having CSV/TSV input, you can also decide to provide multiple sequence columns to analyze. In this case, the analysis in modes *evaluate_sequences* and *evaluate_dataset* will be performed for each column separately and lastly for sequences made by concatenating sequences throughout all the columns. 
-*evaluate_train_test_split* mode will run only the concatenated sequences.
+*evaluate_split* mode will run only the concatenated sequences.
 
 ### Examples of running:
 
@@ -256,7 +257,7 @@ If you trigger also reports for individual classes of the dataset (by providing 
 #### Train-test split evaluation
 
 ```bash
-evaluate_train_test_split --train_input example_datasets/enhancers_train.csv --test_input example_datasets/enhancers_test.csv --format csv --out_folder example_outputs/enhancers_dataset --sequence_column sequence
+evaluate_split --train_input example_datasets/enhancers_train.csv --test_input example_datasets/enhancers_test.csv --format csv --out_folder example_outputs/enhancers_dataset --sequence_column sequence
 ```
 
 **Outputs**
