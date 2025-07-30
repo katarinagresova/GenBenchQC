@@ -8,10 +8,26 @@ from cdhit_reader import read_cdhit
 from genbenchQC.report.report_generator import generate_json_report, generate_train_test_html_report
 from genbenchQC.utils.input_utils import setup_logger, read_files_to_sequence_list, write_fasta
 
-def run_clustering(train_fasta_file, test_fasta_file, clustered_file):
+def run_clustering(train_fasta_file, test_fasta_file, clustered_file, identity_threshold=0.95, alignment_coverage=0.8):
     logging.info("Running CD-HIT clustering.")
-    # clustering at similarity of 95% with 80% alignment coverage
-    os.system(f"cd-hit-est-2d -i {train_fasta_file} -i2 {test_fasta_file} -o {clustered_file} -c 0.95 -n 10 -aS 0.8 -aL 0.8 -r 0")
+
+    # Choose the word size for cd-hit based on the identity threshold
+    if identity_threshold > 0.90:
+        n = 10
+    elif identity_threshold > 0.88:
+        n = 7
+    elif identity_threshold > 0.85:
+        n = 6
+    elif identity_threshold > 0.80:
+        n = 5
+    elif identity_threshold > 0.75:
+        n = 4
+    elif identity_threshold > 0.5:
+        n = 3
+    else:
+        n = 2
+
+    os.system(f"cd-hit-est-2d -i {train_fasta_file} -i2 {test_fasta_file} -o {clustered_file} -c {identity_threshold} -n {n} -aS {alignment_coverage} -aL {alignment_coverage} -r 0")
     clusters = read_cdhit(f"{clustered_file}.clstr").read_items()
     logging.debug(f"CD-HIT clustering completed. {len(clusters)} clusters found.")
 
@@ -41,7 +57,7 @@ def process_mixed_clusters(clusters, train_sequences, test_sequences):
 
     return sequence_clusters
 
-def run(train_files, test_files, input_format, out_folder, sequence_column, report_types):
+def run(train_files, test_files, input_format, out_folder, sequence_column, report_types, identity_threshold=0.95, alignment_coverage=0.8):
 
     logging.info("Starting train-test split evaluation.")
 
@@ -64,7 +80,7 @@ def run(train_files, test_files, input_format, out_folder, sequence_column, repo
     test_fasta_path = Path(out_folder, "tmp") / 'test_sequences.fasta'
     write_fasta(test_sequences, test_fasta_path, test_index)
 
-    clusters = run_clustering(train_fasta_path, test_fasta_path, Path(out_folder, "tmp/clustered_sequences"))
+    clusters = run_clustering(train_fasta_path, test_fasta_path, Path(out_folder, "tmp/clustered_sequences"), identity_threshold, alignment_coverage)
     logging.debug(f"Having {len(clusters)} mixed clusters: {clusters}")
 
     sequence_clusters = process_mixed_clusters(clusters, train_sequences, test_sequences)
@@ -99,6 +115,8 @@ def parse_args():
                         help='Types of reports to generate. Default: [html]', default=['html'])
     parser.add_argument('--log_level', type=str, help='Logging level, default to INFO.', choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'], default='INFO')
     parser.add_argument('--log_file', type=str, help='Path to the log file.', default=None)
+    parser.add_argument('--identity_threshold', type=float, help='Identity threshold for clustering. Default: 0.95', default=0.95)
+    parser.add_argument('--alignment_coverage', type=float, help='Alignment coverage for clustering. Default: 0.8', default=0.8)
     args = parser.parse_args()
 
     return args
@@ -106,7 +124,7 @@ def parse_args():
 def main():
     args = parse_args()
     setup_logger(args.log_level, args.log_file)
-    run(args.train_input, args.test_input, args.format, args.out_folder, args.sequence_column, args.report_types)
+    run(args.train_input, args.test_input, args.format, args.out_folder, args.sequence_column, args.report_types, args.identity_threshold, args.alignment_coverage)
 
 if __name__ == '__main__':
     main()
