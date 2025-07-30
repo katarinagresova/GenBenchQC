@@ -17,6 +17,12 @@ Install Genomic Benchmarks QC using pip:
 pip install git+https://github.com/katarinagresova/GenBenchQC.git
 ```
 
+One of the modes of running GenBenchQC (`evaluate_split`) requires additional dependency for clustering - [cd-hit](https://www.bioinformatics.org/cd-hit/cd-hit-user-guide). If you plan to run this mode, please install cd-hit as well either through conda:
+```bash
+conda install -c bioconda cd-hit
+```
+or follow the official [installation instructions](https://github.com/weizhongli/cdhit/wiki/2.-Installation).
+
 ## Running as command line tools
 
 ### Sequence evaluator
@@ -142,6 +148,10 @@ options:
   --log_level {DEBUG,INFO,WARNING,ERROR,CRITICAL}
                         Logging level, default to INFO.
   --log_file LOG_FILE   Path to the log file.
+  --identity_threshold IDENTITY_THRESHOLD
+                        Identity threshold for clustering. Default: 0.95
+  --alignment_coverage ALIGNMENT_COVERAGE
+                        Alignment coverage for clustering. Default: 0.8
 ```
 
 ## Running from Python
@@ -193,7 +203,9 @@ evaluate_split.run(
   FILE_FORMAT, 
   OUT_FOLDER,
   SEQUENCE_COLUMN_LIST, 
-  REPORT_TYPES)
+  REPORT_TYPES,
+  IDENTITY_THRESHOLD,
+  ALIGNMENT_COVERAGE)
 ```
 
 ## Description
