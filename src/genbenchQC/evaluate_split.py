@@ -11,7 +11,7 @@ from genbenchQC.utils.input_utils import setup_logger, read_files_to_sequence_li
 def run_clustering(train_fasta_file, test_fasta_file, clustered_file):
     logging.info("Running CD-HIT clustering.")
     # clustering at similarity of 95% with 80% alignment coverage
-    os.system(f"cd-hit-est-2d -i {train_fasta_file} -i2 {test_fasta_file} -o {clustered_file} -c 0.95 -n 10 -aS 0.8 -aL 0.8")
+    os.system(f"cd-hit-est-2d -i {train_fasta_file} -i2 {test_fasta_file} -o {clustered_file} -c 0.95 -n 10 -aS 0.8 -aL 0.8 -r 0")
     clusters = read_cdhit(f"{clustered_file}.clstr").read_items()
     logging.debug(f"CD-HIT clustering completed. {len(clusters)} clusters found.")
 
