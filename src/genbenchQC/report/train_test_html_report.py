@@ -82,12 +82,15 @@ HTML_TEMPLATE = """
             <h2>Basic Descriptive Statistics</h2>
             <div class="data-item"><span>Train set filename:</span> {{train_filename}}</div>
             <div class="data-item"><span>Number of sequences in train set:</span> {{number_of_sequences_train}}</div>
+            <div class="data-item"><span>Number of train sequences overlapping with test set:</span> {{train_overlap}}</div>
             <div class="data-item"><span>Test set filename:</span> {{test_filename}}</div>
             <div class="data-item"><span>Number of sequences in test set:</span> {{number_of_sequences_test}}</div>
+            <div class="data-item"><span>Number of test sequences overlapping with train set:</span> {{test_overlap}}</div>
         </section>
 
         <section id="clusters-section">
             <h2>Clusters of Similar Sequences</h2>
+            <p>Clustering was done using cd-hit est-2d with identity threshold of {{identity_threshold}} and sequence alignment coverage of {{alignment_coverage}}.</p>
             {{clusters}}
         </section>
 
@@ -97,7 +100,7 @@ HTML_TEMPLATE = """
 </html>
 """
 
-def get_train_test_html_template(clusters, filename_train, sequences_train, filename_test, sequences_test):
+def get_train_test_html_template(clusters, filename_train, sequences_train, filename_test, sequences_test, identity_threshold, alignment_coverage):
 
     html_template = HTML_TEMPLATE
 
@@ -105,6 +108,12 @@ def get_train_test_html_template(clusters, filename_train, sequences_train, file
     html_template = html_template.replace("{{test_filename}}", str(filename_test))
     html_template = html_template.replace("{{number_of_sequences_train}}", str(len(sequences_train)))
     html_template = html_template.replace("{{number_of_sequences_test}}", str(len(sequences_test)))
+    train_overlap = sum(len(cluster.get('train', [])) for cluster in clusters)
+    test_overlap = sum(len(cluster.get('test', [])) for cluster in clusters)
+    html_template = html_template.replace("{{train_overlap}}", str(train_overlap))
+    html_template = html_template.replace("{{test_overlap}}", str(test_overlap))
+    html_template = html_template.replace("{{identity_threshold}}", str(identity_threshold))
+    html_template = html_template.replace("{{alignment_coverage}}", str(alignment_coverage))
 
     if not clusters:
         return html_template.replace("{{clusters}}", "<h2>No similar sequences found.</h2>")

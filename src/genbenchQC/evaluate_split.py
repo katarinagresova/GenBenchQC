@@ -101,7 +101,7 @@ def run(train_files, test_files, input_format, out_folder, sequence_column, repo
         train_filenames = ",".join([Path(f).name for f in train_files])
         test_filenames = ",".join([Path(f).name for f in test_files])
         html_report_path = Path(out_folder, filename + '_report.html')
-        generate_train_test_html_report(sequence_clusters, train_filenames, train_sequences, test_filenames, test_sequences, html_report_path)
+        generate_train_test_html_report(sequence_clusters, train_filenames, train_sequences, test_filenames, test_sequences, html_report_path, identity_threshold, alignment_coverage)
 
     # Clean up temporary files
     logging.debug("Removing temporary files.")
