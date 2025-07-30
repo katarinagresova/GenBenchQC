@@ -5,7 +5,7 @@ import os
 import shutil
 from cdhit_reader import read_cdhit
 
-from genbenchQC.report.report_generator import generate_json_report, generate_train_test_html_report
+from genbenchQC.report.report_generator import generate_json_report, generate_train_test_html_report, generate_simple_report
 from genbenchQC.utils.input_utils import setup_logger, read_files_to_sequence_list, write_fasta
 
 def run_clustering(train_fasta_file, test_fasta_file, clustered_file, identity_threshold=0.95, alignment_coverage=0.8):
@@ -83,10 +83,17 @@ def run(train_files, test_files, input_format, out_folder, sequence_column, repo
     clusters = run_clustering(train_fasta_path, test_fasta_path, Path(out_folder, "tmp/clustered_sequences"), identity_threshold, alignment_coverage)
     logging.debug(f"Having {len(clusters)} mixed clusters: {clusters}")
 
-    sequence_clusters = process_mixed_clusters(clusters, train_sequences, test_sequences)
-    logging.debug(f"Transformed cluster sequence IDs to sequences: {sequence_clusters}")
+    filename = "train-test_check_" + Path(train_files[0]).stem + "_vs_" + Path(test_files[0]).stem
 
-    filename =  "train-test_check_" + Path(train_files[0]).stem + "_vs_" + Path(test_files[0]).stem
+    if 'simple' in report_types:
+        simple_report_path = Path(out_folder, filename + '.csv')
+        result = {"Mixed train-test clusters": (None, True) if not clusters else (None, False)}
+        generate_simple_report(result, simple_report_path)
+
+    if 'json' in report_types or 'html' in report_types:
+        sequence_clusters = process_mixed_clusters(clusters, train_sequences, test_sequences)
+        logging.debug(f"Transformed cluster sequence IDs to sequences: {sequence_clusters}")
+
     if 'json' in report_types:
         json_report_path = Path(out_folder, filename + '_report.json')
         generate_json_report({"mixed train-test clusters": sequence_clusters}, json_report_path)
@@ -111,7 +118,7 @@ def parse_args():
     parser.add_argument('--sequence_column', type=str, help='Name of the columns with sequences to analyze for datasets in CSV/TSV format. '
                                                             'Either one column or list of columns.', nargs='+', default=['sequence'])
     parser.add_argument('--out_folder', type=str, help='Path to the output folder.', default='.')
-    parser.add_argument('--report_types', type=str, nargs='+', choices=['json', 'html'],
+    parser.add_argument('--report_types', type=str, nargs='+', choices=['json', 'html', 'simple'],
                         help='Types of reports to generate. Default: [html]', default=['html'])
     parser.add_argument('--log_level', type=str, help='Logging level, default to INFO.', choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'], default='INFO')
     parser.add_argument('--log_file', type=str, help='Path to the log file.', default=None)
