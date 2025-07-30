@@ -106,26 +106,38 @@ def get_train_test_html_template(clusters, filename_train, sequences_train, file
     html_template = html_template.replace("{{number_of_sequences_train}}", str(len(sequences_train)))
     html_template = html_template.replace("{{number_of_sequences_test}}", str(len(sequences_test)))
 
-    cluster_blocks = []
-
     if not clusters:
         return html_template.replace("{{clusters}}", "<h2>No similar sequences found.</h2>")
 
-    if len(clusters) > 50:
-        html_message = f"<b>Note:</b> There are too many clusters to display ({len(clusters)} clusters). Showing only the first 50 clusters. If you want to access all the clusters, toggle 'json' format and refer to the json report.  <br><br/>"
-        cluster_blocks.append(html_message)
-        clusters = clusters[:50]
+    cluster_blocks = []
+    max_seq_display = 1000
+    n_sequences = 0
 
     for cluster in clusters:
+        train_sequences = cluster.get('train', [])
+        test_sequences = cluster.get('test', [])
+        if n_sequences + len(train_sequences) > max_seq_display:
+            n_sequences += len(train_sequences)
+            train_sequences = train_sequences[:2] + ["..."] if len(train_sequences) > 2 else train_sequences
+            test_sequences = test_sequences[:2] + ["..."] if len(test_sequences) > 2 else test_sequences
+        elif n_sequences + len(test_sequences) > max_seq_display:
+            n_sequences += len(train_sequences) + len(test_sequences)
+            test_sequences = test_sequences[:2] + ["..."] if len(test_sequences) > 2 else test_sequences
+        else:
+            n_sequences += len(train_sequences) + len(test_sequences)
+
         cluster_html = f"""
         <div class="cluster">
             <h2>Cluster #{cluster['cluster']}</h2>
             <div class="section-title">Train Sequences:</div>
-            <pre>{chr(10).join(cluster.get('train', []))}</pre>
+            <pre>{chr(10).join(train_sequences)}</pre>
             <div class="section-title">Test Sequences:</div>
-            <pre>{chr(10).join(cluster.get('test', []))}</pre>
+            <pre>{chr(10).join(test_sequences)}</pre>
         </div>
         """
         cluster_blocks.append(cluster_html)
+        if n_sequences >= max_seq_display:
+            cluster_blocks = [f"<b>Note:</b> There are too many clusters to display ({len(clusters)} clusters). Showing only part of the sequences. If you want to access all the clusters, toggle 'json' format and refer to the json report.  <br><br/>"] + cluster_blocks
+            break
 
     return html_template.replace("{{clusters}}", "\n".join(cluster_blocks))
