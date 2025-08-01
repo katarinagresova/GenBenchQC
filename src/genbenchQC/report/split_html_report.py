@@ -129,7 +129,7 @@ def get_train_test_html_template(clusters, filename_train, sequences_train, file
             n_sequences += len(train_sequences)
             train_sequences = train_sequences[:2] + ["..."] if len(train_sequences) > 2 else train_sequences
             test_sequences = test_sequences[:2] + ["..."] if len(test_sequences) > 2 else test_sequences
-        elif n_sequences + len(test_sequences) > max_seq_display:
+        elif n_sequences + len(train_sequences) + len(test_sequences) > max_seq_display:
             n_sequences += len(train_sequences) + len(test_sequences)
             test_sequences = test_sequences[:2] + ["..."] if len(test_sequences) > 2 else test_sequences
         else:

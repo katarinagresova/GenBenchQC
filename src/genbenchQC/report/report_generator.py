@@ -9,7 +9,7 @@ import logging
 
 from genbenchQC.report.sequence_html_report import get_sequence_html_template
 from genbenchQC.report.dataset_html_report import get_dataset_html_template
-from genbenchQC.report.train_test_html_report import get_train_test_html_template
+from genbenchQC.report.split_html_report import get_train_test_html_template
 from genbenchQC.utils.input_utils import write_stats_json
 from genbenchQC.report import dataset_plots
 from genbenchQC.report import sequences_plots

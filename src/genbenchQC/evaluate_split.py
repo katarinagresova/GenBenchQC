@@ -87,7 +87,7 @@ def run(train_files, test_files, input_format, out_folder, sequence_column, repo
 
     if 'simple' in report_types:
         simple_report_path = Path(out_folder, filename + '.csv')
-        result = {"Mixed train-test clusters": (None, True) if not clusters else (None, False)}
+        result = {"Data leakage": (None, True) if not clusters else (None, False)}
         generate_simple_report(result, simple_report_path)
 
     if 'json' in report_types or 'html' in report_types:
