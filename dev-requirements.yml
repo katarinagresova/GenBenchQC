@@ -11,3 +11,7 @@ dependencies:
   - seaborn>=0.12
   - matplotlib>=3.6
   - scikit-learn>=1.2
+  - cd-hit>=4.8
+  - pip
+  - pip:
+    - cdhit-reader==0.2.0

@@ -1,5 +1,14 @@
 # Genomic Benchmarks QC: Automated Quality Control for Genomic Machine Learning Datasets
 
+# Table of Contents
+- [Installation](#installation)
+- [Running as command line tools](#running-as-command-line-tools)
+- [Running from Python](#running-from-python)
+- [Description](#description)
+  - [Examples of running](#examples-of-running)
+- [Development](#development)
+- [License](#license)
+
 ## Installation
 
 Install Genomic Benchmarks QC using pip:
@@ -7,6 +16,12 @@ Install Genomic Benchmarks QC using pip:
 ```bash
 pip install git+https://github.com/katarinagresova/GenBenchQC.git
 ```
+
+One of the modes of running GenBenchQC (`evaluate_split`) requires additional dependency for clustering - [cd-hit](https://www.bioinformatics.org/cd-hit/cd-hit-user-guide). If you plan to run this mode, please install cd-hit as well either through conda:
+```bash
+conda install -c bioconda cd-hit
+```
+or follow the official [installation instructions](https://github.com/weizhongli/cdhit/wiki/2.-Installation).
 
 ## Running as command line tools
 
@@ -103,6 +118,42 @@ options:
   --log_file LOG_FILE   Path to the log file.
 ```
 
+### Train-test split evaluator
+
+```bash
+evaluate_split -h
+usage: evaluate_split [-h] --train_input TRAIN_INPUT [TRAIN_INPUT ...]
+                                  --test_input TEST_INPUT [TEST_INPUT ...] 
+                                  --format {fasta,csv,tsv}
+                                 [--sequence_column SEQUENCE_COLUMN [SEQUENCE_COLUMN ...]] 
+                                 [--out_folder OUT_FOLDER] [--report_types REPORT_TYPES [REPORT_TYPES ...]]
+                                 [--log_level {DEBUG,INFO,WARNING,ERROR,CRITICAL}] [--log_file LOG_FILE]
+
+Check data leakage in dataset train-test split.
+
+options:
+  -h, --help            show this help message and exit
+  --train_input TRAIN_INPUT [TRAIN_INPUT ...]
+                        Path to the dataset file with training data. Can be multiple files that will be evaluated as one dataset part.
+  --test_input TEST_INPUT [TEST_INPUT ...]
+                        Path to the dataset file with testing data. Can be multiple files that will be evaluated as one dataset part.
+  --format {fasta,csv,tsv}
+                        Format of the input files.
+  --sequence_column SEQUENCE_COLUMN [SEQUENCE_COLUMN ...]
+                        Name of the columns with sequences to analyze for datasets in CSV/TSV format. Either one column or list of columns.
+  --out_folder OUT_FOLDER
+                        Path to the output folder.
+  --report_types {json,html} [{json,html} ...]
+                        Types of reports to generate. Default: [html]
+  --log_level {DEBUG,INFO,WARNING,ERROR,CRITICAL}
+                        Logging level, default to INFO.
+  --log_file LOG_FILE   Path to the log file.
+  --identity_threshold IDENTITY_THRESHOLD
+                        Identity threshold for clustering. Default: 0.95
+  --alignment_coverage ALIGNMENT_COVERAGE
+                        Alignment coverage for clustering. Default: 0.8
+```
+
 ## Running from Python
 
 ### Sequence evaluator
@@ -119,9 +170,7 @@ evaluate_sequences.run(
   LABEL,
   REPORT_TYPES,
   END_POSITION,
-  PLOT_TYPE,
-  LOG_LEVEL,
-  LOG_FILE)
+  PLOT_TYPE)
 ```
 
 ### Dataset evaluator
@@ -140,22 +189,41 @@ evaluate_dataset.run(
   REPORT_TYPES,
   SEQ_REPORT_TYPES,
   END_POSITION,
-  PLOT_TYPE,
-  LOG_LEVEL,
-  LOG_FILE)
+  PLOT_TYPE)
+```
+
+### Train-test split evaluator
+
+```python
+from genbenchQC import evaluate_split
+
+evaluate_split.run(
+  TRAIN_INPUT_PATHS_LIST, 
+  TEST_INPUT_PATHS_LIST, 
+  FILE_FORMAT, 
+  OUT_FOLDER,
+  SEQUENCE_COLUMN_LIST, 
+  REPORT_TYPES,
+  IDENTITY_THRESHOLD,
+  ALIGNMENT_COVERAGE)
 ```
 
 ## Description
 
 **GenBenchQC** can be run in two ways: via command line or from Python. Both ways require the same input parameters and perform the same logic.
 
+The tool proved three modes of running while checking for different things in the datasets. **evaluate_sequences** is used for generating report for a dataset (or its part) as one part and it counts some basic statistics with plots.
+**evaluate_dataset** is used for evaluating datasets containing multiple classes and comparing, if different features of the sequences are similar across the different classes.
+Finally, **evaluate_split** is used for checking data leakage between train-test splits.
+
 You can choose to run the tool while having different dataset formats:
-- **FASTA**: The input is a FASTA file / list of FASTA files. One file needs to contain sequences of one class.
+- **FASTA**: The input is a FASTA file / list of FASTA files. One file needs to contain sequences of one class if running *evaluate_sequences* mode.
 - **CSV/TSV**: The input is a CSV/TSV file, and you provide the name of the column containing sequences. You can have either:
   - **multiple files**, each one containing sequences from one class (similar as with FASTA input)
-  - **one file** containing sequences from multiple classes. In this case, you need to provide the name of the column containing class labels. The label classes can then be inferred, or you can specify their list by yourself. The dataset will then be split into pieces containing sequences with corresponding labels and analysis will be performed similarly as with multiple files.
+  - **one file** containing sequences from multiple classes. In this case, when running *evaluate_sequences* mode, you need to provide the name of the column containing class labels so the tool can split the dataset into parts. The label classes can then be inferred, or you can specify their list by yourself. The dataset will then be split into pieces containing sequences with corresponding labels and analysis will be performed similarly as with multiple files.
 
-When having CSV/TSV input, you can also decide to provide multiple sequence columns to analyze. In this case, the analysis will be performed for each column separately and lastly for sequences made by concatenating sequences throughout all the columns.
+When having CSV/TSV input, you can also decide to provide multiple sequence columns to analyze. In this case, the analysis in modes *evaluate_sequences* and *evaluate_dataset* will be performed for each column separately and lastly for sequences made by concatenating sequences throughout all the columns. 
+*evaluate_split* mode will run only the concatenated sequences.
 
 ### Examples of running:
 
@@ -167,6 +235,8 @@ cd GenBenchQC
 ```
 
 Then you can run the following commands to evaluate example datasets.
+
+#### Dataset evaluation
 
 ```bash
 evaluate_dataset --input example_datasets/G4_positives.fasta example_datasets/G4_negatives.fasta --format fasta --out_folder example_outputs/G4_dataset
@@ -182,7 +252,7 @@ from genbenchQC import evaluate_dataset
 evaluate_dataset.run(['example_datasets/miRNA_mRNA_pairs_dataset.tsv'], 'tsv', 'example_outputs/miRNA_mRNA_dataset', ['gene', 'noncodingRNA'], 'label', ['0', '1'])
 ```
 
-#### Outputs
+**Outputs**
 
 Running the above commands will create an output folder `example_outputs` containing the results of the evaluation. 
 The output will contain (in the brackets, you can find the specific names when executing with the G4 example dataset):
@@ -194,7 +264,16 @@ Each plot can be toned with red color, meaning the specific feature was too diff
 - *\*_plots (dataset_report_label_G4_positives_vs_G4_negatives_plots)* - folder containing all plots from the report in *.png* format
 - *dataset_report_\*_duplicates.txt* - present only if the dataset contains duplicate sequences between classes. It contains a list of all the duplicate sequences.
 
-If you trigger also reports for individual classes of the dataset (by providing format for the `seq_report_types` parameter or by running directly our `evaluate_sequences` tool), the output folder will contain descriptive report of the selected dataset part.  
+If you trigger also reports for individual classes of the dataset (by providing format for the `seq_report_types` parameter or by running directly our `evaluate_sequences` tool), the output folder will contain descriptive report of the selected dataset part.
+
+#### Train-test split evaluation
+
+```bash
+evaluate_split --train_input example_datasets/enhancers_train.csv --test_input example_datasets/enhancers_test.csv --format csv --out_folder example_outputs/enhancers_dataset --sequence_column sequence
+```
+
+**Outputs**
+- *train_test_check_\*_report.[html, json] (train-test_check_enhancers_train_vs_enhancers_test_report.html)* - report with clusters containing sequences from both train and test dataset parts, that could indicate data leakage.
 
 ## Development
 
