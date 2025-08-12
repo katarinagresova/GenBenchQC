@@ -7,7 +7,8 @@ requirements = [
     'seaborn>=0.12',
     'biopython>=1.8',
     'scikit-learn>=1.2',
-    'cdhit-reader==0.2.0'
+    'cdhit-reader==0.2.0',
+    'statsmodels>=0.13',
 ]
 
 test_requirements = [
