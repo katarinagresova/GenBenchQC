@@ -27,7 +27,18 @@ def run_clustering(train_fasta_file, test_fasta_file, clustered_file, identity_t
     else:
         n = 2
 
-    os.system(f"cd-hit-est-2d -i {train_fasta_file} -i2 {test_fasta_file} -o {clustered_file} -c {identity_threshold} -n {n} -aS {alignment_coverage} -aL {alignment_coverage} -r 0")
+    logging.debug("Running CD-HIT with the following parameters:")
+    logging.debug(f"Input train file: {train_fasta_file}")
+    logging.debug(f"Input test file: {test_fasta_file}")
+    logging.debug(f"Output clustered file: {clustered_file}")
+    logging.debug(f"Identity threshold: {identity_threshold}")
+    logging.debug(f"Word size (n): {n}")
+    logging.debug(f"Alignment coverage: {alignment_coverage}")
+
+    errcode = os.system(f"cd-hit-est-2d -i {train_fasta_file} -i2 {test_fasta_file} -o {clustered_file} -c {identity_threshold} -n {n} -aS {alignment_coverage} -aL {alignment_coverage} -r 0 >nul 2>&1")
+    if errcode != 0:
+        logging.error(f"CD-HIT clustering failed with error code {errcode}.")
+        raise RuntimeError(f"CD-HIT clustering failed with error code {errcode}.")
     clusters = read_cdhit(f"{clustered_file}.clstr").read_items()
     logging.debug(f"CD-HIT clustering completed. {len(clusters)} clusters found.")
 
