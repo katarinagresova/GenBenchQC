@@ -97,6 +97,7 @@ def run(train_files, test_files, input_format,
     @return: None
     """
 
+    setup_logger(log_level, log_file)
     logging.info("Starting train-test split evaluation.")
 
     if not Path(out_folder).exists():
@@ -168,7 +169,6 @@ def parse_args():
 
 def main():
     args = parse_args()
-    setup_logger(args.log_level, args.log_file)
     run(train_files = args.train_input, 
         test_files = args.test_input, 
         input_format = args.format, 
