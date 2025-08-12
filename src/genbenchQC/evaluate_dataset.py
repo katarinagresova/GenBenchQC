@@ -103,7 +103,8 @@ def run(inputs,
     @param regression: If True, label column is considered as a regression target and values are split into 2 classes.
     @param report_types: Types of reports to generate. Default: ['html', 'simple'].
     @param seq_report_types: Types of reports to generate for individual groups of sequences. Default: None.
-    @param end_position: End position of the sequences to consider in per position statistics. Default: None.
+    @param end_position: End position of the sequences to consider in per position statistics. 
+                         If not provided, 75th percentile of sequence lengths will be used. Default: None.
     @param plot_type: Type of plot to use for visualizations. For bigger datasets, "boxen" is recommended. Default: 'boxen'.
     @param log_level: Logging level, default to INFO.
     @param log_file: Path to the log file. If provided, logs will be written to this file as well as to the console.
@@ -212,11 +213,12 @@ def parse_args():
                         help='Types of reports to generate. Default: [html, simple].')
     parser.add_argument('--seq_report_types', type=str, nargs='+', choices=['json', 'html'], default=[],
                         help='Types of reports to generate for individual groups of sequences. Default: [].')
-    parser.add_argument('--end_position', type=int, help='End position of the sequences to consider in per position statistics.', default=None)
+    parser.add_argument('--end_position', type=int, default=None,
+                        help='End position of the sequences to consider in per position statistics. If not provided, 75th percentile of sequence lengths will be used.')
     parser.add_argument('--plot_type', type=str, help='Type of plot to use for visualizations. For bigger datasets, "boxen" in recommended. Default: boxen.',
                         choices=['boxen', 'violin'], default='boxen')
     parser.add_argument('--log_level', type=str, help='Logging level, default to INFO.', choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'], default='INFO')
-    parser.add_argument('--log_file', type=str, help='Path to the log file.', default=None)
+    parser.add_argument('--log_file', type=str, help='Path to the log file. If provided, logs will be written to this file as well as to the console.', default=None)
     args = parser.parse_args()
 
     if args.format == 'fasta' and len(args.input) < 2:

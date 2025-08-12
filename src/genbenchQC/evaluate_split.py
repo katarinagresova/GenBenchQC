@@ -162,7 +162,7 @@ def parse_args():
     parser.add_argument('--identity_threshold', type=float, help='Identity threshold for clustering. Default: 0.95', default=0.95)
     parser.add_argument('--alignment_coverage', type=float, help='Alignment coverage for clustering. Default: 0.8', default=0.8)
     parser.add_argument('--log_level', type=str, help='Logging level, default to INFO.', choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'], default='INFO')
-    parser.add_argument('--log_file', type=str, help='Path to the log file.', default=None)
+    parser.add_argument('--log_file', type=str, help='Path to the log file. If provided, logs will be written to this file as well as to the console.', default=None)
     args = parser.parse_args()
 
     return args

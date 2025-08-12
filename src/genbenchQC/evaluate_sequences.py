@@ -59,7 +59,8 @@ def run(input_file, input_format,
     @param label_column: Name of the label column for datasets in CSV/TSV format. Needed only if you want to select a specific class from the dataset.
     @param label: Label of the class to select from the whole dataset. If not specified, the whole dataset is taken and analyzed as one piece.
     @param report_types: Types of reports to generate. Default: ['html'].
-    @param end_position: End position of the sequences to plot in the per position plots. Default: None.
+    @param end_position: End position of the sequences to plot in the per position plots. 
+                         If not provided, 75th percentile of sequence lengths will be used. Default: None.
     @param plot_type: Type of the plot to generate for per sequence nucleotide content. For bigger datasets, "boxen" is recommended. Default: 'boxen'.
     @param log_level: Logging level, default to INFO.
     @param log_file: Path to the log file. If provided, logs will be written to this file as well as to the console.
@@ -112,12 +113,13 @@ def parse_args():
     parser.add_argument('--out_folder', type=str, help='Path to the output folder.', default='.')
     parser.add_argument('--report_types', type=str, nargs='+', choices=['json', 'html'],
                         help='Types of reports to generate. Default: [html]', default=['html'])
-    parser.add_argument('--end_position', type=int, help='End position of the sequences to plot in the per position plots.', default=None)
+    parser.add_argument('--end_position', type=int, default=None,
+                        help='End position of the sequences to plot in the per position plots. If not provided, 75th percentile of sequence lengths will be used.')
     parser.add_argument('--plot_type', type=str, help='Type of the plot to generate for per sequence nucleotide content. For bigger datasets, "boxen" is recommended. Default: boxen.',
                         choices=['boxen', 'violin'], default='boxen')
     parser.add_argument('--log_level', type=str, help='Logging level, default to INFO.',
                         choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'], default='INFO')
-    parser.add_argument('--log_file', type=str, help='Path to the log file.', default=None)
+    parser.add_argument('--log_file', type=str, help='Path to the log file. If provided, logs will be written to this file as well as to the console.', default=None)
 
     args = parser.parse_args()
 
