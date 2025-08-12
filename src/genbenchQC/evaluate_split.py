@@ -130,7 +130,7 @@ def parse_args():
                                                             'Either one column or list of columns.', nargs='+', default=['sequence'])
     parser.add_argument('--out_folder', type=str, help='Path to the output folder.', default='.')
     parser.add_argument('--report_types', type=str, nargs='+', choices=['json', 'html', 'simple'],
-                        help='Types of reports to generate. Default: [html]', default=['html'])
+                        help='Types of reports to generate. Default: [html]', default=['html', 'simple'])
     parser.add_argument('--log_level', type=str, help='Logging level, default to INFO.', choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'], default='INFO')
     parser.add_argument('--log_file', type=str, help='Path to the log file.', default=None)
     parser.add_argument('--identity_threshold', type=float, help='Identity threshold for clustering. Default: 0.95', default=0.95)
