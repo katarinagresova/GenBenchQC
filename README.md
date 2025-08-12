@@ -58,8 +58,8 @@ The same evaluation would be executed from Python as follows:
 from genbenchQC import evaluate_sequences
 
 evaluate_sequences.run(
-  input_file='example_datasets/G4_positives.fasta', 
-  input_format='fasta',
+  input='example_datasets/G4_positives.fasta', 
+  format='fasta',
   out_folder='example_outputs/G4_dataset_positives'
 )
 ```
@@ -87,8 +87,8 @@ Running from Python with CSV file with multiple sequence columns:
 from genbenchQC import evaluate_dataset
 
 evaluate_dataset.run(
-  inputs=['example_datasets/miRNA_mRNA_pairs_dataset.tsv'], 
-  input_format='tsv', 
+  input=['example_datasets/miRNA_mRNA_pairs_dataset.tsv'], 
+  format='tsv', 
   out_folder='example_outputs/miRNA_mRNA_dataset', 
   sequence_column=['gene', 'noncodingRNA'], 
   label_column='label', 
@@ -128,7 +128,7 @@ from genbenchQC import evaluate_split
 evaluate_split.run(
   train_files=['example_datasets/enhancers_train.csv'],
   test_files=['example_datasets/enhancers_test.csv'],
-  input_format='csv',
+  format='csv',
   sequence_column='sequence',
   out_folder='example_outputs/enhancers_dataset'
 )
