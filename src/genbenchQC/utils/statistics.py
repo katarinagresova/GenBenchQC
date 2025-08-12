@@ -60,7 +60,7 @@ class SequenceStatistics:
             # round to nearest integer
             self.end_position = int(np.round(lengths_75th))
 
-            logging.debug(
+            logging.info(
                 f"End position not provided. Using end position: {self.end_position} for {self.seq_column} comparison. "
                  "This is the 75th percentile of sequence lengths."
             )
@@ -72,7 +72,7 @@ class SequenceStatistics:
                 logging.warning(f"end_position {self.end_position} is greater than the maximum sequence length {max_length}. Setting end_position to {max_length}.")
                 self.end_position = max_length
 
-            logging.debug(f"Using end position: {self.end_position} for {self.seq_column} comparison.")
+            logging.info(f"Using end position: {self.end_position} for {self.seq_column} comparison.")
 
     def _compute_basic_statistics(self):
         self.stats['Filename'] = self.filename
