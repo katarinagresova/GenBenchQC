@@ -84,9 +84,33 @@ def run(inputs,
         report_types: Optional[list[str]] = ['html', 'simple'],
         seq_report_types: Optional[list[str]] = None,
         end_position: Optional[int] = None,
-        plot_type: Optional[str] = 'boxen'
+        plot_type: Optional[str] = 'boxen',
+        log_level: Optional[str] = 'INFO',
+        log_file: Optional[str] = None
     ):
+    """Run the dataset evaluation.
 
+    This function reads sequences from the provided input files, performs analysis, and generates reports about the sequences.
+
+    @param inputs: List of paths to input files. Can be a list of files, each containing sequences from one class.
+    @param input_format: Format of the input files (fasta, csv, tsv).
+    @param out_folder: Path to the output folder. Default: '.'.
+    @param sequence_column: Name of the columns with sequences to analyze for datasets in CSV/TSV format. 
+                            Either one column or list of columns. Default: ['sequences']
+    @param label_column: Name of the label column for datasets in CSV/TSV format. Default: 'label'.
+    @param label_list: List of label classes to consider or "infer" to parse different labels automatically from label column.
+                      For datasets in CSV/TSV format.
+    @param regression: If True, label column is considered as a regression target and values are split into 2 classes.
+    @param report_types: Types of reports to generate. Default: ['html', 'simple'].
+    @param seq_report_types: Types of reports to generate for individual groups of sequences. Default: None.
+    @param end_position: End position of the sequences to consider in per position statistics. Default: None.
+    @param plot_type: Type of plot to use for visualizations. For bigger datasets, "boxen" is recommended. Default: 'boxen'.
+    @param log_level: Logging level, default to INFO.
+    @param log_file: Path to the log file. If provided, logs will be written to this file as well as to the console.
+    @return: None
+    """
+
+    setup_logger(log_level, log_file)
     logging.info("Starting dataset evaluation.")
 
     if not Path(out_folder).exists():
@@ -202,18 +226,19 @@ def parse_args():
 
 def main():
     args = parse_args()
-    setup_logger(args.log_level, args.log_file)
-    run(args.input, 
-        args.format, 
-        args.out_folder, 
-        args.sequence_column, 
-        args.label_column, 
-        args.label_list,
-        args.regression,
-        args.report_types,
-        args.seq_report_types,
-        args.end_position,
-        args.plot_type
+    run(inputs = args.input, 
+        input_format = args.format, 
+        out_folder = args.out_folder, 
+        sequence_column = args.sequence_column, 
+        label_column = args.label_column, 
+        label_list = args.label_list,
+        regression = args.regression,
+        report_types = args.report_types,
+        seq_report_types = args.seq_report_types,
+        end_position = args.end_position,
+        plot_type = args.plot_type,
+        log_level = args.log_level,
+        log_file = args.log_file
     )
 
 if __name__ == '__main__':

@@ -1,6 +1,7 @@
 import argparse
 import logging
 from pathlib import Path
+from typing import Optional
 import os
 import shutil
 from cdhit_reader import read_cdhit
@@ -8,7 +9,7 @@ from cdhit_reader import read_cdhit
 from genbenchQC.report.report_generator import generate_json_report, generate_train_test_html_report, generate_simple_report
 from genbenchQC.utils.input_utils import setup_logger, read_files_to_sequence_list, write_fasta
 
-def run_clustering(train_fasta_file, test_fasta_file, clustered_file, identity_threshold=0.95, alignment_coverage=0.8):
+def run_clustering(train_fasta_file, test_fasta_file, clustered_file, identity_threshold, alignment_coverage):
     logging.info("Running CD-HIT clustering.")
 
     # Choose the word size for cd-hit based on the identity threshold
@@ -68,7 +69,33 @@ def process_mixed_clusters(clusters, train_sequences, test_sequences):
 
     return sequence_clusters
 
-def run(train_files, test_files, input_format, out_folder, sequence_column, report_types, identity_threshold=0.95, alignment_coverage=0.8):
+def run(train_files, test_files, input_format, 
+        out_folder: Optional[str] = '.', 
+        sequence_column: Optional[list[str]] = ['sequence'], 
+        report_types: Optional[list[str]] = ['html', 'simple'], 
+        identity_threshold: Optional[float] = 0.95, 
+        alignment_coverage: Optional[float] = 0.8,
+        log_level: Optional[str] = 'INFO',
+        log_file: Optional[str] = None
+    ):
+    """Run the train-test split evaluation.
+
+    This function reads sequences from the provided training and testing files, performs clustering using CD-HIT, 
+    and generates reports about potential data leakage between the training and testing datasets.
+
+    @param train_files: List of paths to training files.
+    @param test_files: List of paths to testing files.
+    @param input_format: Format of the input files (fasta, csv, tsv).
+    @param out_folder: Path to the output folder. Default: '.'.
+    @param sequence_column: Name of the columns with sequences to analyze for datasets in CSV/TSV format. 
+                            Default: ['sequence'].
+    @param report_types: Types of reports to generate. Default: ['html', 'simple'].
+    @param identity_threshold: Identity threshold for clustering. Default: 0.95.
+    @param alignment_coverage: Alignment coverage for clustering. Default: 0.8.
+    @param log_level: Logging level, default to INFO.
+    @param log_file: Path to the log file. If provided, logs will be written to this file as well as to the console.
+    @return: None
+    """
 
     logging.info("Starting train-test split evaluation.")
 
@@ -131,10 +158,10 @@ def parse_args():
     parser.add_argument('--out_folder', type=str, help='Path to the output folder.', default='.')
     parser.add_argument('--report_types', type=str, nargs='+', choices=['json', 'html', 'simple'],
                         help='Types of reports to generate. Default: [html]', default=['html', 'simple'])
-    parser.add_argument('--log_level', type=str, help='Logging level, default to INFO.', choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'], default='INFO')
-    parser.add_argument('--log_file', type=str, help='Path to the log file.', default=None)
     parser.add_argument('--identity_threshold', type=float, help='Identity threshold for clustering. Default: 0.95', default=0.95)
     parser.add_argument('--alignment_coverage', type=float, help='Alignment coverage for clustering. Default: 0.8', default=0.8)
+    parser.add_argument('--log_level', type=str, help='Logging level, default to INFO.', choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'], default='INFO')
+    parser.add_argument('--log_file', type=str, help='Path to the log file.', default=None)
     args = parser.parse_args()
 
     return args
@@ -142,7 +169,17 @@ def parse_args():
 def main():
     args = parse_args()
     setup_logger(args.log_level, args.log_file)
-    run(args.train_input, args.test_input, args.format, args.out_folder, args.sequence_column, args.report_types, args.identity_threshold, args.alignment_coverage)
+    run(train_files = args.train_input, 
+        test_files = args.test_input, 
+        input_format = args.format, 
+        out_folder = args.out_folder, 
+        sequence_column = args.sequence_column, 
+        report_types = args.report_types, 
+        identity_threshold = args.identity_threshold, 
+        alignment_coverage = args.alignment_coverage,
+        log_level = args.log_level,
+        log_file = args.log_file
+    )
 
 if __name__ == '__main__':
     main()

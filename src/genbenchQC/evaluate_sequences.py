@@ -35,16 +35,38 @@ def run_analysis(seq_stats, out_folder, report_types, plot_type):
             plot_type=plot_type
         )
 
-def run(input_file, 
-        input_format, 
-        out_folder='.', 
+def run(input_file, input_format, 
+        out_folder: Optional[str] = '.', 
         sequence_column: Optional[list[str]] = ['sequences'], 
-        label_column=None, 
+        label_column: Optional[str] = None, 
         label: Optional[str] = None,
         report_types: Optional[list[str]] = ['html'],
         end_position: Optional[int] = None,
-        plot_type: str = 'boxen'):
-    
+        plot_type: Optional[str] = 'boxen',
+        log_level: Optional[str] = 'INFO',
+        log_file: Optional[str] = None
+    ):
+    """
+    Run sequence evaluation on the provided input file.
+
+    This function reads sequences from the input file, performs analysis, and generates reports.
+
+    @param input_file: Path to the input file containing sequences.
+    @param input_format: Format of the input file (fasta, csv, tsv).
+    @param out_folder: Path to the output folder. Default: '.'.
+    @param sequence_column: Name of the columns with sequences to analyze for datasets in CSV/TSV format. 
+                            Default: ['sequence'].
+    @param label_column: Name of the label column for datasets in CSV/TSV format. Needed only if you want to select a specific class from the dataset.
+    @param label: Label of the class to select from the whole dataset. If not specified, the whole dataset is taken and analyzed as one piece.
+    @param report_types: Types of reports to generate. Default: ['html'].
+    @param end_position: End position of the sequences to plot in the per position plots. Default: None.
+    @param plot_type: Type of the plot to generate for per sequence nucleotide content. For bigger datasets, "boxen" is recommended. Default: 'boxen'.
+    @param log_level: Logging level, default to INFO.
+    @param log_file: Path to the log file. If provided, logs will be written to this file as well as to the console.
+    @return: None
+    """
+
+    setup_logger(log_level, log_file)
     logging.info("Starting sequence evaluation.")
 
     if input_format == 'fasta':
@@ -106,16 +128,17 @@ def parse_args():
 
 def main():
     args = parse_args()
-    setup_logger(args.log_level, args.log_file)
-    run(args.input, 
-        args.format, 
-        args.out_folder, 
-        args.sequence_column, 
-        args.label_column, 
-        args.label, 
-        args.report_types,
-        args.end_position,
-        args.plot_type
+    run(input_file = args.input, 
+        input_format = args.format, 
+        out_folder = args.out_folder, 
+        sequence_column = args.sequence_column, 
+        label_column = args.label_column, 
+        label = args.label, 
+        report_types = args.report_types,
+        end_position = args.end_position,
+        plot_type = args.plot_type,
+        log_level = args.log_level,
+        log_file = args.log_file
     )
 
 if __name__ == '__main__':
