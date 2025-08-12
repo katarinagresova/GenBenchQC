@@ -74,8 +74,8 @@ def run_analysis(input_statistics, out_folder, report_types, seq_report_types, p
                 plot_type=plot_type
             )
 
-def run(inputs, 
-        input_format, 
+def run(input, 
+        format, 
         out_folder='.', 
         sequence_column: Optional[list[str]] = ['sequences'], 
         label_column='label', 
@@ -93,8 +93,8 @@ def run(inputs,
 
     This function reads sequences from the provided input files, performs analysis, and generates reports about the sequences.
 
-    @param inputs: List of paths to input files. Can be a list of files, each containing sequences from one class.
-    @param input_format: Format of the input files (fasta, csv, tsv).
+    @param input: List of paths to input files. Can be a list of files, each containing sequences from one class.
+    @param format: Format of the input files (fasta, csv, tsv).
     @param out_folder: Path to the output folder. Default: '.'.
     @param sequence_column: Name of the columns with sequences to analyze for datasets in CSV/TSV format. 
                             Either one column or list of columns. Default: ['sequences']
@@ -121,9 +121,9 @@ def run(inputs,
         Path(out_folder).mkdir(parents=True, exist_ok=True)
 
     # we have multiple fasta files with one label each
-    if input_format == 'fasta':
+    if format == 'fasta':
         seq_stats = []
-        for input_file in inputs:
+        for input_file in input:
             sequences = read_fasta(input_file)
             logging.debug(f"Read {len(sequences)} sequences from FASTA file {input_file}.")
             seq_stats += [SequenceStatistics(sequences, filename=Path(input_file).name, 
@@ -140,8 +140,8 @@ def run(inputs,
     # we have CSV/TSV
     else:
         # we have one file with multiple labels or regression target
-        if len(inputs) == 1:
-            df = read_csv_file(inputs[0], input_format, sequence_column, label_column)
+        if len(input) == 1:
+            df = read_csv_file(input[0], format, sequence_column, label_column)
 
             # if regression is True, we split the label column into two classes
             if regression:
@@ -168,7 +168,7 @@ def run(inputs,
                 for label in labels:
                     sequences = read_sequences_from_df(df, seq_col, label_column, label)
                     logging.debug(f"Read {len(sequences)} sequences for label '{label}' from column '{seq_col}'.")
-                    seq_stats += [SequenceStatistics(sequences, filename=Path(inputs[0]).name, label=label, 
+                    seq_stats += [SequenceStatistics(sequences, filename=Path(input[0]).name, label=label, 
                                                      seq_column=seq_col, end_position=end_position)]
                 run_analysis(
                     input_statistics = seq_stats, 
@@ -184,7 +184,7 @@ def run(inputs,
                 seq_stats = []
                 for label in labels:
                     sequences = read_multisequence_df(df, sequence_column, label_column, label)
-                    seq_stats += [SequenceStatistics(sequences, filename=Path(inputs[0]).name, label=label,
+                    seq_stats += [SequenceStatistics(sequences, filename=Path(input[0]).name, label=label,
                                                      seq_column='_'.join(sequence_column))]
                 run_analysis(
                     input_statistics = seq_stats, 
@@ -200,8 +200,8 @@ def run(inputs,
             # run statistics across input files
             for seq_col in sequence_column:
                 seq_stats = []
-                for input_file in inputs:
-                    sequences = read_sequences_from_df(read_csv_file(input_file, input_format, seq_col), seq_col)
+                for input_file in input:
+                    sequences = read_sequences_from_df(read_csv_file(input_file, format, seq_col), seq_col)
                     logging.debug(f"Read {len(sequences)} sequences from file {input_file} in column '{seq_col}'.")
                     seq_stats += [SequenceStatistics(sequences, filename=Path(input_file).name, 
                                                      label=Path(input_file).stem, seq_column=seq_col,
@@ -218,8 +218,8 @@ def run(inputs,
             # handle multiple sequence columns
             if len(sequence_column) > 1:
                 seq_stats = []
-                for input_file in inputs:
-                    sequences = read_multisequence_df(read_csv_file(input_file, input_format, sequence_column), sequence_column)
+                for input_file in input:
+                    sequences = read_multisequence_df(read_csv_file(input_file, format, sequence_column), sequence_column)
                     seq_stats += [SequenceStatistics(sequences, filename=Path(input_file).name, label=Path(input_file).stem,
                                                      seq_column='_'.join(sequence_column), end_position=end_position)]
                 run_analysis(
@@ -267,8 +267,8 @@ def parse_args():
 
 def main():
     args = parse_args()
-    run(inputs = args.input, 
-        input_format = args.format, 
+    run(input = args.input, 
+        format = args.format, 
         out_folder = args.out_folder, 
         sequence_column = args.sequence_column, 
         label_column = args.label_column, 

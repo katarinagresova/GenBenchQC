@@ -69,7 +69,7 @@ def process_mixed_clusters(clusters, train_sequences, test_sequences):
 
     return sequence_clusters
 
-def run(train_files, test_files, input_format, 
+def run(train_files, test_files, format, 
         out_folder: Optional[str] = '.', 
         sequence_column: Optional[list[str]] = ['sequence'], 
         report_types: Optional[list[str]] = ['html', 'simple'], 
@@ -85,7 +85,7 @@ def run(train_files, test_files, input_format,
 
     @param train_files: List of paths to training files.
     @param test_files: List of paths to testing files.
-    @param input_format: Format of the input files (fasta, csv, tsv).
+    @param format: Format of the input files (fasta, csv, tsv).
     @param out_folder: Path to the output folder. Default: '.'.
     @param sequence_column: Name of the columns with sequences to analyze for datasets in CSV/TSV format. 
                             Default: ['sequence'].
@@ -106,11 +106,11 @@ def run(train_files, test_files, input_format,
 
     Path(out_folder, "tmp").mkdir(parents=True, exist_ok=True)
 
-    train_sequences = read_files_to_sequence_list(train_files, input_format, sequence_column)
+    train_sequences = read_files_to_sequence_list(train_files, format, sequence_column)
     train_index = [f"{i}_train" for i in range(len(train_sequences))]
     logging.info(f"Read {len(train_sequences)} sequences from training files.")
 
-    test_sequences = read_files_to_sequence_list(test_files, input_format, sequence_column)
+    test_sequences = read_files_to_sequence_list(test_files, format, sequence_column)
     test_index = [f"{i}_test" for i in range(len(test_sequences))]
     logging.info(f"Read {len(test_sequences)} sequences from testing files.")
 
@@ -171,7 +171,7 @@ def main():
     args = parse_args()
     run(train_files = args.train_input, 
         test_files = args.test_input, 
-        input_format = args.format, 
+        format = args.format, 
         out_folder = args.out_folder, 
         sequence_column = args.sequence_column, 
         report_types = args.report_types, 

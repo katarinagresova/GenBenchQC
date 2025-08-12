@@ -35,7 +35,7 @@ def run_analysis(seq_stats, out_folder, report_types, plot_type):
             plot_type=plot_type
         )
 
-def run(input_file, input_format, 
+def run(input, format, 
         out_folder: Optional[str] = '.', 
         sequence_column: Optional[list[str]] = ['sequences'], 
         label_column: Optional[str] = None, 
@@ -51,8 +51,8 @@ def run(input_file, input_format,
 
     This function reads sequences from the input file, performs analysis, and generates reports.
 
-    @param input_file: Path to the input file containing sequences.
-    @param input_format: Format of the input file (fasta, csv, tsv).
+    @param input: Path to the input file containing sequences.
+    @param format: Format of the input file (fasta, csv, tsv).
     @param out_folder: Path to the output folder. Default: '.'.
     @param sequence_column: Name of the columns with sequences to analyze for datasets in CSV/TSV format. 
                             Default: ['sequence'].
@@ -70,21 +70,21 @@ def run(input_file, input_format,
     setup_logger(log_level, log_file)
     logging.info("Starting sequence evaluation.")
 
-    if input_format == 'fasta':
-        seqs = read_fasta(input_file)
+    if format == 'fasta':
+        seqs = read_fasta(input)
         logging.debug(f"Read {len(seqs)} sequences from FASTA file.")
         run_analysis(
-            SequenceStatistics(seqs, Path(input_file).name, label=label, end_position=end_position),
+            SequenceStatistics(seqs, Path(input).name, label=label, end_position=end_position),
             out_folder, report_types=report_types, plot_type=plot_type
         )
     else:
-        df = read_csv_file(input_file, input_format, sequence_column, label_column)
+        df = read_csv_file(input, format, sequence_column, label_column)
 
         for seq_col in sequence_column:
             sequences = read_sequences_from_df(df, seq_col, label_column, label)
             logging.debug(f"Read {len(sequences)} sequences from CSV/TSV file.")
             run_analysis(
-                SequenceStatistics(sequences, filename=Path(input_file).name, 
+                SequenceStatistics(sequences, filename=Path(input).name, 
                                    seq_column=seq_col, label=label, end_position=end_position), 
                 out_folder, report_types=report_types, plot_type=plot_type
             )
@@ -92,7 +92,7 @@ def run(input_file, input_format,
         if len(sequence_column) > 1:
             sequences = read_multisequence_df(df, sequence_column, label_column, label)
             run_analysis(
-                SequenceStatistics(sequences, filename=Path(input_file).name, seq_column='_'.join(sequence_column), 
+                SequenceStatistics(sequences, filename=Path(input).name, seq_column='_'.join(sequence_column), 
                                    label=label, end_position=end_position), 
                 out_folder, report_types=report_types, plot_type=plot_type
             )
@@ -130,8 +130,8 @@ def parse_args():
 
 def main():
     args = parse_args()
-    run(input_file = args.input, 
-        input_format = args.format, 
+    run(input = args.input, 
+        format = args.format, 
         out_folder = args.out_folder, 
         sequence_column = args.sequence_column, 
         label_column = args.label_column, 
