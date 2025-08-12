@@ -107,6 +107,8 @@ Each plot can be toned with red color, meaning the specific feature was too diff
 - *\*_plots (dataset_report_label_G4_positives_vs_G4_negatives_plots)* - folder containing all plots from the report in *.png* format
 - *dataset_report_\*_duplicates.txt* - present only if the dataset contains duplicate sequences between classes. It contains a list of all the duplicate sequences.
 
+For the input `example_datasets/miRNA_mRNA_pairs_dataset.tsv` where two sequence collumns are provided (`gene` and `noncodingRNA`), all report files will be generate 3 times - for sequences in`gene` column, for sequences in `noncodingRNA` column and for sequences created by concatenating `gene` and `noncodingRNA` columns.
+
 ### Split QC
 
 ```bash
