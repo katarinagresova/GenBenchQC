@@ -1,0 +1,234 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Report Output</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            max-width: 100%; /* Prevents content from exceeding the viewport width */
+        }
+        .sidebar {
+            width: 250px;
+            background: #f4f4f4;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            height: 100vh; /* Full height */
+            position: fixed; /* Fixed position */
+            overflow-y: auto;
+            z-index: 1000; /* Ensures it stays above other elements */
+        }
+        .sidebar a {
+            display: block;
+            margin: 10px 0;
+            text-decoration: none;
+            color: #333;
+        }
+        .content {
+            margin-left: 300px;
+            padding: 20px;
+            width: calc(100% - 350px); /* Adjust width to avoid overlap */
+            overflow-x: hidden;
+        }
+        #sequence-duplication-levels table {
+            table-layout: fixed; /* Ensures columns respect defined widths */
+            width: 100%; /* Makes the table take up the full width of its container */
+            border-collapse: collapse; /* Optional: Makes the table look cleaner */
+        }
+
+        #sequence-duplication-levels table th,
+        #sequence-duplication-levels table td {
+            padding: 8px; /* Adds padding for better readability */
+            border: 1px solid #ddd; /* Adds a border for clarity */
+        }
+
+        #sequence-duplication-levels table td {
+            white-space: nowrap; /* Prevents text from wrapping */
+            overflow: hidden; /* Hides overflowing text */
+            text-overflow: ellipsis; /* Adds "..." to indicate clipped text */
+        }
+
+        #sequence-duplication-levels table th {
+            text-align: left; /* Aligns header text to the left */
+        }
+
+        .count_column {
+            width: 45px; /* Fixed width for the first column */
+        }
+
+        .sequence_column {
+            width: 95%; /* Fixed width for the second column */
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        section {
+            margin-bottom: 50px;
+        }
+
+        h2 {
+            color: #333;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 5px;
+        }
+
+        h3 {
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        .chart-container {
+            margin-bottom: 30px;
+        }
+
+        .data-item {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+
+        .data-item span {
+            font-weight: bold;
+            font-size: 1em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h2>Navigation</h2>
+            <a href="#basic-descriptive-statistics">Basic Descriptive Statistics</a>
+            <div style="margin-left: 15px;">
+                <a href="#filename">Filename</a>
+                <a href="#label">Label</a>
+                <a href="#seq_column">Sequence column</a>
+                <a href="#num-sequences">Number of sequences</a>
+                <a href="#dedup-sequences">Unique sequences</a>
+                <a href="#num-bases">Number of bases</a>
+                <a href="#unique-bases">Unique bases</a>
+                <a href="#gc-content">%GC content</a>
+            </div>
+            <a href="#general-descriptive-statistics">General Descriptive Statistics</a>
+            <div style="margin-left: 15px;">
+                <a href="#sequence-lengths">Sequence lengths</a>
+                <a href="#sequence-duplication-levels">Sequence duplication levels</a>
+            </div>
+            <a href="#per-sequence-descriptive-stats">Per Sequence Descriptive Stats</a>
+            <div style="margin-left: 15px;">
+                <a href="#per-sequence-nucleotide-content">Per Sequence Nucleotide Content</a>
+                <a href="#per-sequence-dinucleotide-content">Per Sequence Dinucleotide Content</a>
+                <a href="#per-position-nucleotide-content">Per Position Nucleotide Content</a>
+                <a href="#per-position-reversed-nucleotide-content">Per Position Reversed Nucleotide Content</a>
+                <a href="#per-sequence-gc-content">Per Sequence GC Content</a>
+            </div>
+        </div>
+
+        <div class="content">
+        <h1>HTML Report Output</h1>
+
+            <section id="basic-descriptive-statistics">
+                <h2>Basic Descriptive Statistics</h2>
+                <div class="data-item" id="filename">
+                    <span>Filename:</span> G4_positives.fasta <!-- Filename will be displayed here -->
+                </div>
+                <div class="data-item" id="label">
+                    <span>Label:</span> N/A <!-- Label will be displayed here -->
+                </div>
+                <div class="data-item" id="seq_column">
+                    <span>Sequence column:</span> N/A <!-- Sequence column will be displayed here -->
+                </div>
+                <div class="data-item" id="num-sequences">
+                    <span>Number of sequences:</span> 100 <!-- Number of sequences will be displayed here -->
+                </div>
+                <div class="data-item" id="dedup-sequences">
+                    <span>Unique sequences:</span> 100 <!-- Number of sequences left after deduplication will be displayed here -->
+                </div>
+                <div class="data-item" id="num-bases">
+                    <span>Number of bases:</span> 20000 <!-- Number of bases will be displayed here -->
+                </div>
+                <div class="data-item" id="unique-bases">
+                    <span>Unique bases:</span> G, A, T, C, N <!-- Unique bases will be displayed here -->
+                </div>
+                <div class="data-item" id="gc-content">
+                    <span>%GC content:</span> 51.67 <!-- %GC content will be displayed here -->
+                </div>
+            </section>
+
+            <section id="general-descriptive-statistics">
+                <h2>General Descriptive Statistics</h2>
+
+                <h3 id="sequence-lengths">Sequence lengths</h3>
+                <!-- This will be populated with png plot --->
+                <img src=G4_positives_plots/sequence_lengths.png alt="Sequence Lengths Plot" style="max-width: 100%; height: auto;">
+
+                <div id="sequence-duplication-levels">
+                    <h3>Sequence duplication levels</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th class="count_column">Count</th>
+                                <th class="sequence_column">Sequence</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Table rows will be dynamically populated -->
+                        </tbody>
+                    </table>
+                    <div id="sequence-duplication-levels-info">
+                        <p>And 0 more</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="per-sequence-descriptive-stats">
+                <h2>Per Sequence Descriptive Stats</h2>
+
+                <h3 id="per-sequence-nucleotide-content">Per Sequence Nucleotide Content</h3>
+                <img src=G4_positives_plots/per_sequence_nucleotide_content.png alt="Per Sequence Nucleotide Content" style="max-width: 100%; height: auto;">
+
+                <h3 id="per-sequence-dinucleotide-content">Per Sequence Dinucleotide Content</h3>
+                <img src=G4_positives_plots/per_sequence_dinucleotide_content.png alt="Per Sequence Dinucleotide Content" style="max-width: 100%; height: auto;">
+
+                <h3 id="per-position-nucleotide-content">Per Position Nucleotide Content</h3>
+                <img src=G4_positives_plots/per_position_nucleotide_content.png alt="Per Position Nucleotide Content" style="max-width: 100%; height: auto;">
+
+                <h3 id="per-position-reversed-nucleotide-content">Per Position Reversed Nucleotide Content</h3>
+                <img src=G4_positives_plots/per_position_reversed_nucleotide_content.png alt="Per Position Reversed Nucleotide Content" style="max-width: 100%; height: auto;">
+
+                <h3 id="per-sequence-gc-content">Per Sequence GC Content</h3>
+                <img src=G4_positives_plots/per_sequence_gc_content.png alt="Per Sequence GC Content" style="max-width: 100%; height: auto;">
+
+            </section>
+        </div>
+    </div>
+
+    <script>
+        var sequenceDuplicationLevels = {};
+
+        // Populate table for sequence duplication levels
+        var tableBody = document.querySelector("#sequence-duplication-levels tbody");
+        for (var sequence in sequenceDuplicationLevels) {
+            var row = document.createElement("tr");
+            var countCell = document.createElement("td");
+            var sequenceCell = document.createElement("td");
+
+            countCell.textContent = sequenceDuplicationLevels[sequence];
+            countCell.className = "count_column";
+            sequenceCell.textContent = sequence;
+            sequenceCell.className = "sequence_column";
+
+            row.appendChild(countCell);
+            row.appendChild(sequenceCell);
+            tableBody.appendChild(row);
+        }
+    </script>
+
+</body>
+</html>
