@@ -130,8 +130,9 @@ You can choose to run the tool while having different dataset formats:
 - **CSV/TSV**: The input is a CSV/TSV file, and you provide the name of the column containing sequences. You can have either:
   - **multiple files**, each one containing sequences from one class (similar as with FASTA input)
   - **one file** containing sequences from multiple classes. In this case, when running *evaluate_sequences* mode, you need to provide the name of the column containing class labels so the tool can split the dataset into parts. The label classes can then be inferred, or you can specify their list by yourself. The dataset will then be split into pieces containing sequences with corresponding labels and analysis will be performed similarly as with multiple files.
+- **CSV.GZ/TSV.GZ**: Functionality is the same as CSV/TSV files
 
-When having CSV/TSV input, you can also decide to provide multiple sequence columns to analyze. In this case, the analysis in modes *evaluate_sequences* and *evaluate_dataset* will be performed for each column separately and lastly for sequences made by concatenating sequences throughout all the columns. 
+When having CSV/TSV/CSV.GZ/TSV.GZ input, you can also decide to provide multiple sequence columns to analyze. In this case, the analysis in modes *evaluate_sequences* and *evaluate_dataset* will be performed for each column separately and lastly for sequences made by concatenating sequences throughout all the columns. 
 *evaluate_split* mode will run only the concatenated sequences.
 
 
