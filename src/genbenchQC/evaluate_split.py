@@ -36,7 +36,7 @@ def run_clustering(train_fasta_file, test_fasta_file, clustered_file, identity_t
     logging.debug(f"Word size (n): {n}")
     logging.debug(f"Alignment coverage: {alignment_coverage}")
 
-    errcode = os.system(f"cd-hit-est-2d -i {train_fasta_file} -i2 {test_fasta_file} -o {clustered_file} -c {identity_threshold} -n {n} -aS {alignment_coverage} -aL {alignment_coverage} -r 0 >nul 2>&1")
+    errcode = os.system(f"cd-hit-est-2d -i {train_fasta_file} -i2 {test_fasta_file} -o {clustered_file} -c {identity_threshold} -n {n} -aS {alignment_coverage} -aL {alignment_coverage} -r 0 >/dev/null 2>&1")
     if errcode != 0:
         logging.error(f"CD-HIT clustering failed with error code {errcode}.")
         raise RuntimeError(f"CD-HIT clustering failed with error code {errcode}.")
@@ -122,7 +122,7 @@ def run(train_files, test_files, format,
     clusters = run_clustering(train_fasta_path, test_fasta_path, Path(out_folder, "tmp/clustered_sequences"), identity_threshold, alignment_coverage)
     logging.debug(f"Having {len(clusters)} mixed clusters: {clusters}")
 
-    filename = "train-test_check_" + Path(train_files[0]).stem + "_vs_" + Path(test_files[0]).stem
+    filename = "split_check_" + Path(train_files[0]).stem + "_vs_" + Path(test_files[0]).stem
 
     if 'simple' in report_types:
         simple_report_path = Path(out_folder, filename + '.csv')
