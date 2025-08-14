@@ -21,7 +21,7 @@ setup(
     description='Genomic Benchmarks QC: Automated Quality Control for Genomic Machine Learning Datasets',
     author="Katarina Gresova",
     author_email='gresova11@gmail.com',
-    packages=find_packages(),
+    packages=find_packages("src"),
     package_dir={"": "src"},
     install_requires=requirements,
     extras_require={
