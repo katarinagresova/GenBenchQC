@@ -94,7 +94,7 @@ def run(input,
     This function reads sequences from the provided input files, performs analysis, and generates reports about the sequences.
 
     @param input: List of paths to input files. Can be a list of files, each containing sequences from one class.
-    @param format: Format of the input files (fasta, csv, tsv).
+    @param format: Format of the input files (fasta, csv, csv.gz, tsv, tsv.gz).
     @param out_folder: Path to the output folder. Default: '.'.
     @param sequence_column: Name of the columns with sequences to analyze for datasets in CSV/TSV format. 
                             Either one column or list of columns. Default: ['sequences']
@@ -238,7 +238,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='A tool for evaluating sequence datasets.')
     parser.add_argument('--input', type=str, help='Path to the dataset file. '
                                                   'Can be a list of files, each containing sequences from one class.', nargs='+', required=True)
-    parser.add_argument('--format', help="Format of the input files.", choices=['fasta', 'csv', 'tsv'], required=True) # potentially add HF support
+    parser.add_argument('--format', help="Format of the input files.", choices=['fasta', 'csv', 'csv.gz', 'tsv', 'tsv.gz'], required=True) # potentially add HF support
     parser.add_argument('--sequence_column', type=str, help='Name of the columns with sequences to analyze for datasets in CSV/TSV format. '
                                                             'Either one column or list of columns.', nargs='+', default=['sequence'])
     parser.add_argument('--label_column', type=str, help='Name with the label column for datasets in CSV/TSV format.', default='label')

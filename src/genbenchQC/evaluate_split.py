@@ -85,7 +85,7 @@ def run(train_files, test_files, format,
 
     @param train_files: List of paths to training files.
     @param test_files: List of paths to testing files.
-    @param format: Format of the input files (fasta, csv, tsv).
+    @param format: Format of the input files (fasta, csv, csv.gz, tsv, tsv.gz).
     @param out_folder: Path to the output folder. Default: '.'.
     @param sequence_column: Name of the columns with sequences to analyze for datasets in CSV/TSV format. 
                             Default: ['sequence'].
@@ -153,7 +153,7 @@ def parse_args():
     parser.add_argument('--train_input', type=str, help='Path to the dataset file with training data. Can be multiple files that will be evaluated as one dataset part.', nargs='+', required=True)
     parser.add_argument('--test_input', type=str, help='Path to the dataset file with testing data. Can be multiple files that will be evaluated as one dataset part.', nargs='+',
                         required=True)
-    parser.add_argument('--format', help="Format of the input files.", choices=['fasta', 'csv', 'tsv'], required=True)
+    parser.add_argument('--format', help="Format of the input files.", choices=['fasta', 'csv', 'csv.gz', 'tsv', 'tsv.gz'], required=True)
     parser.add_argument('--sequence_column', type=str, help='Name of the columns with sequences to analyze for datasets in CSV/TSV format. '
                                                             'Either one column or list of columns.', nargs='+', default=['sequence'])
     parser.add_argument('--out_folder', type=str, help='Path to the output folder.', default='.')

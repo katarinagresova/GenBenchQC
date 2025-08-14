@@ -52,7 +52,7 @@ def run(input, format,
     This function reads sequences from the input file, performs analysis, and generates reports.
 
     @param input: Path to the input file containing sequences.
-    @param format: Format of the input file (fasta, csv, tsv).
+    @param format: Format of the input file (fasta, csv, csv.gz, tsv, tsv.gz).
     @param out_folder: Path to the output folder. Default: '.'.
     @param sequence_column: Name of the columns with sequences to analyze for datasets in CSV/TSV format. 
                             Default: ['sequence'].
@@ -102,7 +102,7 @@ def run(input, format,
 def parse_args():
     parser = argparse.ArgumentParser(description='A tools for evaluating sequence data.')
     parser.add_argument('--input', type=str, help='Path to the input file.', required=True)
-    parser.add_argument('--format', help="Format of the input file.", choices=['fasta', 'csv', 'tsv'], required=True)
+    parser.add_argument('--format', help="Format of the input file.", choices=['fasta', 'csv', 'csv.gz', 'tsv', 'tsv.gz'], required=True)
     parser.add_argument('--sequence_column', type=str,
                         help='Name of the columns with sequences to analyze for datasets in CSV/TSV format. '
                              'Either one column or list of columns.', nargs='+', default=['sequence'])
