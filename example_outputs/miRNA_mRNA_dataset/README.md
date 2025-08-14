@@ -27,6 +27,6 @@ When two sequence columns are provided (`gene` and `noncodingRNA` in this case),
 
 You can preview generated HTML reports on GitHub using [htmlpreview](https://github.com/htmlpreview/htmlpreview.github.com) tool by prepending URL of any HTML file with `https://htmlpreview.github.io/?`:
 
-- `gene` column report: https://htmlpreview.github.io/?https://github.com/katarinagresova/GenBenchQC/blob/readme/example_outputs/miRNA_mRNA_dataset/dataset_report_gene_label_0_vs_1.html
-- `noncodingRNA` column report: https://htmlpreview.github.io/?https://github.com/katarinagresova/GenBenchQC/blob/readme/example_outputs/miRNA_mRNA_dataset/dataset_report_noncodingRNA_label_0_vs_1.html
-- `gene` and `noncodingRNA` concatenated column report: https://htmlpreview.github.io/?https://github.com/katarinagresova/GenBenchQC/blob/readme/example_outputs/miRNA_mRNA_dataset/dataset_report_gene_noncodingRNA_label_0_vs_1.html
+- `gene` column report: https://htmlpreview.github.io/?https://github.com/katarinagresova/GenBenchQC/blob/main/example_outputs/miRNA_mRNA_dataset/dataset_report_gene_label_0_vs_1.html
+- `noncodingRNA` column report: https://htmlpreview.github.io/?https://github.com/katarinagresova/GenBenchQC/blob/main/example_outputs/miRNA_mRNA_dataset/dataset_report_noncodingRNA_label_0_vs_1.html
+- `gene` and `noncodingRNA` concatenated column report: https://htmlpreview.github.io/?https://github.com/katarinagresova/GenBenchQC/blob/main/example_outputs/miRNA_mRNA_dataset/dataset_report_gene_noncodingRNA_label_0_vs_1.html
