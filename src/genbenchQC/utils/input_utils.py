@@ -16,12 +16,13 @@ def write_fasta(sequences, output_file, indices=None):
     SeqIO.write(records, output_file, 'fasta')
 
 def read_csv_file(file_path, input_format, seq_columns, label_columns=None):
-    delim = '\t' if input_format == 'tsv' else ','
+    delim = '\t' if input_format == 'tsv' or input_format == 'tsv.gz' else ','
+    compression = 'gzip' if file_path.endswith('.gz') else None
 
     columns = seq_columns.copy()
     if label_columns is not None:
         columns += [label_columns]
-    df = pd.read_csv(file_path, delimiter=delim, usecols=columns, dtype=str)
+    df = pd.read_csv(file_path, delimiter=delim, usecols=columns, dtype=str, compression=compression)
     df[seq_columns] = df[seq_columns].apply(lambda col: col.str.upper())
 
     logging.debug(f"Read CSV/TSV file: {file_path}, shape: {df.shape}, columns: {columns}")
@@ -90,7 +91,7 @@ def read_files_to_sequence_list(files, input_format, sequence_column):
     for file in files:
         if input_format == 'fasta':
             sequences += read_fasta(file)
-        elif input_format in ['csv', 'tsv']:
+        elif input_format.startswith('csv') or input_format.startswith('tsv'):
             df = read_csv_file(file, input_format, sequence_column)
             sequences += read_multisequence_df(df, sequence_column)
         else:

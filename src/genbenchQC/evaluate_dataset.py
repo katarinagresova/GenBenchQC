@@ -10,7 +10,7 @@ from genbenchQC.utils.testing import flag_significant_differences
 from genbenchQC.report.report_generator import generate_json_report, generate_sequence_html_report, generate_simple_report, generate_dataset_html_report
 from genbenchQC.utils.input_utils import read_fasta, read_sequences_from_df, read_multisequence_df, read_csv_file, setup_logger
 
-def run_analysis(input_statistics, out_folder, report_types, seq_report_types, plot_type, threshold=0.015):
+def run_analysis(input_statistics, out_folder, report_types, seq_report_types, plot_type, flag_threshold):
    
     out_folder = Path(out_folder)
 
@@ -54,7 +54,7 @@ def run_analysis(input_statistics, out_folder, report_types, seq_report_types, p
         results = flag_significant_differences(
             stat1.sequences, stat1.stats, 
             stat2.sequences, stat2.stats, 
-            threshold=threshold, 
+            threshold=flag_threshold, 
             end_position=min(stat1.end_position, stat2.end_position)
         )
         
@@ -69,13 +69,13 @@ def run_analysis(input_statistics, out_folder, report_types, seq_report_types, p
                 stat1, stat2, results, 
                 html_report_path, 
                 plots_path=plots_path, 
-                threshold=threshold,
+                threshold=flag_threshold,
                 end_position=min(stat1.end_position, stat2.end_position),
                 plot_type=plot_type
             )
 
-def run(inputs, 
-        input_format, 
+def run(input, 
+        format, 
         out_folder='.', 
         sequence_column: Optional[list[str]] = ['sequences'], 
         label_column='label', 
@@ -84,9 +84,36 @@ def run(inputs,
         report_types: Optional[list[str]] = ['html', 'simple'],
         seq_report_types: Optional[list[str]] = None,
         end_position: Optional[int] = None,
-        plot_type: Optional[str] = 'boxen'
+        plot_type: Optional[str] = 'boxen',
+        flag_threshold: Optional[float] = 0.015,
+        log_level: Optional[str] = 'INFO',
+        log_file: Optional[str] = None
     ):
+    """Run the dataset evaluation.
 
+    This function reads sequences from the provided input files, performs analysis, and generates reports about the sequences.
+
+    @param input: List of paths to input files. Can be a list of files, each containing sequences from one class.
+    @param format: Format of the input files (fasta, csv, csv.gz, tsv, tsv.gz).
+    @param out_folder: Path to the output folder. Default: '.'.
+    @param sequence_column: Name of the columns with sequences to analyze for datasets in CSV/TSV format. 
+                            Either one column or list of columns. Default: ['sequences']
+    @param label_column: Name of the label column for datasets in CSV/TSV format. Default: 'label'.
+    @param label_list: List of label classes to consider or "infer" to parse different labels automatically from label column.
+                      For datasets in CSV/TSV format.
+    @param regression: If True, label column is considered as a regression target and values are split into 2 classes.
+    @param report_types: Types of reports to generate. Default: ['html', 'simple'].
+    @param seq_report_types: Types of reports to generate for individual groups of sequences. Default: None.
+    @param end_position: End position of the sequences to consider in per position statistics. 
+                         If not provided, 75th percentile of sequence lengths will be used. Default: None.
+    @param plot_type: Type of plot to use for visualizations. For bigger datasets, "boxen" is recommended. Default: 'boxen'.
+    @param flag_threshold: Threshold for flagging significant differences in sequence statistics. Default: 0.015
+    @param log_level: Logging level, default to INFO.
+    @param log_file: Path to the log file. If provided, logs will be written to this file as well as to the console.
+    @return: None
+    """
+
+    setup_logger(log_level, log_file)
     logging.info("Starting dataset evaluation.")
 
     if not Path(out_folder).exists():
@@ -94,20 +121,27 @@ def run(inputs,
         Path(out_folder).mkdir(parents=True, exist_ok=True)
 
     # we have multiple fasta files with one label each
-    if input_format == 'fasta':
+    if format == 'fasta':
         seq_stats = []
-        for input_file in inputs:
+        for input_file in input:
             sequences = read_fasta(input_file)
             logging.debug(f"Read {len(sequences)} sequences from FASTA file {input_file}.")
             seq_stats += [SequenceStatistics(sequences, filename=Path(input_file).name, 
                                              label=Path(input_file).stem, end_position=end_position)]
-        run_analysis(seq_stats, out_folder, report_types, seq_report_types, plot_type)
+        run_analysis(
+            input_statistics = seq_stats, 
+            out_folder = out_folder, 
+            report_types = report_types, 
+            seq_report_types = seq_report_types, 
+            plot_type = plot_type, 
+            flag_threshold = flag_threshold
+        )
 
     # we have CSV/TSV
     else:
         # we have one file with multiple labels or regression target
-        if len(inputs) == 1:
-            df = read_csv_file(inputs[0], input_format, sequence_column, label_column)
+        if len(input) == 1:
+            df = read_csv_file(input[0], format, sequence_column, label_column)
 
             # if regression is True, we split the label column into two classes
             if regression:
@@ -134,40 +168,68 @@ def run(inputs,
                 for label in labels:
                     sequences = read_sequences_from_df(df, seq_col, label_column, label)
                     logging.debug(f"Read {len(sequences)} sequences for label '{label}' from column '{seq_col}'.")
-                    seq_stats += [SequenceStatistics(sequences, filename=Path(inputs[0]).name, label=label, 
+                    seq_stats += [SequenceStatistics(sequences, filename=Path(input[0]).name, label=label, 
                                                      seq_column=seq_col, end_position=end_position)]
-                run_analysis(seq_stats, out_folder, report_types, seq_report_types, plot_type)
+                run_analysis(
+                    input_statistics = seq_stats, 
+                    out_folder = out_folder, 
+                    report_types = report_types, 
+                    seq_report_types = seq_report_types, 
+                    plot_type = plot_type, 
+                    flag_threshold = flag_threshold
+                )
 
             # handle multiple sequence columns by concatenating sequences and running statistics on them
             if len(sequence_column) > 1:
                 seq_stats = []
                 for label in labels:
                     sequences = read_multisequence_df(df, sequence_column, label_column, label)
-                    seq_stats += [SequenceStatistics(sequences, filename=Path(inputs[0]).name, label=label,
+                    seq_stats += [SequenceStatistics(sequences, filename=Path(input[0]).name, label=label,
                                                      seq_column='_'.join(sequence_column))]
-                run_analysis(seq_stats, out_folder, report_types, seq_report_types, plot_type)
+                run_analysis(
+                    input_statistics = seq_stats, 
+                    out_folder = out_folder, 
+                    report_types = report_types, 
+                    seq_report_types = seq_report_types, 
+                    plot_type = plot_type, 
+                    flag_threshold = flag_threshold
+                )
 
         # we have multiple files with one label each
         else:
             # run statistics across input files
             for seq_col in sequence_column:
                 seq_stats = []
-                for input_file in inputs:
-                    sequences = read_sequences_from_df(read_csv_file(input_file, input_format, seq_col), seq_col)
+                for input_file in input:
+                    sequences = read_sequences_from_df(read_csv_file(input_file, format, seq_col), seq_col)
                     logging.debug(f"Read {len(sequences)} sequences from file {input_file} in column '{seq_col}'.")
                     seq_stats += [SequenceStatistics(sequences, filename=Path(input_file).name, 
                                                      label=Path(input_file).stem, seq_column=seq_col,
                                                      end_position=end_position)]
-                run_analysis(seq_stats, out_folder, report_types, seq_report_types, plot_type)
+                run_analysis(
+                    input_statistics = seq_stats, 
+                    out_folder = out_folder, 
+                    report_types = report_types, 
+                    seq_report_types = seq_report_types, 
+                    plot_type = plot_type, 
+                    flag_threshold = flag_threshold
+                )
 
             # handle multiple sequence columns
             if len(sequence_column) > 1:
                 seq_stats = []
-                for input_file in inputs:
-                    sequences = read_multisequence_df(read_csv_file(input_file, input_format, sequence_column), sequence_column)
+                for input_file in input:
+                    sequences = read_multisequence_df(read_csv_file(input_file, format, sequence_column), sequence_column)
                     seq_stats += [SequenceStatistics(sequences, filename=Path(input_file).name, label=Path(input_file).stem,
                                                      seq_column='_'.join(sequence_column), end_position=end_position)]
-                run_analysis(seq_stats, out_folder, report_types, seq_report_types, plot_type)
+                run_analysis(
+                    input_statistics = seq_stats, 
+                    out_folder = out_folder, 
+                    report_types = report_types, 
+                    seq_report_types = seq_report_types, 
+                    plot_type = plot_type, 
+                    flag_threshold = flag_threshold
+                )
 
     logging.info("Dataset evaluation successfully completed.")
 
@@ -176,7 +238,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='A tool for evaluating sequence datasets.')
     parser.add_argument('--input', type=str, help='Path to the dataset file. '
                                                   'Can be a list of files, each containing sequences from one class.', nargs='+', required=True)
-    parser.add_argument('--format', help="Format of the input files.", choices=['fasta', 'csv', 'tsv'], required=True) # potentially add HF support
+    parser.add_argument('--format', help="Format of the input files.", choices=['fasta', 'csv', 'csv.gz', 'tsv', 'tsv.gz'], required=True) # potentially add HF support
     parser.add_argument('--sequence_column', type=str, help='Name of the columns with sequences to analyze for datasets in CSV/TSV format. '
                                                             'Either one column or list of columns.', nargs='+', default=['sequence'])
     parser.add_argument('--label_column', type=str, help='Name with the label column for datasets in CSV/TSV format.', default='label')
@@ -188,11 +250,14 @@ def parse_args():
                         help='Types of reports to generate. Default: [html, simple].')
     parser.add_argument('--seq_report_types', type=str, nargs='+', choices=['json', 'html'], default=[],
                         help='Types of reports to generate for individual groups of sequences. Default: [].')
-    parser.add_argument('--end_position', type=int, help='End position of the sequences to consider in per position statistics.', default=None)
+    parser.add_argument('--end_position', type=int, default=None,
+                        help='End position of the sequences to consider in per position statistics. If not provided, 75th percentile of sequence lengths will be used.')
     parser.add_argument('--plot_type', type=str, help='Type of plot to use for visualizations. For bigger datasets, "boxen" in recommended. Default: boxen.',
                         choices=['boxen', 'violin'], default='boxen')
+    parser.add_argument('--flag_threshold', type=float, default=0.015,
+                        help='Threshold for flagging significant differences in sequence statistics. Default: 0.015')
     parser.add_argument('--log_level', type=str, help='Logging level, default to INFO.', choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'], default='INFO')
-    parser.add_argument('--log_file', type=str, help='Path to the log file.', default=None)
+    parser.add_argument('--log_file', type=str, help='Path to the log file. If provided, logs will be written to this file as well as to the console.', default=None)
     args = parser.parse_args()
 
     if args.format == 'fasta' and len(args.input) < 2:
@@ -202,18 +267,20 @@ def parse_args():
 
 def main():
     args = parse_args()
-    setup_logger(args.log_level, args.log_file)
-    run(args.input, 
-        args.format, 
-        args.out_folder, 
-        args.sequence_column, 
-        args.label_column, 
-        args.label_list,
-        args.regression,
-        args.report_types,
-        args.seq_report_types,
-        args.end_position,
-        args.plot_type
+    run(input = args.input, 
+        format = args.format, 
+        out_folder = args.out_folder, 
+        sequence_column = args.sequence_column, 
+        label_column = args.label_column, 
+        label_list = args.label_list,
+        regression = args.regression,
+        report_types = args.report_types,
+        seq_report_types = args.seq_report_types,
+        end_position = args.end_position,
+        plot_type = args.plot_type,
+        flag_threshold = args.flag_threshold,
+        log_level = args.log_level,
+        log_file = args.log_file
     )
 
 if __name__ == '__main__':

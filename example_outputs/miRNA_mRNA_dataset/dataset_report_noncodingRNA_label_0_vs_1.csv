@@ -1,0 +1,8 @@
+Unique bases,Passed
+Per sequence nucleotide content,Passed
+Per sequence dinucleotide content,Passed
+Per position nucleotide content,Passed
+Per position reversed nucleotide content,Passed
+Per sequence GC content,Passed
+Sequence lengths,Passed
+Duplication between labels,Failed
