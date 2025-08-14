@@ -11,10 +11,10 @@ It helps detect biases, inconsistencies, and potential data leakage across seque
 - **evaluate_split** – Train–test split leakage detection.
 
 ### General Features
-- [**Sequence-level QC**](#evaluate-sequences) – Evaluate nucleotide composition, sequence length distribution, GC content, and more.
-- [**Class-level QC**](#evaluate-dataset) – Compare multiple classes for feature similarity or bias.
-- [**Train–test split validation**](#evaluate-split) – Detect potential data leakage through sequence similarity and clustering.
-- [**Multiple input formats**](#supported-input-file-formats) – Supports FASTA, CSV, and TSV datasets.
+- [**Sequence-level QC**](https://github.com/katarinagresova/GenBenchQC/tree/main?tab=readme-ov-file#evaluate-sequences) – Evaluate nucleotide composition, sequence length distribution, GC content, and more.
+- [**Class-level QC**](https://github.com/katarinagresova/GenBenchQC/tree/main?tab=readme-ov-file#evaluate-dataset) – Compare multiple classes for feature similarity or bias.
+- [**Train–test split validation**](https://github.com/katarinagresova/GenBenchQC/tree/main?tab=readme-ov-file#evaluate-split) – Detect potential data leakage through sequence similarity and clustering.
+- [**Multiple input formats**](https://github.com/katarinagresova/GenBenchQC/tree/main?tab=readme-ov-file#supported-input-file-formats) – Supports FASTA, CSV, and TSV datasets.
 - **Customizable reporting** – Generate JSON, HTML, or simple text summaries.
 - **Integration-ready** – Available as both CLI tools and a Python API.
 - **Flexible sequence handling** – Works with single or multiple sequence columns.
@@ -64,7 +64,7 @@ evaluate_sequences.run(
 )
 ```
 
-Outputs with their description are in [example_outputs/G4_dataset_positives](example_outputs/G4_dataset_positives).
+Outputs with their description are in [example_outputs/G4_dataset_positives](https://github.com/katarinagresova/GenBenchQC/tree/main/example_outputs/G4_dataset_positives).
 
 ### Evaluate Dataset
 
@@ -77,7 +77,7 @@ evaluate_dataset \
   --out_folder example_outputs/G4_dataset
 ```
 
-Outputs with their description are in [example_outputs/G4_dataset](example_outputs/G4_dataset).
+Outputs with their description are in [example_outputs/G4_dataset](https://github.com/katarinagresova/GenBenchQC/tree/main/example_outputs/G4_dataset).
 
 Running from Python with CSV file with multiple sequence columns:
 
@@ -94,7 +94,7 @@ evaluate_dataset.run(
 )
 ```
 
-Outputs with their description are in [example_outputs/miRNA_mRNA_dataset](example_outputs/miRNA_mRNA_dataset).
+Outputs with their description are in [example_outputs/miRNA_mRNA_dataset](https://github.com/katarinagresova/GenBenchQC/tree/main/example_outputs/miRNA_mRNA_dataset).
 
 ### Evaluate Split
 
@@ -121,7 +121,7 @@ evaluate_split.run(
 )
 ```
 
-Outputs with their description are in [example_outputs/enhancers_dataset](example_outputs/enhancers_dataset).
+Outputs with their description are in [example_outputs/enhancers_dataset](https://github.com/katarinagresova/GenBenchQC/tree/main/example_outputs/enhancers_dataset).
 
 ## Supported input file formats
 
@@ -140,8 +140,8 @@ When having CSV/TSV/CSV.GZ/TSV.GZ input, you can also decide to provide multiple
 
 If you want to help with the development of Genomic Benchmarks QC, you are more than welcome to join in!
 
-For a guidance, have a look at [CONTRIBUTING.md](CONTRIBUTING.md)
+For a guidance, have a look at [CONTRIBUTING.md](https://github.com/katarinagresova/GenBenchQC/blob/main/CONTRIBUTING.md)
 
 ## License
 
-Genomic Benchmarks QC is MIT-style licensed, as found in the [LICENSE](LICENSE) file.
+Genomic Benchmarks QC is MIT-style licensed, as found in the [LICENSE](https://github.com/katarinagresova/GenBenchQC/blob/main/LICENSE) file.
