@@ -158,4 +158,4 @@ For a guidance, have a look at [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## License
 
-Genomic Benchmarks QC is MIT-style licensed, as found in the LICENSE file.
+Genomic Benchmarks QC is MIT-style licensed, as found in the [LICENSE](LICENSE) file.
