@@ -91,7 +91,7 @@ def read_files_to_sequence_list(files, input_format, sequence_column):
     for file in files:
         if input_format == 'fasta':
             sequences += read_fasta(file)
-        elif input_format in ['csv', 'tsv']:
+        elif input_format.startswith('csv') or input_format.startswith('tsv'):
             df = read_csv_file(file, input_format, sequence_column)
             sequences += read_multisequence_df(df, sequence_column)
         else:
