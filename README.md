@@ -43,7 +43,7 @@ git clone https://github.com/katarinagresova/GenBenchQC.git
 cd GenBenchQC
 ```
 
-### Sequences QC
+### Evaluate Sequences
 
 ```bash
 evaluate_sequences \
@@ -70,7 +70,7 @@ Running the above commands for `evaluate_sequences` tool will create `example_ou
 - `G4_positives_plots` folder containing plots about different sequence features (nucleotide content, dinucleotide content, GC content, length, per-position nucleotide content).
 - `G4_positives_report.html` file with descriptive statistics about sequences and including plots from `G4_positives_plots` folder.
 
-### Dataset QC
+### Evaluate Dataset
 
 Running from CLI with fasta file:
 
@@ -109,7 +109,7 @@ Each plot can be toned with red color, meaning the specific feature was too diff
 
 For the input `example_datasets/miRNA_mRNA_pairs_dataset.tsv` where two sequence collumns are provided (`gene` and `noncodingRNA`), all report files will be generate 3 times - for sequences in`gene` column, for sequences in `noncodingRNA` column and for sequences created by concatenating `gene` and `noncodingRNA` columns.
 
-### Split QC
+### Evaluate Split
 
 ```bash
 evaluate_split \
@@ -138,7 +138,7 @@ evaluate_split.run(
 - *train_test_check_\*_report.html (train-test_check_enhancers_train_vs_enhancers_test_report.html)* - report with clusters containing sequences from both train and test dataset parts, that could indicate data leakage.
 - *train_test_check_\*.csv (train-test_check_enhancers_train_vs_enhancers_test_.csv)* - a simple report if data leakage check passed or failed.
 
-## Input file formats
+## Supported input file formats
 
 You can choose to run the tool while having different dataset formats:
 - **FASTA**: The input is a FASTA file / list of FASTA files. One file needs to contain sequences of one class if running *evaluate_sequences* mode.
