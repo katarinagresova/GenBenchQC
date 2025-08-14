@@ -17,7 +17,7 @@ test_requirements = [
 
 setup(
     name='genbenchQC',
-    version='0.1',
+    version='1.0.0',
     description='Genomic Benchmarks QC: Automated Quality Control for Genomic Machine Learning Datasets',
     author="Katarina Gresova",
     author_email='gresova11@gmail.com',

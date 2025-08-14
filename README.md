@@ -24,7 +24,7 @@ It helps detect biases, inconsistencies, and potential data leakage across seque
 Install Genomic Benchmarks QC using pip:
 
 ```bash
-pip install git+https://github.com/katarinagresova/GenBenchQC.git
+pip install genbenchQC
 ```
 
 If you plan to use `evaluate_split`, install [cd-hit](https://www.bioinformatics.org/cd-hit/cd-hit-user-guide):
