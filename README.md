@@ -11,10 +11,10 @@ It helps detect biases, inconsistencies, and potential data leakage across seque
 - **evaluate_split** – Train–test split leakage detection.
 
 ### General Features
-- **Sequence-level QC** – Evaluate nucleotide composition, sequence length distribution, GC content, and more.
-- **Class-level QC** – Compare multiple classes for feature similarity or bias.
-- **Train–test split validation** – Detect potential data leakage through sequence similarity and clustering.
-- **Multiple input format**s – Supports FASTA, CSV, and TSV datasets.
+- [**Sequence-level QC**](#evaluate-sequences) – Evaluate nucleotide composition, sequence length distribution, GC content, and more.
+- [**Class-level QC**](#evaluate-dataset) – Compare multiple classes for feature similarity or bias.
+- [**Train–test split validation**](#evaluate-split) – Detect potential data leakage through sequence similarity and clustering.
+- [**Multiple input formats**](#supported-input-file-formats) – Supports FASTA, CSV, and TSV datasets.
 - **Customizable reporting** – Generate JSON, HTML, or simple text summaries.
 - **Integration-ready** – Available as both CLI tools and a Python API.
 - **Flexible sequence handling** – Works with single or multiple sequence columns.
@@ -64,11 +64,7 @@ evaluate_sequences.run(
 )
 ```
 
-**Outputs**
-
-Running the above commands for `evaluate_sequences` tool will create `example_outputs/G4_dataset_positives` folder with the following results:
-- `G4_positives_plots` folder containing plots about different sequence features (nucleotide content, dinucleotide content, GC content, length, per-position nucleotide content).
-- `G4_positives_report.html` file with descriptive statistics about sequences and including plots from `G4_positives_plots` folder.
+Outputs with their description are in [example_outputs/G4_dataset_positives](example_outputs/G4_dataset_positives).
 
 ### Evaluate Dataset
 
@@ -80,6 +76,8 @@ evaluate_dataset \
   --format fasta \
   --out_folder example_outputs/G4_dataset
 ```
+
+Outputs with their description are in [example_outputs/G4_dataset](example_outputs/G4_dataset).
 
 Running from Python with CSV file with multiple sequence columns:
 
@@ -96,18 +94,7 @@ evaluate_dataset.run(
 )
 ```
 
-**Outputs**
-
-Running the above commands will create an output folder `example_outputs` containing the results of the evaluation. 
-The output will contain (in the brackets, you can find the specific names when executing with the G4 example dataset):
-- *dataset_report_\*.csv (dataset_report_label_G4_positives_vs_G4_negatives.csv)* - a CSV file with the results (pass/fail) of the evaluation between two classes of the dataset. 
-- *dataset_report_\*.html (dataset_report_label_G4_positives_vs_G4_negatives.html)* - a report with the results of the evaluation between two classes of the dataset.
-It contains basic information about the dataset and plots visualizing individual features of the dataset.
-Each plot can be toned with red color, meaning the specific feature was too different between the two dataset classes and should be examined.
-- *\*_plots (dataset_report_label_G4_positives_vs_G4_negatives_plots)* - folder containing all plots from the report in *.png* format
-- *dataset_report_\*_duplicates.txt* - present only if the dataset contains duplicate sequences between classes. It contains a list of all the duplicate sequences.
-
-For the input `example_datasets/miRNA_mRNA_pairs_dataset.tsv` where two sequence collumns are provided (`gene` and `noncodingRNA`), all report files will be generate 3 times - for sequences in`gene` column, for sequences in `noncodingRNA` column and for sequences created by concatenating `gene` and `noncodingRNA` columns.
+Outputs with their description are in [example_outputs/miRNA_mRNA_dataset](example_outputs/miRNA_mRNA_dataset).
 
 ### Evaluate Split
 
@@ -134,9 +121,7 @@ evaluate_split.run(
 )
 ```
 
-**Outputs**
-- *train_test_check_\*_report.html (train-test_check_enhancers_train_vs_enhancers_test_report.html)* - report with clusters containing sequences from both train and test dataset parts, that could indicate data leakage.
-- *train_test_check_\*.csv (train-test_check_enhancers_train_vs_enhancers_test_.csv)* - a simple report if data leakage check passed or failed.
+Outputs with their description are in [example_outputs/enhancers_dataset](example_outputs/enhancers_dataset).
 
 ## Supported input file formats
 
